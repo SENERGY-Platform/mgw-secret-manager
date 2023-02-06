@@ -12,16 +12,18 @@ import (
 )
 
 var dbHandler, _ = db.NewDBHandler(test.TestConfig)
-var _, _ = srv_base.InitLogger(test.TestConfig.Logger)
+var _, err = srv_base.InitLogger(test.TestConfig.Logger)
 
 func TestStoreSecret(t *testing.T) {
+	defer dbHandler.Cleanup()
+
 	secretName := "test"
 	secret := model.Secret{
 		Name:  secretName,
 		Value: "value",
 	}
 	masterKey, _ := GenerateMasterKey()
-	err := StoreSecret(&secret, dbHandler, masterKey)
+	err = StoreSecret(&secret, dbHandler, masterKey)
 	assert.Equal(t, err, nil)
 
 	storedSecret, _ := GetSecret(secretName, dbHandler, masterKey)
@@ -29,6 +31,10 @@ func TestStoreSecret(t *testing.T) {
 }
 
 func TestLoadSecretToTMPFS(t *testing.T) {
+	defer dbHandler.Cleanup()
+
+	config := test.TestConfig
+	config.TMPFSPath = "/tmp"
 	secretName := "test"
 	secret := model.Secret{
 		Name:  secretName,
@@ -36,6 +42,6 @@ func TestLoadSecretToTMPFS(t *testing.T) {
 	}
 	masterKey, _ := GenerateMasterKey()
 	_ = StoreSecret(&secret, dbHandler, masterKey)
-	err := LoadSecretToFileSystem(secretName, dbHandler, test.TestConfig, masterKey)
+	err := LoadSecretToFileSystem(secretName, dbHandler, config, masterKey)
 	assert.Equal(t, err, nil)
 }

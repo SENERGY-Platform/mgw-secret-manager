@@ -10,6 +10,7 @@ import (
 
 func TestSetSecret(t *testing.T) {
 	testHandler, err := NewDBHandler(test.TestConfig)
+	defer testHandler.Cleanup()
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -24,6 +25,7 @@ func TestSetSecret(t *testing.T) {
 func TestGetSecret(t *testing.T) {
 	secretName := "test"
 	testHandler, err := NewDBHandler(test.TestConfig)
+	defer testHandler.Cleanup()
 	if err != nil {
 		t.Errorf(err.Error())
 	}

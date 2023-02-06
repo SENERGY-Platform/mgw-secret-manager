@@ -12,7 +12,7 @@ var MasterKey []byte = make([]byte, 32)
 
 var TestConfig config.Config = config.Config{
 	Logger: srv_base.LoggerConfig{
-		Level:        level.Warning,
+		Level:        level.Debug,
 		Utc:          true,
 		Path:         ".",
 		FileName:     "secret-manager",

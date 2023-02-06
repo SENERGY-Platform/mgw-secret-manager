@@ -31,6 +31,8 @@ func GetTestRouter() *gin.Engine {
 }
 
 func TestLoadSecret(t *testing.T) {
+	defer dbHandler.Cleanup()
+
 	// Setup dummy secret
 	secretName := "secret"
 	secret := &model.Secret{
@@ -59,6 +61,8 @@ func TestLoadSecretMissingQuery(t *testing.T) {
 }
 
 func TestPostValidSecret(t *testing.T) {
+	defer dbHandler.Cleanup()
+
 	router := GetTestRouter()
 	w := httptest.NewRecorder()
 

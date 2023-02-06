@@ -43,3 +43,9 @@ func NewDBHandler(config config.Config) (handler *DBHandler, err error) {
 
 	return
 }
+
+func (handler *DBHandler) Cleanup() {
+	handler.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&model.Secret{})
+	handler.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&model.EncryptedSecret{})
+
+}
