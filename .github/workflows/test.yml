@@ -14,9 +14,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build the stack
-        run: docker compose -f tests/docker-compose.yml build
+        run: docker compose -f test/docker-compose.yml build
       - name: Run test container
-        run: docker compose -f tests/docker-compose.yml run test
+        run: docker compose -f test/docker-compose.yml run test
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
