@@ -1,0 +1,7 @@
+{
+    "tmpfs_path": "/tmp",
+    "db_file_path": "./db.sqlite",
+    "master_key_file_path": "./key",
+    "enable_encryption": true,
+    "encryption_key": "2s5v8y/B?E(H+MbQeThWmZq3t6w9z$C&"
+}

@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  secret-manager:
+    build:
+      context: ..
+      dockerfile: ./build/Dockerfile
+      target: prod
+    container_name: secret-manager
+    image: secret-manager
+    ports:
+      - 8080:8080
+    environment:
+      - TMPFS_PATH=/tmp
+      - ENABLE_ENCRYPTION=true
+      - ENCRYPTION_KEY="eShVmYq3t6w9z$C&E)H@McQfTjWnZr4u" # use "" otherwise characters might be stripped off
+      - DB_FILE_PATH=/tmp/db.sqlite
+      - MASTER_KEY_FILE_PATH=/tmp/key
+    volumes:
+      - /tmp:/tmp
