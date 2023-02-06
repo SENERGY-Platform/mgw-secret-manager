@@ -22,11 +22,10 @@ func TestStoreSecret(t *testing.T) {
 		Name:  secretName,
 		Value: "value",
 	}
-	masterKey, _ := GenerateMasterKey()
-	err = StoreSecret(&secret, dbHandler, masterKey)
+	err = StoreSecret(&secret, dbHandler, test.MasterKey)
 	assert.Equal(t, err, nil)
 
-	storedSecret, _ := GetSecret(secretName, dbHandler, masterKey)
+	storedSecret, _ := GetSecret(secretName, dbHandler, test.MasterKey)
 	assert.Equal(t, *storedSecret, secret)
 }
 
@@ -40,8 +39,7 @@ func TestLoadSecretToTMPFS(t *testing.T) {
 		Name:  secretName,
 		Value: "value",
 	}
-	masterKey, _ := GenerateMasterKey()
-	_ = StoreSecret(&secret, dbHandler, masterKey)
-	err := LoadSecretToFileSystem(secretName, dbHandler, config, masterKey)
+	_ = StoreSecret(&secret, dbHandler, test.MasterKey)
+	err := LoadSecretToFileSystem(secretName, dbHandler, config, test.MasterKey)
 	assert.Equal(t, err, nil)
 }
