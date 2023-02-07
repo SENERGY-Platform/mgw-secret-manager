@@ -28,7 +28,7 @@ func NewConfig(path *string) (*Config, error) {
 		Logger: srv_base.LoggerConfig{
 			Level:        level.Debug,
 			Utc:          true,
-			Path:         "/tmp",
+			Path:         ".",
 			FileName:     "secret-manager",
 			Microseconds: true,
 		},
@@ -37,6 +37,10 @@ func NewConfig(path *string) (*Config, error) {
 			GroupID:  os.Getgid(),
 			FileMode: 0660,
 		},
+		TMPFSPath:        "/tmp",
+		EnableEncryption: true,
+		DBFilePath:       "./db.sqlite",
+		MasterKeyPath:    "./key",
 	}
 	if *path == "" {
 		path = nil

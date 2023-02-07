@@ -18,12 +18,16 @@ func (a *Api) StoreSecret(gc *gin.Context) {
 		return
 	}
 
-	var secret model.Secret
-	err = json.Unmarshal(body, &secret)
+	var secretRequest SecretRequest
+	err = json.Unmarshal(body, &secretRequest)
 	if err != nil {
 		srv_base.Logger.Errorf(err.Error())
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return
+	}
+	secret := model.Secret{
+		Name:  secretRequest.Name,
+		Value: secretRequest.Value,
 	}
 	srv_base.Logger.Debugf(secret.Value)
 
@@ -39,11 +43,12 @@ func (a *Api) LoadSecretIntoTMPFS(gc *gin.Context) {
 	if secretNames, ok := gc.Request.URL.Query()["secret"]; ok {
 		secretName := secretNames[0]
 
-		err := core.LoadSecretToFileSystem(secretName, a.dbHandler, a.config, a.masterKey)
+		fullTMPFSPath, err := core.LoadSecretToFileSystem(secretName, a.dbHandler, a.config, a.masterKey)
 		if err != nil {
 			gc.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
+		gc.JSON(http.StatusOK, fullTMPFSPath)
 	} else {
 		gc.AbortWithError(http.StatusInternalServerError, MissingQueryError{Parameter: "secret"})
 	}

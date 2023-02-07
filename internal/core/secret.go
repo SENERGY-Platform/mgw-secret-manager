@@ -6,6 +6,7 @@ import (
 	"secret-manager/internal/db"
 	"secret-manager/internal/files"
 	"secret-manager/internal/model"
+	"strconv"
 
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 )
@@ -34,17 +35,15 @@ func GetSecret(secretName string, db *db.DBHandler, key []byte) (decryptedSecret
 	return
 }
 
-func LoadSecretToFileSystem(secretName string, db *db.DBHandler, config config.Config, key []byte) (err error) {
+func LoadSecretToFileSystem(secretName string, db *db.DBHandler, config config.Config, key []byte) (fullOutputPath string, err error) {
 	srv_base.Logger.Debugf("Get Secret: %s from DB and load into TMPFS", secretName)
 
 	secret, err := GetSecret(secretName, db, key)
 	if err != nil {
 		return
 	}
-
-	fileName := "bla"
-	// TODO file path
-	fullOutputPath := filepath.Join(config.TMPFSPath, fileName)
+	fileName := strconv.FormatUint(secret.ID, 10)
+	fullOutputPath = filepath.Join(config.TMPFSPath, fileName)
 	srv_base.Logger.Debugf("Load Secret: %s to %s", secretName, fullOutputPath)
 
 	err = files.WriteToFile(secret.Value, fullOutputPath)

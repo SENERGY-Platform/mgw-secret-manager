@@ -1,6 +1,7 @@
 package core
 
 import (
+	"path/filepath"
 	"secret-manager/internal/db"
 	"secret-manager/internal/model"
 	"secret-manager/test"
@@ -40,6 +41,9 @@ func TestLoadSecretToTMPFS(t *testing.T) {
 		Value: "value",
 	}
 	_ = StoreSecret(&secret, dbHandler, test.MasterKey)
-	err := LoadSecretToFileSystem(secretName, dbHandler, config, test.MasterKey)
+	fullOutputPath, err := LoadSecretToFileSystem(secretName, dbHandler, config, test.MasterKey)
 	assert.Equal(t, err, nil)
+
+	expectedFllOutputPath := filepath.Join(config.TMPFSPath, "0")
+	assert.Equal(t, fullOutputPath, expectedFllOutputPath)
 }

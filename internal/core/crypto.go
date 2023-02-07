@@ -64,6 +64,7 @@ func DecryptSecret(secret *model.EncryptedSecret, key []byte) (decryptedSecret *
 	decryptedSecret = &model.Secret{
 		Name:  secret.Name,
 		Value: string(decryptedValue),
+		ID:    secret.ID,
 	}
 	return
 }

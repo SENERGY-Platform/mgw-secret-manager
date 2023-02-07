@@ -28,7 +28,6 @@ func (handler *DBHandler) connect() (err error) {
 	dbFilePath := handler.config.DBFilePath
 	connectionUrl := fmt.Sprintf("%s", dbFilePath)
 
-	//handler.db, _ = sql.Open("sqlite3", connectionUrl)
 	handler.db, err = gorm.Open(sqlite.Open(connectionUrl), &gorm.Config{})
 	return
 }
@@ -47,5 +46,4 @@ func NewDBHandler(config config.Config) (handler *DBHandler, err error) {
 func (handler *DBHandler) Cleanup() {
 	handler.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&model.Secret{})
 	handler.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&model.EncryptedSecret{})
-
 }
