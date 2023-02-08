@@ -52,6 +52,7 @@ func EncryptSecret(secret *model.Secret, key []byte) (encryptedSecret *model.Enc
 	encryptedSecret = &model.EncryptedSecret{
 		Name:  secret.Name,
 		Value: encryptedValue,
+		ID:    secret.ID,
 	}
 	return
 }

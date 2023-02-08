@@ -5,8 +5,12 @@ import (
 	"secret-manager/test"
 	"testing"
 
+	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
+
 	"github.com/stretchr/testify/assert"
 )
+
+var _, err = srv_base.InitLogger(test.TestConfig.Logger)
 
 func TestSetSecret(t *testing.T) {
 	testHandler, err := NewDBHandler(test.TestConfig)

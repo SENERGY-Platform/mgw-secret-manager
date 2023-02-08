@@ -1,9 +1,7 @@
 package core
 
 import (
-	"path/filepath"
 	"secret-manager/internal/db"
-	"secret-manager/internal/model"
 	"secret-manager/test"
 	"testing"
 
@@ -12,17 +10,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var dbHandler, _ = db.NewDBHandler(test.TestConfig)
 var _, err = srv_base.InitLogger(test.TestConfig.Logger)
+var dbHandler, _ = db.NewDBHandler(test.TestConfig)
 
 func TestStoreSecret(t *testing.T) {
 	defer dbHandler.Cleanup()
 
 	secretName := "test"
-	secret := model.Secret{
-		Name:  secretName,
-		Value: "value",
-	}
+	secret := CreateSecret(secretName, "secret")
 	err = StoreSecret(&secret, dbHandler, test.MasterKey)
 	assert.Equal(t, err, nil)
 
@@ -34,16 +29,11 @@ func TestLoadSecretToTMPFS(t *testing.T) {
 	defer dbHandler.Cleanup()
 
 	config := test.TestConfig
-	config.TMPFSPath = "/tmp"
 	secretName := "test"
-	secret := model.Secret{
-		Name:  secretName,
-		Value: "value",
-	}
+	secret := CreateSecret(secretName, "secret")
 	_ = StoreSecret(&secret, dbHandler, test.MasterKey)
-	fullOutputPath, err := LoadSecretToFileSystem(secretName, dbHandler, config, test.MasterKey)
-	assert.Equal(t, err, nil)
-
-	expectedFllOutputPath := filepath.Join(config.TMPFSPath, "0")
-	assert.Equal(t, fullOutputPath, expectedFllOutputPath)
+	fileName, err := LoadSecretToFileSystem(secretName, dbHandler, config, test.MasterKey)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, secret.ID, fileName)
+	// expect file exists
 }

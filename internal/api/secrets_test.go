@@ -18,13 +18,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var dbHandler, _ = db.NewDBHandler(test.TestConfig)
 var _, _ = srv_base.InitLogger(test.TestConfig.Logger)
+var dbHandler, _ = db.NewDBHandler(test.TestConfig)
 
 func GetTestRouter() *gin.Engine {
 	apiEngine := gin.New()
-	masterKey := make([]byte, 32)
-	Api := New(test.TestConfig, dbHandler, masterKey)
+	Api := New(test.TestConfig, dbHandler, test.MasterKey)
 	Api.SetRoutes(apiEngine)
 
 	return apiEngine
@@ -35,11 +34,8 @@ func TestLoadSecret(t *testing.T) {
 
 	// Setup dummy secret
 	secretName := "secret"
-	secret := &model.Secret{
-		Name:  secretName,
-		Value: "Value",
-	}
-	err := core.StoreSecret(secret, dbHandler, test.MasterKey)
+	secret := core.CreateSecret(secretName, "geheim")
+	err := core.StoreSecret(&secret, dbHandler, test.MasterKey)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -50,6 +46,8 @@ func TestLoadSecret(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, 200, w.Code)
+
+	// check file exits
 }
 
 func TestLoadSecretMissingQuery(t *testing.T) {

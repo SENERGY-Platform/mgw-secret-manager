@@ -14,7 +14,7 @@ var TestConfig config.Config = config.Config{
 	Logger: srv_base.LoggerConfig{
 		Level:        level.Debug,
 		Utc:          true,
-		Path:         ".",
+		Path:         "/tmp",
 		FileName:     "secret-manager",
 		Microseconds: true,
 	},
@@ -23,6 +23,9 @@ var TestConfig config.Config = config.Config{
 		GroupID:  os.Getgid(),
 		FileMode: 0660,
 	},
-	DBFilePath:       "test_db.sqlite",
-	EnableEncryption: false,
+	DBFilePath:       "/tmp/test_db.sqlite",
+	EnableEncryption: true,
+	MasterKeyPath:    "/tmp/key",
+	EncryptionKey:    string(MasterKey),
+	TMPFSPath:        "/tmp",
 }

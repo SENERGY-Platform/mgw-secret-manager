@@ -10,8 +10,6 @@ import (
 
 func TestGetMasterKey(t *testing.T) {
 	config := test.TestConfig
-	config.MasterKeyPath = "/tmp/key"
-	config.EncryptionKey = string(test.MasterKey)
 	generatedKey, err := CreateAndStoreMasterKey(config)
 	if err != nil {
 		t.Errorf(err.Error())
@@ -30,8 +28,6 @@ func TestGenerateMasterKey(t *testing.T) {
 
 func TestCreateAndStoreMasterKey(t *testing.T) {
 	config := test.TestConfig
-	config.MasterKeyPath = "/tmp/key"
-	config.EncryptionKey = string(test.MasterKey)
 
 	key, err := CreateAndStoreMasterKey(config)
 	assert.Equal(t, err, nil)

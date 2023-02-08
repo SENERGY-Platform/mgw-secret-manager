@@ -5,6 +5,7 @@ import (
 	"secret-manager/internal/config"
 	"secret-manager/internal/model"
 
+	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -27,7 +28,7 @@ func (handler *DBHandler) GetSecret(secretName string) (secret *model.EncryptedS
 func (handler *DBHandler) connect() (err error) {
 	dbFilePath := handler.config.DBFilePath
 	connectionUrl := fmt.Sprintf("%s", dbFilePath)
-
+	srv_base.Logger.Debugf("Connect to DB: %s", connectionUrl)
 	handler.db, err = gorm.Open(sqlite.Open(connectionUrl), &gorm.Config{})
 	return
 }

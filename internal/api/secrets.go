@@ -9,6 +9,7 @@ import (
 
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func (a *Api) StoreSecret(gc *gin.Context) {
@@ -28,8 +29,8 @@ func (a *Api) StoreSecret(gc *gin.Context) {
 	secret := model.Secret{
 		Name:  secretRequest.Name,
 		Value: secretRequest.Value,
+		ID:    uuid.New().String(),
 	}
-	srv_base.Logger.Debugf(secret.Value)
 
 	err = core.StoreSecret(&secret, a.dbHandler, a.masterKey)
 	if err != nil {
