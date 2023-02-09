@@ -17,7 +17,6 @@ type Config struct {
 	Logger           srv_base.LoggerConfig `json:"logger" env_var:"LOGGER_CONFIG"`
 	TMPFSPath        string                `json:"tmpfs_path" env_var:"TMPFS_PATH"`
 	EnableEncryption bool                  `json:"enable_encryption" env_var:"ENABLE_ENCRYPTION"`
-	EncryptionKey    string                `json:"encryption_key" env_var:"ENCRYPTION_KEY"`
 	DBFilePath       string                `json:"db_file_path" env_var:"DB_FILE_PATH"`
 	MasterKeyPath    string                `json:"master_key_file_path" env_var:"MASTER_KEY_FILE_PATH"`
 	Socket           SocketConfig          `json:"socket" env_var:"SOCKET_CONFIG"`

@@ -6,7 +6,6 @@ import (
 	"os"
 	"secret-manager/internal/api"
 	"secret-manager/internal/config"
-	"secret-manager/internal/core"
 	"secret-manager/internal/db"
 
 	gin_mw "github.com/SENERGY-Platform/gin-middleware"
@@ -45,28 +44,11 @@ func main() {
 		srv_base.Logger.Error(err)
 	}
 
-	var masterKey []byte
-	if config.EnableEncryption {
-		if _, err = os.Stat(config.MasterKeyPath); err == nil {
-			srv_base.Logger.Debug(("Master Encryption Key found -> Decrypt and Load"))
-			masterKey, err = core.GetMasterKey(*config)
-			if err != nil {
-				srv_base.Logger.Error(err)
-			}
-		} else {
-			srv_base.Logger.Debug(("Master Encryption Key not found -> Create, Encrypt and Store"))
-			masterKey, err = core.CreateAndStoreMasterKey(*config)
-			if err != nil {
-				srv_base.Logger.Error(err)
-			}
-		}
-	}
-
 	gin.SetMode(gin.ReleaseMode)
 	apiEngine := gin.New()
 	apiEngine.Use(gin_mw.LoggerHandler(srv_base.Logger), gin_mw.ErrorHandler, gin.Recovery())
 	apiEngine.UseRawPath = true
-	Api := api.New(*config, dbHandler, masterKey)
+	Api := api.New(*config, dbHandler)
 	Api.SetRoutes(apiEngine)
 
 	/*listener, err := srv_base.NewUnixListener(config.Socket.Path, os.Getuid(), config.Socket.GroupID, config.Socket.FileMode)

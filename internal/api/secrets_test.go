@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"secret-manager/internal/core"
 	"secret-manager/internal/db"
 	"secret-manager/internal/model"
@@ -23,7 +25,8 @@ var dbHandler, _ = db.NewDBHandler(test.TestConfig)
 
 func GetTestRouter() *gin.Engine {
 	apiEngine := gin.New()
-	Api := New(test.TestConfig, dbHandler, test.MasterKey)
+	Api := New(test.TestConfig, dbHandler)
+	Api.masterKey = &test.MasterKey
 	Api.SetRoutes(apiEngine)
 
 	return apiEngine
@@ -47,7 +50,10 @@ func TestLoadSecret(t *testing.T) {
 
 	assert.Equal(t, 200, w.Code)
 
-	// check file exits
+	pathToSecretInTMPFS := filepath.Join(test.TestConfig.TMPFSPath, secret.ID)
+	_, err = os.Stat(pathToSecretInTMPFS)
+	assert.Equal(t, nil, err)
+
 }
 
 func TestLoadSecretMissingQuery(t *testing.T) {

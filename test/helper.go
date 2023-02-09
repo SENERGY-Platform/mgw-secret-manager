@@ -10,6 +10,8 @@ import (
 
 var MasterKey []byte = make([]byte, 32)
 
+var EncryptionKey = []byte("eShVmYq3t6w9z$C&E)H@McQfTjWnZr4u")
+
 var TestConfig config.Config = config.Config{
 	Logger: srv_base.LoggerConfig{
 		Level:        level.Debug,
@@ -26,6 +28,5 @@ var TestConfig config.Config = config.Config{
 	DBFilePath:       "/tmp/test_db.sqlite",
 	EnableEncryption: true,
 	MasterKeyPath:    "/tmp/key",
-	EncryptionKey:    string(MasterKey),
 	TMPFSPath:        "/tmp",
 }

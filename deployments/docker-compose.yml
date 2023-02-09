@@ -13,8 +13,9 @@ services:
     environment:
       - TMPFS_PATH=/tmp
       - ENABLE_ENCRYPTION=true
-      - ENCRYPTION_KEY="eShVmYq3t6w9z$C&E)H@McQfTjWnZr4u" # use "" otherwise characters might be stripped off
       - DB_FILE_PATH=/tmp/db.sqlite
       - MASTER_KEY_FILE_PATH=/tmp/key
     volumes:
       - /tmp:/tmp
+
+# eShVmYq3t6w9z$C&E)H@McQfTjWnZr4u example 32 byte encryption key

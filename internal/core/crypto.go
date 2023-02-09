@@ -9,8 +9,7 @@ import (
 	"secret-manager/internal/model"
 )
 
-func GetMasterKey(config config.Config) (decryptedMasterKey []byte, err error) {
-	encryptionKey := []byte(config.EncryptionKey)
+func GetMasterKey(config config.Config, encryptionKey []byte) (decryptedMasterKey []byte, err error) {
 	encryptedMasterKey, err := os.ReadFile(config.MasterKeyPath)
 	if err != nil {
 		return
@@ -29,13 +28,13 @@ func GenerateMasterKey() (key []byte, err error) {
 	return
 }
 
-func CreateAndStoreMasterKey(config config.Config) (masterKey []byte, err error) {
+func CreateAndStoreMasterKey(config config.Config, encryptionKey []byte) (masterKey []byte, err error) {
 	masterKey, err = GenerateMasterKey()
 	if err != nil {
 		return
 	}
 
-	encryptedMasterKey, err := crypto.Encrypt(masterKey, []byte(config.EncryptionKey))
+	encryptedMasterKey, err := crypto.Encrypt(masterKey, encryptionKey)
 	if err != nil {
 		return
 	}

@@ -10,17 +10,17 @@ import (
 type Api struct {
 	config    config.Config
 	dbHandler *db.DBHandler
-	masterKey []byte
+	masterKey *[]byte
 }
 
-func New(config config.Config, dbHandler *db.DBHandler, masterKey []byte) *Api {
+func New(config config.Config, dbHandler *db.DBHandler) *Api {
 	return &Api{
 		config:    config,
 		dbHandler: dbHandler,
-		masterKey: masterKey,
 	}
 }
 func (a *Api) SetRoutes(e *gin.Engine) {
 	e.POST("/secret", a.StoreSecret)
 	e.POST("/load", a.LoadSecretIntoTMPFS)
+	e.POST("/key", a.SetEncryptionKey)
 }
