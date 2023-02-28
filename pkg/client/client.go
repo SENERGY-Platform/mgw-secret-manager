@@ -11,7 +11,7 @@ import (
 )
 
 type RealClient struct {
-	baseUrl string
+	BaseUrl string
 }
 
 func (c *RealClient) StoreSecret(name string, value string) (err error, errCode int) {
@@ -21,7 +21,7 @@ func (c *RealClient) StoreSecret(name string, value string) (err error, errCode 
 		return err, http.StatusInternalServerError
 	}
 
-	req, err := http.NewRequest(http.MethodPost, c.baseUrl+"/secret", strings.NewReader(string(body)))
+	req, err := http.NewRequest(http.MethodPost, c.BaseUrl+"/secret", strings.NewReader(string(body)))
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
@@ -29,7 +29,7 @@ func (c *RealClient) StoreSecret(name string, value string) (err error, errCode 
 }
 
 func (c *RealClient) LoadSecretToTMPFS(secretName string) (fullTMPFSPath string, err error, errCode int) {
-	req, err := http.NewRequest(http.MethodPost, c.baseUrl+"/load", nil)
+	req, err := http.NewRequest(http.MethodPost, c.BaseUrl+"/load", nil)
 	q := req.URL.Query()
 	q.Add("secret", secretName)
 	req.URL.RawQuery = q.Encode()
@@ -41,7 +41,7 @@ func (c *RealClient) LoadSecretToTMPFS(secretName string) (fullTMPFSPath string,
 }
 
 func (c *RealClient) SetEncryptionKey(encryptionKey []byte) (err error, errCode int) {
-	req, err := http.NewRequest(http.MethodPost, c.baseUrl+"/key", strings.NewReader(string(encryptionKey)))
+	req, err := http.NewRequest(http.MethodPost, c.BaseUrl+"/key", strings.NewReader(string(encryptionKey)))
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
