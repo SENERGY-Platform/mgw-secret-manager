@@ -28,7 +28,7 @@ func NewConfig(path *string) (*Config, error) {
 			Level:        level.Debug,
 			Utc:          true,
 			Path:         ".",
-			FileName:     "secret-manager",
+			FileName:     "github.com/SENERGY-Platform/mgw-secret-manager",
 			Microseconds: true,
 		},
 		Socket: SocketConfig{

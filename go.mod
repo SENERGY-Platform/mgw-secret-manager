@@ -1,4 +1,4 @@
-module secret-manager
+module github.com/SENERGY-Platform/mgw-secret-manager
 
 go 1.18
 

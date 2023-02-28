@@ -1,9 +1,10 @@
 package core
 
 import (
-	"secret-manager/internal/model"
-	"secret-manager/test"
 	"testing"
+
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/model"
+	"github.com/SENERGY-Platform/mgw-secret-manager/test"
 
 	"github.com/stretchr/testify/assert"
 )

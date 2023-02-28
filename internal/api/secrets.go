@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"secret-manager/internal/core"
+
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/core"
 
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 	"github.com/gin-gonic/gin"

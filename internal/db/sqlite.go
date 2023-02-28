@@ -2,8 +2,9 @@ package db
 
 import (
 	"fmt"
-	"secret-manager/internal/config"
-	"secret-manager/internal/model"
+
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/model"
 
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 	"gorm.io/driver/sqlite"

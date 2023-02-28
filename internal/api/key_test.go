@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"secret-manager/test"
 	"strings"
 	"testing"
+
+	"github.com/SENERGY-Platform/mgw-secret-manager/test"
 
 	"github.com/stretchr/testify/assert"
 )

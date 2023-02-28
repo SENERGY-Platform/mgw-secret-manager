@@ -1,8 +1,8 @@
 package api
 
 import (
-	"secret-manager/internal/config"
-	"secret-manager/internal/db"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/db"
 
 	"github.com/gin-gonic/gin"
 )

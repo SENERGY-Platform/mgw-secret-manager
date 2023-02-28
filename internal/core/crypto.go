@@ -3,10 +3,11 @@ package core
 import (
 	"crypto/rand"
 	"os"
-	"secret-manager/internal/config"
-	"secret-manager/internal/crypto"
-	"secret-manager/internal/files"
-	"secret-manager/internal/model"
+
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/crypto"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/files"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/model"
 
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 )

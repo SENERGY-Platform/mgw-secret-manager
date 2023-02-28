@@ -2,10 +2,11 @@ package core
 
 import (
 	"path/filepath"
-	"secret-manager/internal/config"
-	"secret-manager/internal/db"
-	"secret-manager/internal/files"
-	"secret-manager/internal/model"
+
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/db"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/files"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/model"
 
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 	"github.com/google/uuid"

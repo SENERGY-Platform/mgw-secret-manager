@@ -1,13 +1,13 @@
 version: '3'
 
 services:
-  secret-manager:
+  github.com/SENERGY-Platform/mgw-secret-manager:
     build:
       context: ..
       dockerfile: ./build/Dockerfile
       target: prod
-    container_name: secret-manager
-    image: secret-manager
+    container_name: github.com/SENERGY-Platform/mgw-secret-manager
+    image: github.com/SENERGY-Platform/mgw-secret-manager
     ports:
       - 8080:8080
     environment:

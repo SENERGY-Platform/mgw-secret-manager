@@ -1,7 +1,7 @@
 package db
 
 import (
-	"secret-manager/internal/model"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/model"
 )
 
 type Database interface {

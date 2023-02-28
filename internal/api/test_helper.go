@@ -1,8 +1,8 @@
 package api
 
 import (
-	"secret-manager/internal/db"
-	"secret-manager/test"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/db"
+	"github.com/SENERGY-Platform/mgw-secret-manager/test"
 
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 

@@ -7,11 +7,12 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
-	"secret-manager/internal/core"
-	"secret-manager/internal/model"
-	"secret-manager/test"
 	"strings"
 	"testing"
+
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/core"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/model"
+	"github.com/SENERGY-Platform/mgw-secret-manager/test"
 
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 

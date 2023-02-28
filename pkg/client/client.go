@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"secret-manager/internal/core"
 	"strings"
+
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/core"
 )
 
 type RealClient struct {

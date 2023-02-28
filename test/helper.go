@@ -2,7 +2,8 @@ package test
 
 import (
 	"os"
-	"secret-manager/internal/config"
+
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
 
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 	"github.com/y-du/go-log-level/level"
@@ -17,7 +18,7 @@ var TestConfig config.Config = config.Config{
 		Level:        level.Debug,
 		Utc:          true,
 		Path:         "/tmp",
-		FileName:     "secret-manager",
+		FileName:     "mgw-secret-manager",
 		Microseconds: true,
 	},
 	Socket: config.SocketConfig{

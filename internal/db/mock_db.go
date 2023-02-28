@@ -2,7 +2,8 @@ package db
 
 import (
 	"errors"
-	"secret-manager/internal/model"
+
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/model"
 )
 
 type MockDBHandler struct {

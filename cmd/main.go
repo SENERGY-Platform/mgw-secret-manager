@@ -4,9 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"secret-manager/internal/api"
-	"secret-manager/internal/config"
-	"secret-manager/internal/db"
+
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/db"
+
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
+
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/api"
 
 	gin_mw "github.com/SENERGY-Platform/gin-middleware"
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
@@ -16,7 +19,7 @@ import (
 var version string
 
 func main() {
-	srv_base.PrintInfo("mgw-secret-manager", version)
+	srv_base.PrintInfo("mgw-github.com/SENERGY-Platform/mgw-secret-manager", version)
 
 	flags := config.NewFlags()
 	config, err := config.NewConfig(flags.ConfPath)

@@ -1,10 +1,10 @@
 package client
 
 import (
-	"secret-manager/internal/config"
-	"secret-manager/internal/core"
-	"secret-manager/internal/db"
-	"secret-manager/test"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/core"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/db"
+	"github.com/SENERGY-Platform/mgw-secret-manager/test"
 )
 
 type MockClient struct {
