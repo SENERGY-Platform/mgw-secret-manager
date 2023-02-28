@@ -3,7 +3,6 @@ package api
 import (
 	"io/ioutil"
 	"net/http"
-	"os"
 	"secret-manager/internal/core"
 
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
@@ -25,21 +24,7 @@ func (a *Api) SetEncryptionKey(gc *gin.Context) {
 	}
 	encryptionKey := body
 
-	var masterKey []byte
-	if _, err := os.Stat(a.config.MasterKeyPath); err == nil {
-		srv_base.Logger.Debug(("Master Encryption Key found -> Decrypt and Load"))
-		masterKey, err = core.GetMasterKey(a.config, encryptionKey)
-		if err != nil {
-			srv_base.Logger.Error(err)
-		}
-	} else {
-		srv_base.Logger.Debug(("Master Encryption Key not found -> Create, Encrypt and Store"))
-		masterKey, err = core.CreateAndStoreMasterKey(a.config, encryptionKey)
-		if err != nil {
-			srv_base.Logger.Error(err)
-		}
-	}
-
+	masterKey, err := core.SetEncryptionKey(encryptionKey, a.config)
 	a.masterKey = &masterKey
 
 }

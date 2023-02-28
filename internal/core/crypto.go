@@ -7,6 +7,8 @@ import (
 	"secret-manager/internal/crypto"
 	"secret-manager/internal/files"
 	"secret-manager/internal/model"
+
+	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 )
 
 func GetMasterKey(config config.Config, encryptionKey []byte) (decryptedMasterKey []byte, err error) {
@@ -66,5 +68,23 @@ func DecryptSecret(secret *model.EncryptedSecret, key []byte) (decryptedSecret *
 		Value: string(decryptedValue),
 		ID:    secret.ID,
 	}
+	return
+}
+
+func SetEncryptionKey(encryptionKey []byte, config config.Config) (masterKey []byte, err error) {
+	if _, err := os.Stat(config.MasterKeyPath); err == nil {
+		srv_base.Logger.Debug(("Master Encryption Key found -> Decrypt and Load"))
+		masterKey, err = GetMasterKey(config, encryptionKey)
+		if err != nil {
+			srv_base.Logger.Error(err)
+		}
+	} else {
+		srv_base.Logger.Debug(("Master Encryption Key not found -> Create, Encrypt and Store"))
+		masterKey, err = CreateAndStoreMasterKey(config, encryptionKey)
+		if err != nil {
+			srv_base.Logger.Error(err)
+		}
+	}
+
 	return
 }

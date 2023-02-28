@@ -9,11 +9,11 @@ import (
 
 type Api struct {
 	config    config.Config
-	dbHandler *db.DBHandler
+	dbHandler db.Database
 	masterKey *[]byte
 }
 
-func New(config config.Config, dbHandler *db.DBHandler) *Api {
+func New(config config.Config, dbHandler db.Database) *Api {
 	return &Api{
 		config:    config,
 		dbHandler: dbHandler,

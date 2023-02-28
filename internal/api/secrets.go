@@ -5,11 +5,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"secret-manager/internal/core"
-	"secret-manager/internal/model"
 
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 func (a *Api) StoreSecret(gc *gin.Context) {
@@ -26,11 +24,7 @@ func (a *Api) StoreSecret(gc *gin.Context) {
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	secret := model.Secret{
-		Name:  secretRequest.Name,
-		Value: secretRequest.Value,
-		ID:    uuid.New().String(),
-	}
+	secret := core.CreateSecret(secretRequest.Name, secretRequest.Value)
 
 	err = core.StoreSecret(&secret, a.dbHandler, *a.masterKey)
 	if err != nil {

@@ -25,7 +25,7 @@ func (handler *DBHandler) GetSecret(secretName string) (secret *model.EncryptedS
 	return
 }
 
-func (handler *DBHandler) connect() (err error) {
+func (handler *DBHandler) Connect() (err error) {
 	dbFilePath := handler.config.DBFilePath
 	connectionUrl := fmt.Sprintf("%s", dbFilePath)
 	srv_base.Logger.Debugf("Connect to DB: %s", connectionUrl)
@@ -38,7 +38,7 @@ func NewDBHandler(config config.Config) (handler *DBHandler, err error) {
 		config: config,
 	}
 
-	handler.connect()
+	handler.Connect()
 	handler.db.AutoMigrate(&model.EncryptedSecret{})
 
 	return
