@@ -16,7 +16,7 @@ type MockClient struct {
 func (c *MockClient) StoreSecret(name string, value string, secretType string) (err error, errCode int) {
 	secret := core.CreateSecret(name, value, secretType)
 
-	err = core.StoreSecret(&secret, c.dbHandler, *c.masterKey, c.config)
+	err = core.StoreSecret(&secret, c.dbHandler, c.masterKey, c.config)
 	if err != nil {
 		return err, 0
 	}
@@ -24,7 +24,7 @@ func (c *MockClient) StoreSecret(name string, value string, secretType string) (
 }
 
 func (c *MockClient) LoadSecretToTMPFS(secretName string) (fullTMPFSPath string, err error, errCode int) {
-	fullTMPFSPath, err = core.LoadSecretToFileSystem(secretName, c.dbHandler, c.config, *c.masterKey)
+	fullTMPFSPath, err = core.LoadSecretToFileSystem(secretName, c.dbHandler, c.config, c.masterKey)
 	return
 }
 

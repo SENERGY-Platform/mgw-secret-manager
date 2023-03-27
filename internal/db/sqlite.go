@@ -54,6 +54,6 @@ func (handler *DBHandler) Cleanup() {
 	if handler.config.EnableEncryption {
 		handler.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&model.EncryptedSecret{})
 	} else {
-		handler.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&model.Secret{})
+		handler.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&model.EncryptedSecret{})
 	}
 }

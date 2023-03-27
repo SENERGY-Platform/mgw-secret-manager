@@ -17,7 +17,7 @@ var TestConfig config.Config = config.Config{
 	Logger: srv_base.LoggerConfig{
 		Level:        level.Debug,
 		Utc:          true,
-		Path:         "/tmp",
+		Path:         ".",
 		FileName:     "mgw-secret-manager",
 		Microseconds: true,
 	},

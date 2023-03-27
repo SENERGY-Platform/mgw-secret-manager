@@ -16,7 +16,8 @@ import (
 var _, _ = srv_base.InitLogger(test.TestConfig.Logger)
 
 func TestPostKey(t *testing.T) {
-	router, dbHandler := GetTestRouter()
+	enableEncryption := true
+	router, dbHandler := GetTestRouter(enableEncryption)
 	defer dbHandler.Cleanup()
 
 	w := httptest.NewRecorder()

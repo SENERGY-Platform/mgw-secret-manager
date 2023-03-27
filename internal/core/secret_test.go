@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/db"
@@ -15,18 +14,15 @@ import (
 var _, err = srv_base.InitLogger(test.TestConfig.Logger)
 
 func TestStoreSecret(t *testing.T) {
-	var _, err = srv_base.InitLogger(test.TestConfig.Logger)
-	fmt.Println(srv_base.Logger)
-
 	var dbHandler, _ = db.NewDBHandler(test.TestConfig)
 	defer dbHandler.Cleanup()
 
 	secretName := "test"
 	secret := CreateSecret(secretName, "secret", "type")
-	err = StoreSecret(&secret, dbHandler, test.MasterKey, test.TestConfig)
+	err = StoreSecret(&secret, dbHandler, &test.MasterKey, test.TestConfig)
 	assert.Equal(t, err, nil)
 
-	storedSecret, _ := GetSecret(secretName, dbHandler, test.MasterKey, test.TestConfig)
+	storedSecret, _ := GetSecret(secretName, dbHandler, &test.MasterKey, test.TestConfig)
 	assert.Equal(t, *storedSecret, secret)
 }
 
@@ -37,8 +33,8 @@ func TestLoadSecretToTMPFS(t *testing.T) {
 	config := test.TestConfig
 	secretName := "test"
 	secret := CreateSecret(secretName, "secret", "type")
-	_ = StoreSecret(&secret, dbHandler, test.MasterKey, config)
-	fileName, err := LoadSecretToFileSystem(secretName, dbHandler, config, test.MasterKey)
+	_ = StoreSecret(&secret, dbHandler, &test.MasterKey, config)
+	fileName, err := LoadSecretToFileSystem(secretName, dbHandler, config, &test.MasterKey)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, secret.ID, fileName)
 	// expect file exists

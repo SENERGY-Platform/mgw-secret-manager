@@ -21,13 +21,13 @@ func CreateSecret(name string, value string, secretType string) model.Secret {
 	}
 }
 
-func StoreSecret(secret *model.Secret, db db.Database, key []byte, config config.Config) (err error) {
+func StoreSecret(secret *model.Secret, db db.Database, key *[]byte, config config.Config) (err error) {
 	srv_base.Logger.Debugf("Store Secret: %s", secret.Name)
 
 	var storedSecret *model.EncryptedSecret
 
 	if config.EnableEncryption {
-		storedSecret, err = EncryptSecret(secret, key)
+		storedSecret, err = EncryptSecret(secret, *key)
 		if err != nil {
 			return
 		}
@@ -39,7 +39,7 @@ func StoreSecret(secret *model.Secret, db db.Database, key []byte, config config
 	return
 }
 
-func GetSecret(secretName string, db db.Database, key []byte, config config.Config) (secret *model.Secret, err error) {
+func GetSecret(secretName string, db db.Database, key *[]byte, config config.Config) (secret *model.Secret, err error) {
 	srv_base.Logger.Debugf("Get Secret: %s from DB", secretName)
 
 	storedSecret, err := db.GetSecret(secretName)
@@ -48,7 +48,7 @@ func GetSecret(secretName string, db db.Database, key []byte, config config.Conf
 	}
 
 	if config.EnableEncryption {
-		secret, err = DecryptSecret(storedSecret, key)
+		secret, err = DecryptSecret(storedSecret, *key)
 		if err != nil {
 			return
 		}
@@ -60,7 +60,7 @@ func GetSecret(secretName string, db db.Database, key []byte, config config.Conf
 	return
 }
 
-func LoadSecretToFileSystem(secretName string, db db.Database, config config.Config, key []byte) (fileName string, err error) {
+func LoadSecretToFileSystem(secretName string, db db.Database, config config.Config, key *[]byte) (fileName string, err error) {
 	srv_base.Logger.Debugf("Get Secret: %s from DB and load into TMPFS", secretName)
 
 	secret, err := GetSecret(secretName, db, key, config)
@@ -102,7 +102,7 @@ func GetFullSecrets(db db.Database, config config.Config, key []byte) (secrets [
 	return
 }
 
-func GetSecrets(db db.Database, config config.Config, key []byte) (secrets []*model.ShortSecret, err error) {
+func GetSecrets(db db.Database, config config.Config) (secrets []*model.ShortSecret, err error) {
 	storedSecrets, err := db.GetSecrets()
 	if err != nil {
 		return

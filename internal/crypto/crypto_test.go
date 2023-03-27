@@ -9,6 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var _, _ = srv_base.InitLogger(test.TestConfig.Logger)
+
 func TestEncrytpionAndDecryption(t *testing.T) {
 	plainText := "Test text"
 	key := make([]byte, 32)
@@ -28,7 +30,6 @@ func TestGoodKey(t *testing.T) {
 }
 
 func TestBadKey(t *testing.T) {
-	var _, _ = srv_base.InitLogger(test.TestConfig.Logger)
 	key := make([]byte, 12)
 
 	_, err := NewCipher(key)
