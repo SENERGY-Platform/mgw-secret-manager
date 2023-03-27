@@ -27,7 +27,7 @@ var TestConfig config.Config = config.Config{
 		FileMode: 0660,
 	},
 	DBFilePath:       "/tmp/test_db.sqlite",
-	EnableEncryption: true,
+	EnableEncryption: false,
 	MasterKeyPath:    "/tmp/key",
 	TMPFSPath:        "/tmp",
 }

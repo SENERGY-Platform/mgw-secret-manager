@@ -12,6 +12,10 @@ import (
 )
 
 func (a *Api) StoreSecret(gc *gin.Context) {
+	if a.masterKey == nil && a.config.EnableEncryption == true {
+		gc.AbortWithError(http.StatusInternalServerError, MissingEncryptionKey{})
+	}
+
 	body, err := ioutil.ReadAll(gc.Request.Body)
 	if err != nil {
 		gc.AbortWithError(http.StatusInternalServerError, err)
@@ -25,17 +29,21 @@ func (a *Api) StoreSecret(gc *gin.Context) {
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	secret := core.CreateSecret(secretRequest.Name, secretRequest.Value)
+	secret := core.CreateSecret(secretRequest.Name, secretRequest.Value, secretRequest.SecretType)
 
-	err = core.StoreSecret(&secret, a.dbHandler, *a.masterKey)
+	err = core.StoreSecret(&secret, a.dbHandler, *a.masterKey, a.config)
 	if err != nil {
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	gc.JSON(http.StatusOK, "Secret was stored successfully")
+	gc.JSON(http.StatusOK, secret.ID)
 }
 
 func (a *Api) LoadSecretIntoTMPFS(gc *gin.Context) {
+	if a.masterKey == nil && a.config.EnableEncryption == true {
+		gc.AbortWithError(http.StatusInternalServerError, MissingEncryptionKey{})
+	}
+
 	if secretNames, ok := gc.Request.URL.Query()["secret"]; ok {
 		secretName := secretNames[0]
 
@@ -48,4 +56,19 @@ func (a *Api) LoadSecretIntoTMPFS(gc *gin.Context) {
 	} else {
 		gc.AbortWithError(http.StatusInternalServerError, MissingQueryError{Parameter: "secret"})
 	}
+}
+
+func (a *Api) GetSecrets(gc *gin.Context) {
+	if a.masterKey == nil && a.config.EnableEncryption == true {
+		gc.AbortWithError(http.StatusInternalServerError, MissingEncryptionKey{})
+		return
+	}
+
+	secrets, err := core.GetSecrets(a.dbHandler, a.config, *a.masterKey)
+	if err != nil {
+		gc.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	gc.JSON(http.StatusOK, secrets)
 }

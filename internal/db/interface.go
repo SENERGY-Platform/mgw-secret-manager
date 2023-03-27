@@ -7,6 +7,7 @@ import (
 type Database interface {
 	SetSecret(secret *model.EncryptedSecret) (err error)
 	GetSecret(secretName string) (secret *model.EncryptedSecret, err error)
+	GetSecrets() (secrets []*model.EncryptedSecret, err error)
 	Connect() (err error)
 	Cleanup()
 }

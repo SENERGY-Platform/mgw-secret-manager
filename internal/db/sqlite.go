@@ -26,6 +26,11 @@ func (handler *DBHandler) GetSecret(secretName string) (secret *model.EncryptedS
 	return
 }
 
+func (handler *DBHandler) GetSecrets() (secrets []*model.EncryptedSecret, err error) {
+	handler.db.Find(&secrets)
+	return
+}
+
 func (handler *DBHandler) Connect() (err error) {
 	dbFilePath := handler.config.DBFilePath
 	connectionUrl := fmt.Sprintf("%s", dbFilePath)
@@ -46,6 +51,9 @@ func NewDBHandler(config config.Config) (handler *DBHandler, err error) {
 }
 
 func (handler *DBHandler) Cleanup() {
-	handler.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&model.Secret{})
-	handler.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&model.EncryptedSecret{})
+	if handler.config.EnableEncryption {
+		handler.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&model.EncryptedSecret{})
+	} else {
+		handler.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&model.Secret{})
+	}
 }

@@ -21,6 +21,7 @@ func New(config config.Config, dbHandler db.Database) *Api {
 }
 func (a *Api) SetRoutes(e *gin.Engine) {
 	e.POST("/secret", a.StoreSecret)
+	e.GET("/secrets", a.GetSecrets)
 	e.POST("/load", a.LoadSecretIntoTMPFS)
 	e.POST("/key", a.SetEncryptionKey)
 }

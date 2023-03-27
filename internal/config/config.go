@@ -28,7 +28,7 @@ func NewConfig(path *string) (*Config, error) {
 			Level:        level.Debug,
 			Utc:          true,
 			Path:         ".",
-			FileName:     "github.com/SENERGY-Platform/mgw-secret-manager",
+			FileName:     "mgw-secret-manager",
 			Microseconds: true,
 		},
 		Socket: SocketConfig{
@@ -37,7 +37,7 @@ func NewConfig(path *string) (*Config, error) {
 			FileMode: 0660,
 		},
 		TMPFSPath:        "/tmp",
-		EnableEncryption: true,
+		EnableEncryption: false,
 		DBFilePath:       "./db.sqlite",
 		MasterKeyPath:    "./key",
 	}

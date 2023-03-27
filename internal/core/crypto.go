@@ -52,9 +52,10 @@ func EncryptSecret(secret *model.Secret, key []byte) (encryptedSecret *model.Enc
 		return
 	}
 	encryptedSecret = &model.EncryptedSecret{
-		Name:  secret.Name,
-		Value: encryptedValue,
-		ID:    secret.ID,
+		Name:       secret.Name,
+		Value:      encryptedValue,
+		SecretType: secret.SecretType,
+		ID:         secret.ID,
 	}
 	return
 }
@@ -65,27 +66,29 @@ func DecryptSecret(secret *model.EncryptedSecret, key []byte) (decryptedSecret *
 		return
 	}
 	decryptedSecret = &model.Secret{
-		Name:  secret.Name,
-		Value: string(decryptedValue),
-		ID:    secret.ID,
+		Name:       secret.Name,
+		Value:      string(decryptedValue),
+		SecretType: secret.SecretType,
+		ID:         secret.ID,
 	}
 	return
 }
 
 func SetEncryptionKey(encryptionKey []byte, config config.Config) (masterKey []byte, err error) {
-	if _, err := os.Stat(config.MasterKeyPath); err == nil {
+	if _, err = os.Stat(config.MasterKeyPath); err == nil {
 		srv_base.Logger.Debug(("Master Encryption Key found -> Decrypt and Load"))
 		masterKey, err = GetMasterKey(config, encryptionKey)
 		if err != nil {
 			srv_base.Logger.Error(err)
+			return
 		}
 	} else {
 		srv_base.Logger.Debug(("Master Encryption Key not found -> Create, Encrypt and Store"))
 		masterKey, err = CreateAndStoreMasterKey(config, encryptionKey)
 		if err != nil {
 			srv_base.Logger.Error(err)
+			return
 		}
 	}
-
 	return
 }

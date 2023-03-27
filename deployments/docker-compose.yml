@@ -1,18 +1,18 @@
 version: '3'
 
 services:
-  github.com/SENERGY-Platform/mgw-secret-manager:
+  mgw-secret-manager:
     build:
       context: ..
       dockerfile: ./build/Dockerfile
       target: prod
-    container_name: github.com/SENERGY-Platform/mgw-secret-manager
-    image: github.com/SENERGY-Platform/mgw-secret-manager
+    container_name: mgw-secret-manager2
+    image: mgw-secret-manager
     ports:
       - 8080:8080
     environment:
       - TMPFS_PATH=/tmp
-      - ENABLE_ENCRYPTION=true
+      - ENABLE_ENCRYPTION=false
       - DB_FILE_PATH=/tmp/db.sqlite
       - MASTER_KEY_FILE_PATH=/tmp/key
     volumes:

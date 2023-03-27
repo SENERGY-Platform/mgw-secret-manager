@@ -26,6 +26,11 @@ func (a *Api) SetEncryptionKey(gc *gin.Context) {
 	encryptionKey := body
 
 	masterKey, err := core.SetEncryptionKey(encryptionKey, a.config)
+	if err != nil {
+		srv_base.Logger.Errorf("Error setting encryption key: %s", err.Error())
+		gc.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
 	a.masterKey = &masterKey
 
 }

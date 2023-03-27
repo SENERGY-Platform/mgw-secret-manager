@@ -22,17 +22,17 @@ import (
 var _, _ = srv_base.InitLogger(test.TestConfig.Logger)
 
 func TestLoadSecret(t *testing.T) {
+	router, dbHandler := GetTestRouter()
 	defer dbHandler.Cleanup()
 
 	// Setup dummy secret
 	secretName := "secret"
-	secret := core.CreateSecret(secretName, "geheim")
-	err := core.StoreSecret(&secret, dbHandler, test.MasterKey)
+	secret := core.CreateSecret(secretName, "geheim", "type")
+	err := core.StoreSecret(&secret, dbHandler, test.MasterKey, test.TestConfig)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	router := GetTestRouter()
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", fmt.Sprintf("/load?secret=%s", secretName), nil)
 	router.ServeHTTP(w, req)
@@ -46,7 +46,9 @@ func TestLoadSecret(t *testing.T) {
 }
 
 func TestLoadSecretMissingQuery(t *testing.T) {
-	router := GetTestRouter()
+	router, dbHandler := GetTestRouter()
+	defer dbHandler.Cleanup()
+
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/load", nil)
 	router.ServeHTTP(w, req)
@@ -54,21 +56,34 @@ func TestLoadSecretMissingQuery(t *testing.T) {
 }
 
 func TestPostValidSecret(t *testing.T) {
+	router, dbHandler := GetTestRouter()
 	defer dbHandler.Cleanup()
 
-	router := GetTestRouter()
 	w := httptest.NewRecorder()
 
+	secretName := "test"
 	secret := model.Secret{
-		Name:  "test",
-		Value: "value",
+		Name:       secretName,
+		Value:      "value",
+		SecretType: "type",
 	}
 	body, err := json.Marshal(secret)
 	if err != nil {
-
+		t.Errorf(err.Error())
 	}
+
 	req, _ := http.NewRequest("POST", "/secret", strings.NewReader(string(body)))
 	router.ServeHTTP(w, req)
 
+	var response string
+
+	json.NewDecoder(w.Body).Decode(&response)
+
 	assert.Equal(t, 200, w.Code)
+
+	secretFromDB, err := core.GetSecret(secretName, dbHandler, test.MasterKey, test.TestConfig)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	assert.Equal(t, secretFromDB.ID, response)
 }

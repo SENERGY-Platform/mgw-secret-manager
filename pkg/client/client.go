@@ -14,8 +14,8 @@ type RealClient struct {
 	BaseUrl string
 }
 
-func (c *RealClient) StoreSecret(name string, value string) (err error, errCode int) {
-	secret := core.CreateSecret(name, value)
+func (c *RealClient) StoreSecret(name string, value string, secretType string) (err error, errCode int) {
+	secret := core.CreateSecret(name, value, secretType)
 	body, err := json.Marshal(secret)
 	if err != nil {
 		return err, http.StatusInternalServerError

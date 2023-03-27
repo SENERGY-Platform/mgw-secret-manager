@@ -10,9 +10,6 @@ RUN CGO_ENABLED=1 GOOS=linux go build -o ../app
 
 FROM golang:1.18 AS prod
 WORKDIR /root
-
-RUN go install github.com/pressly/goose/v3/cmd/goose@latest
-
 COPY --from=builder /app/app .
 COPY --from=builder /app/version.txt .
 
