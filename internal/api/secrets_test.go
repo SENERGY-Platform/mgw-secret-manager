@@ -19,17 +19,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var _, _ = srv_base.InitLogger(test.TestConfig.Logger)
+var _, _ = srv_base.InitLogger(testConfig.Logger)
 var enableEncryption = false
 
 func TestLoadSecret(t *testing.T) {
 	router, dbHandler := GetTestRouter(enableEncryption)
-	defer dbHandler.Cleanup()
+	defer (*dbHandler).Cleanup()
 
 	// Setup dummy secret
 	secretName := "secret"
 	secret := core.CreateSecret(secretName, "geheim", "type")
-	err := core.StoreSecret(&secret, dbHandler, &test.MasterKey, test.TestConfig)
+	err := core.StoreSecret(&secret, dbHandler, &test.MasterKey, *testConfig)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -40,7 +40,7 @@ func TestLoadSecret(t *testing.T) {
 
 	assert.Equal(t, 200, w.Code)
 
-	pathToSecretInTMPFS := filepath.Join(test.TestConfig.TMPFSPath, secret.ID)
+	pathToSecretInTMPFS := filepath.Join(testConfig.TMPFSPath, secret.ID)
 	_, err = os.Stat(pathToSecretInTMPFS)
 	assert.Equal(t, nil, err)
 
@@ -48,7 +48,7 @@ func TestLoadSecret(t *testing.T) {
 
 func TestLoadSecretMissingQuery(t *testing.T) {
 	router, dbHandler := GetTestRouter(enableEncryption)
-	defer dbHandler.Cleanup()
+	defer (*dbHandler).Cleanup()
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/load", nil)
@@ -58,7 +58,7 @@ func TestLoadSecretMissingQuery(t *testing.T) {
 
 func TestPostValidSecret(t *testing.T) {
 	router, dbHandler := GetTestRouter(enableEncryption)
-	defer dbHandler.Cleanup()
+	defer (*dbHandler).Cleanup()
 
 	w := httptest.NewRecorder()
 
@@ -82,7 +82,7 @@ func TestPostValidSecret(t *testing.T) {
 
 	assert.Equal(t, 200, w.Code)
 
-	secretFromDB, err := core.GetSecret(secretName, dbHandler, &test.MasterKey, test.TestConfig)
+	secretFromDB, err := core.GetSecret(secretName, dbHandler, &test.MasterKey, *testConfig)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -91,7 +91,7 @@ func TestPostValidSecret(t *testing.T) {
 
 func TestGetSecret(t *testing.T) {
 	router, dbHandler := GetTestRouter(enableEncryption)
-	defer dbHandler.Cleanup()
+	defer (*dbHandler).Cleanup()
 
 	// Setup dummy secrets
 	var expectedSecrets []model.ShortSecret

@@ -13,12 +13,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var _, _ = srv_base.InitLogger(test.TestConfig.Logger)
+var _, _ = srv_base.InitLogger(testConfig.Logger)
 
 func TestPostKey(t *testing.T) {
 	enableEncryption := true
 	router, dbHandler := GetTestRouter(enableEncryption)
-	defer dbHandler.Cleanup()
+	defer (*dbHandler).Cleanup()
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", fmt.Sprintf("/key"), strings.NewReader(string(test.EncryptionKey)))

@@ -10,7 +10,7 @@ type MockDBHandler struct {
 	Secrets []*model.EncryptedSecret
 }
 
-func NewMockDB() (db Database) {
+func NewMockDB() (db *MockDBHandler) {
 	return &MockDBHandler{}
 }
 

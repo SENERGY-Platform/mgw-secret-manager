@@ -3,6 +3,7 @@ package core
 import (
 	"testing"
 
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/db"
 	"github.com/SENERGY-Platform/mgw-secret-manager/test"
 
@@ -11,30 +12,30 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var _, err = srv_base.InitLogger(test.TestConfig.Logger)
+var testConfig, _ = config.NewConfig(nil)
+var _, err = srv_base.InitLogger(testConfig.Logger)
 
 func TestStoreSecret(t *testing.T) {
-	var dbHandler, _ = db.NewDBHandler(test.TestConfig)
+	var dbHandler, _ = db.GetTestDB(testConfig)
 	defer dbHandler.Cleanup()
 
 	secretName := "test"
 	secret := CreateSecret(secretName, "secret", "type")
-	err = StoreSecret(&secret, dbHandler, &test.MasterKey, test.TestConfig)
+	err = StoreSecret(&secret, &dbHandler, &test.MasterKey, *testConfig)
 	assert.Equal(t, err, nil)
 
-	storedSecret, _ := GetSecret(secretName, dbHandler, &test.MasterKey, test.TestConfig)
+	storedSecret, _ := GetSecret(secretName, &dbHandler, &test.MasterKey, *testConfig)
 	assert.Equal(t, *storedSecret, secret)
 }
 
 func TestLoadSecretToTMPFS(t *testing.T) {
-	var dbHandler, _ = db.NewDBHandler(test.TestConfig)
+	var dbHandler, _ = db.GetTestDB(testConfig)
 	defer dbHandler.Cleanup()
 
-	config := test.TestConfig
 	secretName := "test"
 	secret := CreateSecret(secretName, "secret", "type")
-	_ = StoreSecret(&secret, dbHandler, &test.MasterKey, config)
-	fileName, err := LoadSecretToFileSystem(secretName, dbHandler, config, &test.MasterKey)
+	_ = StoreSecret(&secret, &dbHandler, &test.MasterKey, *testConfig)
+	fileName, err := LoadSecretToFileSystem(secretName, &dbHandler, *testConfig, &test.MasterKey)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, secret.ID, fileName)
 	// expect file exists

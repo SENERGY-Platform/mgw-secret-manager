@@ -17,7 +17,7 @@ type Config struct {
 	Logger           srv_base.LoggerConfig `json:"logger" env_var:"LOGGER_CONFIG"`
 	TMPFSPath        string                `json:"tmpfs_path" env_var:"TMPFS_PATH"`
 	EnableEncryption bool                  `json:"enable_encryption" env_var:"ENABLE_ENCRYPTION"`
-	DBFilePath       string                `json:"db_file_path" env_var:"DB_FILE_PATH"`
+	DBConnectionURL  string                `json:"db_connection_url" env_var:"DB_CONNECTION_URL"`
 	MasterKeyPath    string                `json:"master_key_file_path" env_var:"MASTER_KEY_FILE_PATH"`
 	Socket           SocketConfig          `json:"socket" env_var:"SOCKET_CONFIG"`
 }
@@ -38,10 +38,10 @@ func NewConfig(path *string) (*Config, error) {
 		},
 		TMPFSPath:        "/tmp",
 		EnableEncryption: false,
-		DBFilePath:       "./db.sqlite",
+		DBConnectionURL:  "./db.sqlite",
 		MasterKeyPath:    "./key",
 	}
-	if *path == "" {
+	if path == nil || *path == "" {
 		path = nil
 	}
 	err := srv_base.LoadConfig(path, &cfg, nil, nil, nil)

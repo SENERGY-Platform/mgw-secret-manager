@@ -10,13 +10,12 @@ import (
 )
 
 func TestGetMasterKey(t *testing.T) {
-	config := test.TestConfig
-	generatedKey, err := CreateAndStoreMasterKey(config, test.EncryptionKey)
+	generatedKey, err := CreateAndStoreMasterKey(*testConfig, test.EncryptionKey)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	key, err := GetMasterKey(config, test.EncryptionKey)
+	key, err := GetMasterKey(*testConfig, test.EncryptionKey)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, generatedKey, key)
 }
@@ -28,9 +27,7 @@ func TestGenerateMasterKey(t *testing.T) {
 }
 
 func TestCreateAndStoreMasterKey(t *testing.T) {
-	config := test.TestConfig
-
-	key, err := CreateAndStoreMasterKey(config, test.EncryptionKey)
+	key, err := CreateAndStoreMasterKey(*testConfig, test.EncryptionKey)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, len(key), 32)
 }

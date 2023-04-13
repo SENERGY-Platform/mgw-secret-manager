@@ -3,18 +3,19 @@ package db
 import (
 	"testing"
 
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/model"
-	"github.com/SENERGY-Platform/mgw-secret-manager/test"
 
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 
 	"github.com/stretchr/testify/assert"
 )
 
-var _, err = srv_base.InitLogger(test.TestConfig.Logger)
+var testConfig, _ = config.NewConfig(nil)
+var _, err = srv_base.InitLogger(testConfig.Logger)
 
 func TestSetSecret(t *testing.T) {
-	testHandler, err := NewDBHandler(test.TestConfig)
+	testHandler, err := NewDBHandler(*testConfig)
 	defer testHandler.Cleanup()
 	if err != nil {
 		t.Errorf(err.Error())
@@ -29,7 +30,7 @@ func TestSetSecret(t *testing.T) {
 
 func TestGetSecret(t *testing.T) {
 	secretName := "test"
-	testHandler, err := NewDBHandler(test.TestConfig)
+	testHandler, err := NewDBHandler(*testConfig)
 	defer testHandler.Cleanup()
 	if err != nil {
 		t.Errorf(err.Error())

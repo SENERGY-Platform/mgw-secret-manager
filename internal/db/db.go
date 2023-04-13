@@ -3,11 +3,10 @@ package db
 import (
 	"fmt"
 
+	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/model"
-
-	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
-	"gorm.io/driver/sqlite"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -32,10 +31,9 @@ func (handler *DBHandler) GetSecrets() (secrets []*model.EncryptedSecret, err er
 }
 
 func (handler *DBHandler) Connect() (err error) {
-	dbFilePath := handler.config.DBFilePath
-	connectionUrl := fmt.Sprintf("%s", dbFilePath)
+	connectionUrl := fmt.Sprintf("%s", handler.config.DBConnectionURL)
 	srv_base.Logger.Debugf("Connect to DB: %s", connectionUrl)
-	handler.db, err = gorm.Open(sqlite.Open(connectionUrl), &gorm.Config{})
+	handler.db, err = gorm.Open(postgres.Open(connectionUrl), &gorm.Config{})
 	return
 }
 

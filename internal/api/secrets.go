@@ -31,7 +31,7 @@ func (a *Api) StoreSecret(gc *gin.Context) {
 	}
 	secret := core.CreateSecret(secretRequest.Name, secretRequest.Value, secretRequest.SecretType)
 
-	err = core.StoreSecret(&secret, a.dbHandler, a.masterKey, a.config)
+	err = core.StoreSecret(&secret, &a.dbHandler, a.masterKey, a.config)
 	if err != nil {
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -47,7 +47,7 @@ func (a *Api) LoadSecretIntoTMPFS(gc *gin.Context) {
 	if secretNames, ok := gc.Request.URL.Query()["secret"]; ok {
 		secretName := secretNames[0]
 
-		fullTMPFSPath, err := core.LoadSecretToFileSystem(secretName, a.dbHandler, a.config, a.masterKey)
+		fullTMPFSPath, err := core.LoadSecretToFileSystem(secretName, &a.dbHandler, a.config, a.masterKey)
 		if err != nil {
 			gc.AbortWithError(http.StatusInternalServerError, err)
 			return

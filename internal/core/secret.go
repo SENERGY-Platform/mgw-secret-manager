@@ -21,7 +21,7 @@ func CreateSecret(name string, value string, secretType string) model.Secret {
 	}
 }
 
-func StoreSecret(secret *model.Secret, db db.Database, key *[]byte, config config.Config) (err error) {
+func StoreSecret(secret *model.Secret, db *db.Database, key *[]byte, config config.Config) (err error) {
 	srv_base.Logger.Debugf("Store Secret: %s", secret.Name)
 
 	var storedSecret *model.EncryptedSecret
@@ -35,14 +35,14 @@ func StoreSecret(secret *model.Secret, db db.Database, key *[]byte, config confi
 		storedSecret = &model.EncryptedSecret{Name: secret.Name, SecretType: secret.SecretType, Value: []byte(secret.Value), ID: secret.ID}
 	}
 
-	err = db.SetSecret(storedSecret)
+	err = (*db).SetSecret(storedSecret)
 	return
 }
 
-func GetSecret(secretName string, db db.Database, key *[]byte, config config.Config) (secret *model.Secret, err error) {
+func GetSecret(secretName string, db *db.Database, key *[]byte, config config.Config) (secret *model.Secret, err error) {
 	srv_base.Logger.Debugf("Get Secret: %s from DB", secretName)
 
-	storedSecret, err := db.GetSecret(secretName)
+	storedSecret, err := (*db).GetSecret(secretName)
 	if err != nil {
 		return
 	}
@@ -60,7 +60,7 @@ func GetSecret(secretName string, db db.Database, key *[]byte, config config.Con
 	return
 }
 
-func LoadSecretToFileSystem(secretName string, db db.Database, config config.Config, key *[]byte) (fileName string, err error) {
+func LoadSecretToFileSystem(secretName string, db *db.Database, config config.Config, key *[]byte) (fileName string, err error) {
 	srv_base.Logger.Debugf("Get Secret: %s from DB and load into TMPFS", secretName)
 
 	secret, err := GetSecret(secretName, db, key, config)
