@@ -6,7 +6,7 @@ import (
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/model"
-	"gorm.io/driver/postgres"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
@@ -33,13 +33,13 @@ func (handler *DBHandler) GetSecrets() (secrets []*model.EncryptedSecret, err er
 func (handler *DBHandler) Connect() (err error) {
 	connectionUrl := fmt.Sprintf("%s", handler.config.DBConnectionURL)
 	srv_base.Logger.Debugf("Connect to DB: %s", connectionUrl)
-	handler.db, err = gorm.Open(postgres.Open(connectionUrl), &gorm.Config{})
+	handler.db, err = gorm.Open(mysql.Open(connectionUrl), &gorm.Config{})
 	return
 }
 
-func NewDBHandler(config config.Config) (handler *DBHandler, err error) {
+func NewDBHandler(config *config.Config) (handler *DBHandler, err error) {
 	handler = &DBHandler{
-		config: config,
+		config: *config,
 	}
 
 	handler.Connect()
@@ -49,9 +49,5 @@ func NewDBHandler(config config.Config) (handler *DBHandler, err error) {
 }
 
 func (handler *DBHandler) Cleanup() {
-	if handler.config.EnableEncryption {
-		handler.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&model.EncryptedSecret{})
-	} else {
-		handler.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&model.EncryptedSecret{})
-	}
+	handler.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&model.EncryptedSecret{})
 }

@@ -16,27 +16,51 @@ var testConfig, _ = config.NewConfig(nil)
 var _, err = srv_base.InitLogger(testConfig.Logger)
 
 func TestStoreSecret(t *testing.T) {
-	var dbHandler, _ = db.GetTestDB(testConfig)
+	var dbHandler, _ = db.NewDBHandler(testConfig)
+	dbHandler.Cleanup()
 	defer dbHandler.Cleanup()
 
-	secretName := "test"
-	secret := CreateSecret(secretName, "secret", "type")
-	err = StoreSecret(&secret, &dbHandler, &test.MasterKey, *testConfig)
-	assert.Equal(t, err, nil)
+	testCases := []struct {
+		secretName          string
+		secretValue         string
+		secretType          string
+		encryptionIsEnabled bool
+	}{
+		{"secret1", "value1", "typ1", true},
+		{"secret2", "value2", "typ2", false},
+	}
+	for _, tc := range testCases {
+		secret := CreateSecret(tc.secretName, tc.secretValue, tc.secretType)
+		err = StoreSecret(&secret, dbHandler, &test.MasterKey, tc.encryptionIsEnabled)
+		assert.Equal(t, err, nil)
 
-	storedSecret, _ := GetSecret(secretName, &dbHandler, &test.MasterKey, *testConfig)
-	assert.Equal(t, *storedSecret, secret)
+		storedSecret, _ := GetSecret(tc.secretName, dbHandler, &test.MasterKey, tc.encryptionIsEnabled)
+		assert.Equal(t, secret, *storedSecret)
+	}
 }
 
 func TestLoadSecretToTMPFS(t *testing.T) {
-	var dbHandler, _ = db.GetTestDB(testConfig)
+	var dbHandler, _ = db.NewDBHandler(testConfig)
+	dbHandler.Cleanup()
 	defer dbHandler.Cleanup()
 
-	secretName := "test"
-	secret := CreateSecret(secretName, "secret", "type")
-	_ = StoreSecret(&secret, &dbHandler, &test.MasterKey, *testConfig)
-	fileName, err := LoadSecretToFileSystem(secretName, &dbHandler, *testConfig, &test.MasterKey)
-	assert.Equal(t, nil, err)
-	assert.Equal(t, secret.ID, fileName)
-	// expect file exists
+	testCases := []struct {
+		secretName          string
+		secretValue         string
+		secretType          string
+		encryptionIsEnabled bool
+	}{
+		{"secret1", "value1", "typ1", true},
+		{"secret2", "value2", "typ2", false},
+	}
+	for _, tc := range testCases {
+		secret := CreateSecret(tc.secretName, tc.secretValue, tc.secretType)
+		err = StoreSecret(&secret, dbHandler, &test.MasterKey, testConfig.EnableEncryption)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+		fileName, err := LoadSecretToFileSystem(tc.secretName, dbHandler, *testConfig, &test.MasterKey)
+		assert.Equal(t, nil, err)
+		assert.Equal(t, secret.ID, fileName)
+	}
 }

@@ -12,15 +12,16 @@ services:
       - .:/coverage
     environment:
       - TEST_MODE=INTEGRATION
-      - DB_CONNECTION_URL=postgres://user:password@db:5432/db
+      - DB_CONNECTION_URL=user:password@tcp(db:3306)/db
       - TMPFS_PATH=/tmp
       - MASTER_KEY_FILE_PATH=/tmp/masterkey
 
   db:
-    image: postgres
+    image: mysql
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: db
+      MYSQL_USER: user
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: db
     ports:
-      - "5432:5432"
+      - "3306:3306"

@@ -1,23 +1,24 @@
 BINARY_NAME=secret-manager
 
 build:
- go build -o ${BINARY_NAME} main.go
+	go build -o ${BINARY_NAME} main.go
 
 run: build
- ./${BINARY_NAME}
+	./${BINARY_NAME}
 
 clean:
- go clean
- rm ${BINARY_NAME}
+	go clean
+	rm ${BINARY_NAME}
 
-test:
- TEST_MODE=INTEGRATION DB_CONNECTION_URL=postgres://user:password@localhost:5432/db go test ./...
+test_integration:
+	docker compose -f test/docker-compose.yml up -d db 
+	TEST_MODE=INTEGRATION DB_CONNECTION_URL=user:password@tcp\(localhost:3306\)/db go test ./... -coverprofile=cov.xml -coverpkg=./...
+
+test_unit:
+	TEST_MODE=UNIT go test ./... -coverprofile=cov.xml -coverpkg=./...
 
 dep:
- go mod download
-
-vet:
- go vet
+	go mod download
 
 lint:
- golangci-lint run --enable-all
+	golangci-lint run --enable-all

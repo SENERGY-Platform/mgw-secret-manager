@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/db"
 
@@ -59,24 +60,25 @@ func main() {
 
 	srv_base.Logger.Debugf("config: %s", srv_base.ToJsonStr(config))
 
-	dbHandler, err := db.NewDBHandler(*config)
+	dbHandler, err := db.NewDBHandler(config)
 	if err != nil {
 		srv_base.Logger.Error(err)
 	}
 
 	gin.SetMode(gin.ReleaseMode)
 	apiEngine := gin.New()
-	apiEngine.Use(CORS(), gin_mw.LoggerHandler(srv_base.Logger), gin_mw.ErrorHandler, gin.Recovery())
+
+	developmentIsActivated, err := strconv.ParseBool(os.Getenv("DEV"))
+	if err != nil {
+		srv_base.Logger.Error(err)
+	}
+	if developmentIsActivated {
+		apiEngine.Use(CORS(), gin_mw.LoggerHandler(srv_base.Logger), gin_mw.ErrorHandler, gin.Recovery())
+	}
+
 	apiEngine.UseRawPath = true
 	Api := api.New(*config, dbHandler)
 	Api.SetRoutes(apiEngine)
-
-	/*listener, err := srv_base.NewUnixListener(config.Socket.Path, os.Getuid(), config.Socket.GroupID, config.Socket.FileMode)
-	if err != nil {
-		srv_base.Logger.Error(err)
-		return
-	}*/
-
 	apiEngine.Run()
 	//srv_base.StartServer(&http.Server{Handler: apiEngine}, listener, srv_base_types.DefaultShutdownSignals)
 }

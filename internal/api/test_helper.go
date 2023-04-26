@@ -15,20 +15,21 @@ import (
 var testConfig, _ = config.NewConfig(nil)
 var _, _ = srv_base.InitLogger(testConfig.Logger)
 
-func GetTestRouter(enableEncryption bool) (*gin.Engine, *db.Database) {
+func GetTestRouter(enableEncryption bool) (*gin.Engine, db.Database) {
 	apiEngine := gin.New()
 	testConfig.EnableEncryption = enableEncryption
-	var dbHandler, _ = db.GetTestDB(testConfig)
+	var dbHandler, _ = db.NewDBHandler(testConfig)
+	dbHandler.Cleanup()
 	Api := New(*testConfig, dbHandler)
 	Api.masterKey = &test.MasterKey
 	Api.SetRoutes(apiEngine)
 
-	return apiEngine, &dbHandler
+	return apiEngine, dbHandler
 }
 
-func SetupDummySecret(t *testing.T, name string, value string, secretType string, dbHandler *db.Database) (model.Secret, model.ShortSecret) {
+func SetupDummySecret(t *testing.T, name string, value string, secretType string, dbHandler db.Database) (model.Secret, model.ShortSecret) {
 	secret := core.CreateSecret(name, value, secretType)
-	err := core.StoreSecret(&secret, dbHandler, &test.MasterKey, *testConfig)
+	err := core.StoreSecret(&secret, dbHandler, &test.MasterKey, testConfig.EnableEncryption)
 	if err != nil {
 		t.Errorf(err.Error())
 	}

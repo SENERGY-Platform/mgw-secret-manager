@@ -24,12 +24,12 @@ var enableEncryption = false
 
 func TestLoadSecret(t *testing.T) {
 	router, dbHandler := GetTestRouter(enableEncryption)
-	defer (*dbHandler).Cleanup()
+	defer dbHandler.Cleanup()
 
 	// Setup dummy secret
 	secretName := "secret"
 	secret := core.CreateSecret(secretName, "geheim", "type")
-	err := core.StoreSecret(&secret, dbHandler, &test.MasterKey, *testConfig)
+	err := core.StoreSecret(&secret, dbHandler, &test.MasterKey, testConfig.EnableEncryption)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -48,7 +48,7 @@ func TestLoadSecret(t *testing.T) {
 
 func TestLoadSecretMissingQuery(t *testing.T) {
 	router, dbHandler := GetTestRouter(enableEncryption)
-	defer (*dbHandler).Cleanup()
+	defer dbHandler.Cleanup()
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/load", nil)
@@ -58,7 +58,7 @@ func TestLoadSecretMissingQuery(t *testing.T) {
 
 func TestPostValidSecret(t *testing.T) {
 	router, dbHandler := GetTestRouter(enableEncryption)
-	defer (*dbHandler).Cleanup()
+	defer dbHandler.Cleanup()
 
 	w := httptest.NewRecorder()
 
@@ -82,7 +82,7 @@ func TestPostValidSecret(t *testing.T) {
 
 	assert.Equal(t, 200, w.Code)
 
-	secretFromDB, err := core.GetSecret(secretName, dbHandler, &test.MasterKey, *testConfig)
+	secretFromDB, err := core.GetSecret(secretName, dbHandler, &test.MasterKey, testConfig.EnableEncryption)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -91,7 +91,7 @@ func TestPostValidSecret(t *testing.T) {
 
 func TestGetSecret(t *testing.T) {
 	router, dbHandler := GetTestRouter(enableEncryption)
-	defer (*dbHandler).Cleanup()
+	defer dbHandler.Cleanup()
 
 	// Setup dummy secrets
 	var expectedSecrets []model.ShortSecret
@@ -108,6 +108,6 @@ func TestGetSecret(t *testing.T) {
 	var secretResult []model.ShortSecret
 	json.NewDecoder(w.Body).Decode(&secretResult)
 	assert.Equal(t, 200, w.Code)
-	assert.Equal(t, expectedSecrets, secretResult)
+	assert.ElementsMatch(t, expectedSecrets, secretResult)
 
 }

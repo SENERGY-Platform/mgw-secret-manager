@@ -15,7 +15,7 @@ var testConfig, _ = config.NewConfig(nil)
 var _, err = srv_base.InitLogger(testConfig.Logger)
 
 func TestSetSecret(t *testing.T) {
-	testHandler, err := NewDBHandler(*testConfig)
+	testHandler, err := NewDBHandler(testConfig)
 	defer testHandler.Cleanup()
 	if err != nil {
 		t.Errorf(err.Error())
@@ -30,7 +30,7 @@ func TestSetSecret(t *testing.T) {
 
 func TestGetSecret(t *testing.T) {
 	secretName := "test"
-	testHandler, err := NewDBHandler(*testConfig)
+	testHandler, err := NewDBHandler(testConfig)
 	defer testHandler.Cleanup()
 	if err != nil {
 		t.Errorf(err.Error())
