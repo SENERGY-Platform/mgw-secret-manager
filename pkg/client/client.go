@@ -25,7 +25,7 @@ func (c *RealClient) StoreSecret(name string, value string, secretType string) (
 		return err, http.StatusInternalServerError
 	}
 
-	req, err := http.NewRequest(http.MethodPost, c.BaseUrl+"/secret", strings.NewReader(string(body)))
+	req, err := http.NewRequest(http.MethodPost, c.BaseUrl+"/secrets", strings.NewReader(string(body)))
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
