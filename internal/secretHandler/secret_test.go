@@ -1,10 +1,12 @@
-package core
+package secretHandler
 
 import (
 	"testing"
 
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/db"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/models"
+
 	"github.com/SENERGY-Platform/mgw-secret-manager/test"
 
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
@@ -63,4 +65,35 @@ func TestLoadSecretToTMPFS(t *testing.T) {
 		assert.Equal(t, nil, err)
 		assert.Equal(t, secret.ID, fileName)
 	}
+}
+
+func TestEncryptSecret(t *testing.T) {
+	secret := &models.Secret{
+		Name:  "Test",
+		Value: "value",
+	}
+	encryptedSecret, err := EncryptSecret(secret, test.MasterKey)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	assert.Equal(t, encryptedSecret.Name, secret.Name)
+}
+
+func TestDecryptSecret(t *testing.T) {
+	secret := &models.Secret{
+		Name:  "Test",
+		Value: "value",
+	}
+	encryptedSecret, err := EncryptSecret(secret, test.MasterKey)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	decryptedSecret, err := DecryptSecret(encryptedSecret, test.MasterKey)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	assert.Equal(t, decryptedSecret.Name, secret.Name)
+	assert.Equal(t, decryptedSecret.Value, secret.Value)
 }

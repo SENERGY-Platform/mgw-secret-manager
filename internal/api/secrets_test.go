@@ -63,7 +63,7 @@ func TestPostValidSecret(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	secretName := "test"
-	secret := model.Secret{
+	secret := secretHandler.Secret{
 		Name:       secretName,
 		Value:      "value",
 		SecretType: "type",
@@ -73,7 +73,7 @@ func TestPostValidSecret(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	req, _ := http.NewRequest("POST", "/secret", strings.NewReader(string(body)))
+	req, _ := http.NewRequest("POST", "/secrets", strings.NewReader(string(body)))
 	router.ServeHTTP(w, req)
 
 	var response string
@@ -94,7 +94,7 @@ func TestGetSecret(t *testing.T) {
 	defer dbHandler.Cleanup()
 
 	// Setup dummy secrets
-	var expectedSecrets []model.ShortSecret
+	var expectedSecrets []secretHandler.ShortSecret
 
 	_, shortSecret1 := SetupDummySecret(t, "secret", "geheim", "type", dbHandler)
 	expectedSecrets = append(expectedSecrets, shortSecret1)

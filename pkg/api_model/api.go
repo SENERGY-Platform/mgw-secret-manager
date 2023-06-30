@@ -1,17 +1,9 @@
-package model
+package api_model
 
-type EncryptedSecret struct {
-	Name       string
-	Value      []byte
-	SecretType string
-	ID         string `gorm:"primaryKey"`
-}
-
-type Secret struct {
+type SecretRequest struct {
 	Name       string `json:"name"`
 	Value      string `json:"value"`
 	SecretType string `json:"type"`
-	ID         string `json:"id"`
 }
 
 type ShortSecret struct {

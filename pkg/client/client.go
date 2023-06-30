@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/SENERGY-Platform/mgw-secret-manager/internal/core"
+	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
 )
 
 type RealClient struct {
@@ -15,8 +15,12 @@ type RealClient struct {
 }
 
 func (c *RealClient) StoreSecret(name string, value string, secretType string) (err error, errCode int) {
-	secret := core.CreateSecret(name, value, secretType)
-	body, err := json.Marshal(secret)
+	secretRequest := api_model.SecretRequest{
+		Name:       name,
+		Value:      value,
+		SecretType: secretType,
+	}
+	body, err := json.Marshal(secretRequest)
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
@@ -48,8 +52,18 @@ func (c *RealClient) SetEncryptionKey(encryptionKey []byte) (err error, errCode 
 	return do(req)
 }
 
-func NewClient() (client Client) {
-	return &RealClient{}
+func (c *RealClient) GetSecrets() (secrets []api_model.ShortSecret, err error, errCode int) {
+	req, err := http.NewRequest(http.MethodGet, c.BaseUrl+"/secrets", nil)
+	if err != nil {
+		return nil, err, http.StatusInternalServerError
+	}
+	return doWithResponse[[]api_model.ShortSecret](req)
+}
+
+func NewClient(url string) (client Client) {
+	return &RealClient{
+		BaseUrl: url,
+	}
 }
 
 func do(req *http.Request) (err error, code int) {

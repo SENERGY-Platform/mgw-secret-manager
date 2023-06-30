@@ -6,9 +6,9 @@ WORKDIR /app
 RUN git log -1 --oneline > version.txt
 
 WORKDIR /app/cmd
-RUN CGO_ENABLED=1 GOOS=linux go build -o ../app
+RUN CGO_ENABLED=0 GOOS=linux go build -o ../app
 
-FROM golang:1.18 AS prod
+FROM alpine:3.18 AS prod
 WORKDIR /root
 COPY --from=builder /app/app .
 COPY --from=builder /app/version.txt .

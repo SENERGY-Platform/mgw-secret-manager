@@ -1,4 +1,4 @@
-package core
+package keyHandler
 
 import (
 	"crypto/rand"
@@ -7,7 +7,6 @@ import (
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/crypto"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/files"
-	"github.com/SENERGY-Platform/mgw-secret-manager/internal/model"
 
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 )
@@ -43,34 +42,6 @@ func CreateAndStoreMasterKey(config config.Config, encryptionKey []byte) (master
 	}
 	err = files.WriteBytesToFile(encryptedMasterKey, config.MasterKeyPath)
 
-	return
-}
-
-func EncryptSecret(secret *model.Secret, key []byte) (encryptedSecret *model.EncryptedSecret, err error) {
-	encryptedValue, err := crypto.Encrypt([]byte(secret.Value), key)
-	if err != nil {
-		return
-	}
-	encryptedSecret = &model.EncryptedSecret{
-		Name:       secret.Name,
-		Value:      encryptedValue,
-		SecretType: secret.SecretType,
-		ID:         secret.ID,
-	}
-	return
-}
-
-func DecryptSecret(secret *model.EncryptedSecret, key []byte) (decryptedSecret *model.Secret, err error) {
-	decryptedValue, err := crypto.Decrypt(secret.Value, key)
-	if err != nil {
-		return
-	}
-	decryptedSecret = &model.Secret{
-		Name:       secret.Name,
-		Value:      string(decryptedValue),
-		SecretType: secret.SecretType,
-		ID:         secret.ID,
-	}
 	return
 }
 

@@ -73,8 +73,10 @@ func main() {
 		srv_base.Logger.Error(err)
 	}
 	if developmentIsActivated {
-		apiEngine.Use(CORS(), gin_mw.LoggerHandler(srv_base.Logger), gin_mw.ErrorHandler, gin.Recovery())
+		apiEngine.Use(CORS())
 	}
+
+	apiEngine.Use(gin_mw.LoggerHandler(srv_base.Logger), gin_mw.ErrorHandler, gin.Recovery())
 
 	apiEngine.UseRawPath = true
 	Api := api.New(*config, dbHandler)

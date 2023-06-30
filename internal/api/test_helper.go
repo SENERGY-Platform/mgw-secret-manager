@@ -5,9 +5,11 @@ import (
 
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
-	"github.com/SENERGY-Platform/mgw-secret-manager/internal/core"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/db"
-	"github.com/SENERGY-Platform/mgw-secret-manager/internal/model"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/models"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/secretHandler"
+
+	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
 	"github.com/SENERGY-Platform/mgw-secret-manager/test"
 	"github.com/gin-gonic/gin"
 )
@@ -27,12 +29,12 @@ func GetTestRouter(enableEncryption bool) (*gin.Engine, db.Database) {
 	return apiEngine, dbHandler
 }
 
-func SetupDummySecret(t *testing.T, name string, value string, secretType string, dbHandler db.Database) (model.Secret, model.ShortSecret) {
-	secret := core.CreateSecret(name, value, secretType)
-	err := core.StoreSecret(&secret, dbHandler, &test.MasterKey, testConfig.EnableEncryption)
+func SetupDummySecret(t *testing.T, name string, value string, secretType string, dbHandler db.Database) (models.Secret, api_model.ShortSecret) {
+	secret := secretHandler.CreateSecret(name, value, secretType)
+	err := secretHandler.StoreSecret(&secret, dbHandler, &test.MasterKey, testConfig.EnableEncryption)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	return secret, model.ShortSecret{Name: name, SecretType: secretType, ID: secret.ID}
+	return secret, api_model.ShortSecret{Name: name, SecretType: secretType, ID: secret.ID}
 }

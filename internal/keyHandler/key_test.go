@@ -1,4 +1,4 @@
-package core
+package keyHandler
 
 import (
 	"testing"
@@ -30,35 +30,4 @@ func TestCreateAndStoreMasterKey(t *testing.T) {
 	key, err := CreateAndStoreMasterKey(*testConfig, test.EncryptionKey)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, len(key), 32)
-}
-
-func TestEncryptSecret(t *testing.T) {
-	secret := &model.Secret{
-		Name:  "Test",
-		Value: "value",
-	}
-	encryptedSecret, err := EncryptSecret(secret, test.MasterKey)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	assert.Equal(t, encryptedSecret.Name, secret.Name)
-}
-
-func TestDecryptSecret(t *testing.T) {
-	secret := &model.Secret{
-		Name:  "Test",
-		Value: "value",
-	}
-	encryptedSecret, err := EncryptSecret(secret, test.MasterKey)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-
-	decryptedSecret, err := DecryptSecret(encryptedSecret, test.MasterKey)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-
-	assert.Equal(t, decryptedSecret.Name, secret.Name)
-	assert.Equal(t, decryptedSecret.Value, secret.Value)
 }

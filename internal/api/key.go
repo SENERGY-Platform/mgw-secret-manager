@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/SENERGY-Platform/mgw-secret-manager/internal/core"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/keyHandler"
 
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 	"github.com/gin-gonic/gin"
@@ -25,7 +25,7 @@ func (a *Api) SetEncryptionKey(gc *gin.Context) {
 	}
 	encryptionKey := body
 
-	masterKey, err := core.SetEncryptionKey(encryptionKey, a.config)
+	masterKey, err := keyHandler.SetEncryptionKey(encryptionKey, a.config)
 	if err != nil {
 		srv_base.Logger.Errorf("Error setting encryption key: %s", err.Error())
 		gc.AbortWithError(http.StatusInternalServerError, err)

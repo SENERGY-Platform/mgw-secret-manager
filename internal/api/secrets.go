@@ -5,7 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/SENERGY-Platform/mgw-secret-manager/internal/core"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/secretHandler"
+	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
 
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 	"github.com/gin-gonic/gin"
@@ -22,16 +23,16 @@ func (a *Api) StoreSecret(gc *gin.Context) {
 		return
 	}
 
-	var secretRequest SecretRequest
+	var secretRequest api_model.SecretRequest
 	err = json.Unmarshal(body, &secretRequest)
 	if err != nil {
 		srv_base.Logger.Errorf(err.Error())
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	secret := core.CreateSecret(secretRequest.Name, secretRequest.Value, secretRequest.SecretType)
+	secret := secretHandler.CreateSecret(secretRequest.Name, secretRequest.Value, secretRequest.SecretType)
 
-	err = core.StoreSecret(&secret, a.dbHandler, a.masterKey, a.config.EnableEncryption)
+	err = secretHandler.StoreSecret(&secret, a.dbHandler, a.masterKey, a.config.EnableEncryption)
 	if err != nil {
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -47,7 +48,7 @@ func (a *Api) LoadSecretIntoTMPFS(gc *gin.Context) {
 	if secretNames, ok := gc.Request.URL.Query()["secret"]; ok {
 		secretName := secretNames[0]
 
-		fullTMPFSPath, err := core.LoadSecretToFileSystem(secretName, a.dbHandler, a.config, a.masterKey)
+		fullTMPFSPath, err := secretHandler.LoadSecretToFileSystem(secretName, a.dbHandler, a.config, a.masterKey)
 		if err != nil {
 			gc.AbortWithError(http.StatusInternalServerError, err)
 			return
@@ -64,11 +65,15 @@ func (a *Api) GetSecrets(gc *gin.Context) {
 		return
 	}
 
-	secrets, err := core.GetSecrets(a.dbHandler, a.config)
+	secrets, err := secretHandler.GetSecrets(a.dbHandler, a.config)
 	if err != nil {
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
 	gc.JSON(http.StatusOK, secrets)
+}
+
+func (a *Api) GetTypes(gc *gin.Context) {
+	gc.JSON(http.StatusOK, []map[string]string{{"id": "certificate", "name": "Certificate"}, {"id": "basic-auth", "name": "Credentials"}, {"id": "api-key", "name": "API Key"}})
 }
