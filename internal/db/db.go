@@ -1,12 +1,15 @@
 package db
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/customErrors"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/models"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -17,17 +20,38 @@ type DBHandler struct {
 }
 
 func (handler *DBHandler) SetSecret(secret *models.EncryptedSecret) (err error) {
-	handler.db.Create(&secret)
+	err = handler.db.Create(&secret).Error
 	return
 }
 
-func (handler *DBHandler) GetSecret(secretName string) (secret *models.EncryptedSecret, err error) {
-	handler.db.Where("name = ?", secretName).First(&secret)
+func (handler *DBHandler) GetSecret(secretID string) (secret *models.EncryptedSecret, err error) {
+	err = handler.db.Where("ID = ?", secretID).First(&secret).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = customErrors.NoSecretFound{SecretID: secretID}
+		}
+	}
+
 	return
 }
 
 func (handler *DBHandler) GetSecrets() (secrets []*models.EncryptedSecret, err error) {
-	handler.db.Find(&secrets)
+	err = handler.db.Find(&secrets).Error
+	return
+}
+
+func (handler *DBHandler) UpdateSecret(secret *models.EncryptedSecret) (err error) {
+	err = handler.db.Save(secret).Error
+	return
+}
+
+func (handler *DBHandler) DeleteSecret(secretID string) (err error) {
+	secret := models.EncryptedSecret{
+		ID: secretID,
+	}
+	err = handler.db.Delete(&secret).Error
+
 	return
 }
 

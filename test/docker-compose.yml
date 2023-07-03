@@ -13,8 +13,6 @@ services:
     environment:
       - TEST_MODE=INTEGRATION
       - DB_CONNECTION_URL=user:password@tcp(db:3306)/db
-      - TMPFS_PATH=/tmp
-      - MASTER_KEY_FILE_PATH=/tmp/masterkey
 
   db:
     image: mysql

@@ -4,37 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strconv"
-
-	"github.com/SENERGY-Platform/mgw-secret-manager/internal/db"
-
-	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
 
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/api"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
 
-	gin_mw "github.com/SENERGY-Platform/gin-middleware"
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
-	"github.com/gin-gonic/gin"
 )
 
 var version string
-
-func CORS() gin.HandlerFunc {
-	return func(c *gin.Context) {
-
-		fmt.Println(c.Request.Header)
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, Origin, Cache-Control, X-Requested-With")
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
-
-		c.Next()
-	}
-}
 
 func main() {
 	srv_base.PrintInfo("mgw-github.com/SENERGY-Platform/mgw-secret-manager", version)
@@ -60,27 +37,7 @@ func main() {
 
 	srv_base.Logger.Debugf("config: %s", srv_base.ToJsonStr(config))
 
-	dbHandler, err := db.NewDBHandler(config)
-	if err != nil {
-		srv_base.Logger.Error(err)
-	}
-
-	gin.SetMode(gin.ReleaseMode)
-	apiEngine := gin.New()
-
-	developmentIsActivated, err := strconv.ParseBool(os.Getenv("DEV"))
-	if err != nil {
-		srv_base.Logger.Error(err)
-	}
-	if developmentIsActivated {
-		apiEngine.Use(CORS())
-	}
-
-	apiEngine.Use(gin_mw.LoggerHandler(srv_base.Logger), gin_mw.ErrorHandler, gin.Recovery())
-
-	apiEngine.UseRawPath = true
-	Api := api.New(*config, dbHandler)
-	Api.SetRoutes(apiEngine)
+	apiEngine, _, _ := api.InitServer(config)
 	apiEngine.Run()
 	//srv_base.StartServer(&http.Server{Handler: apiEngine}, listener, srv_base_types.DefaultShutdownSignals)
 }

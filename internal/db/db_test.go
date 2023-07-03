@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
-	"github.com/SENERGY-Platform/mgw-secret-manager/internal/model"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/models"
 
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 
@@ -20,7 +20,7 @@ func TestSetSecret(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	secret := &model.EncryptedSecret{
+	secret := &models.EncryptedSecret{
 		Name:  "test",
 		Value: make([]byte, 2),
 	}
@@ -29,19 +29,20 @@ func TestSetSecret(t *testing.T) {
 }
 
 func TestGetSecret(t *testing.T) {
-	secretName := "test"
+	secretID := "id"
 	testHandler, err := NewDBHandler(testConfig)
 	defer testHandler.Cleanup()
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	secret := &model.EncryptedSecret{
-		Name:  secretName,
+	secret := &models.EncryptedSecret{
+		Name:  "name",
 		Value: make([]byte, 2),
+		ID:    secretID,
 	}
 	err = testHandler.SetSecret(secret)
 
-	storedSecret, err := testHandler.GetSecret(secretName)
-	assert.Equal(t, err, nil)
-	assert.Equal(t, storedSecret, secret)
+	storedSecret, err := testHandler.GetSecret(secretID)
+	assert.Nil(t, err)
+	assert.Equal(t, secret, storedSecret)
 }

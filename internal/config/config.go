@@ -20,6 +20,7 @@ type Config struct {
 	DBConnectionURL  string                `json:"db_connection_url" env_var:"DB_CONNECTION_URL"`
 	MasterKeyPath    string                `json:"master_key_file_path" env_var:"MASTER_KEY_FILE_PATH"`
 	Socket           SocketConfig          `json:"socket" env_var:"SOCKET_CONFIG"`
+	Dev              bool                  `json:"dev" env_var:"DEV"`
 }
 
 func NewConfig(path *string) (*Config, error) {
@@ -40,6 +41,7 @@ func NewConfig(path *string) (*Config, error) {
 		EnableEncryption: false,
 		DBConnectionURL:  "./db.sqlite",
 		MasterKeyPath:    "./key",
+		Dev:              false,
 	}
 	if path == nil || *path == "" {
 		path = nil

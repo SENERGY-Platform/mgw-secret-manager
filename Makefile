@@ -3,12 +3,13 @@ BINARY_NAME=secret-manager
 build:
 	go build -o ${BINARY_NAME} main.go
 
-run: build
-	./${BINARY_NAME}
+run: 
+	docker compose -f test/docker-compose.yml up -d db 
+	ENABLE_ENCRYPTION=true DB_CONNECTION_URL=user:password@tcp\(localhost:3306\)/db go run ./...
 
 clean:
 	go clean
-	rm ${BINARY_NAME}
+	docker compose -f test/docker-compose.yml down --remove-orphans
 
 run_test:
 	docker compose -f test/docker-compose.yml up -d db 
