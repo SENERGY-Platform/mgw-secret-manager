@@ -7,10 +7,10 @@ import (
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/crypto"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/db"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/files"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/logger"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/models"
 	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
 
-	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 	"github.com/google/uuid"
 )
 
@@ -40,7 +40,7 @@ func (secretHandler *SecretHandler) CreateSecret(name string, value string, secr
 }
 
 func (secretHandler *SecretHandler) SetKey(key []byte) {
-	srv_base.Logger.Debugf("Save encryption key in secret handler")
+	logger.Logger.Debugf("Save encryption key in secret handler")
 
 	secretHandler.KeyMutex.Lock()
 	secretHandler.Key = key
@@ -48,7 +48,7 @@ func (secretHandler *SecretHandler) SetKey(key []byte) {
 }
 
 func (secretHandler *SecretHandler) StoreSecret(secret *models.Secret) (err error) {
-	srv_base.Logger.Debugf("Store Secret: %s", secret.Name)
+	logger.Logger.Debugf("Store Secret: %s", secret.Name)
 
 	var storedSecret *models.EncryptedSecret
 
@@ -66,7 +66,7 @@ func (secretHandler *SecretHandler) StoreSecret(secret *models.Secret) (err erro
 }
 
 func (secretHandler *SecretHandler) GetSecret(secretID string) (secret *models.Secret, err error) {
-	srv_base.Logger.Debugf("Get Secret: %s from DB", secretID)
+	logger.Logger.Debugf("Get Secret: %s from DB", secretID)
 
 	storedSecret, err := secretHandler.db.GetSecret(secretID)
 	if err != nil {
@@ -78,7 +78,7 @@ func (secretHandler *SecretHandler) GetSecret(secretID string) (secret *models.S
 		if err != nil {
 			return
 		}
-		srv_base.Logger.Debugf("Decrypted Secret Value: %s", secret.Value)
+		logger.Logger.Debugf("Decrypted Secret Value: %s", secret.Value)
 	} else {
 		secret = &models.Secret{Name: storedSecret.Name, SecretType: storedSecret.SecretType, ID: storedSecret.ID, Value: string(storedSecret.Value)}
 	}
@@ -87,7 +87,7 @@ func (secretHandler *SecretHandler) GetSecret(secretID string) (secret *models.S
 }
 
 func (secretHandler *SecretHandler) LoadSecretToFileSystem(secretID string) (fileName string, err error) {
-	srv_base.Logger.Debugf("Get Secret and load into TMPFS")
+	logger.Logger.Debugf("Get Secret and load into TMPFS")
 
 	secret, err := secretHandler.GetSecret(secretID)
 	if err != nil {
@@ -96,17 +96,17 @@ func (secretHandler *SecretHandler) LoadSecretToFileSystem(secretID string) (fil
 
 	fileName = secret.ID
 	fullOutputPath := filepath.Join(secretHandler.TMPFSPath, fileName)
-	srv_base.Logger.Debugf("Load Secret: %s to %s", secret.ID, fullOutputPath)
+	logger.Logger.Debugf("Load Secret: %s to %s", secret.ID, fullOutputPath)
 
 	err = files.WriteToFile(secret.Value, fullOutputPath)
 	if err != nil {
-		srv_base.Logger.Errorf("Write to TMPFS failed: %s", err.Error())
+		logger.Logger.Errorf("Write to TMPFS failed: %s", err.Error())
 	}
 	return
 }
 
 func (secretHandler *SecretHandler) GetFullSecrets(db db.Database) (secrets []*models.Secret, err error) {
-	srv_base.Logger.Debugf("Load all full secrets")
+	logger.Logger.Debugf("Load all full secrets")
 
 	storedSecrets, err := secretHandler.db.GetSecrets()
 	if err != nil {
@@ -131,7 +131,7 @@ func (secretHandler *SecretHandler) GetFullSecrets(db db.Database) (secrets []*m
 }
 
 func (secretHandler *SecretHandler) GetSecrets() (secrets []*api_model.ShortSecret, err error) {
-	srv_base.Logger.Debugf("Load all short secrets")
+	logger.Logger.Debugf("Load all short secrets")
 
 	storedSecrets, err := secretHandler.db.GetSecrets()
 	if err != nil {
@@ -174,7 +174,7 @@ func (secretHandler *SecretHandler) DecryptSecret(secret *models.EncryptedSecret
 }
 
 func (secretHandler *SecretHandler) UpdateSecret(secretRequest api_model.SecretRequest, secretID string) (err error) {
-	srv_base.Logger.Debugf("Update secret %s", secretID)
+	logger.Logger.Debugf("Update secret %s", secretID)
 
 	secret := models.EncryptedSecret{
 		Name:       secretRequest.Name,
@@ -187,7 +187,7 @@ func (secretHandler *SecretHandler) UpdateSecret(secretRequest api_model.SecretR
 }
 
 func (secretHandler *SecretHandler) DeleteSecret(secretID string) (err error) {
-	srv_base.Logger.Debugf("Delete secret %s", secretID)
+	logger.Logger.Debugf("Delete secret %s", secretID)
 	err = secretHandler.db.DeleteSecret(secretID)
 	return
 }

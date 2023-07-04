@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/customErrors"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/logger"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/models"
 
 	"gorm.io/driver/mysql"
@@ -57,7 +57,7 @@ func (handler *DBHandler) DeleteSecret(secretID string) (err error) {
 
 func (handler *DBHandler) Connect() (err error) {
 	connectionUrl := fmt.Sprintf("%s", handler.config.DBConnectionURL)
-	srv_base.Logger.Debugf("Connect to DB: %s", connectionUrl)
+	logger.Logger.Debugf("Connect to DB: %s", connectionUrl)
 	handler.db, err = gorm.Open(mysql.Open(connectionUrl), &gorm.Config{})
 	for err != nil {
 		retries := 5

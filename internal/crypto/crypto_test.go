@@ -3,14 +3,13 @@ package crypto
 import (
 	"testing"
 
-	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
-
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/logger"
 	"github.com/stretchr/testify/assert"
 )
 
-var testConfig, _ = config.NewConfig(nil)
-var _, _ = srv_base.InitLogger(testConfig.Logger)
+var testConfig, _ = config.NewConfig(config.Flags.ConfPath)
+var _, _ = logger.InitLogger(testConfig.Logger)
 
 func TestEncrytpionAndDecryption(t *testing.T) {
 	plainText := "Test text"

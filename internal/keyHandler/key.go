@@ -6,9 +6,8 @@ import (
 
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/crypto"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/files"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/logger"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/secretHandler"
-
-	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 )
 
 type KeyHandler struct {
@@ -62,17 +61,17 @@ func (keyHandler *KeyHandler) SetEncryptionKey(encryptionKey []byte, secretHandl
 	var masterKey []byte
 
 	if _, err := os.Stat(keyHandler.MasterKeyPath); err == nil {
-		srv_base.Logger.Debug(("Master Encryption Key found -> Decrypt and Load"))
+		logger.Logger.Debug(("Master Encryption Key found -> Decrypt and Load"))
 		masterKey, err = keyHandler.GetMasterKey()
 		if err != nil {
-			srv_base.Logger.Error(err)
+			logger.Logger.Error(err)
 			return err
 		}
 	} else {
-		srv_base.Logger.Debug(("Master Encryption Key not found -> Create, Encrypt and Store"))
+		logger.Logger.Debug(("Master Encryption Key not found -> Create, Encrypt and Store"))
 		masterKey, err = keyHandler.CreateAndStoreMasterKey()
 		if err != nil {
-			srv_base.Logger.Error(err)
+			logger.Logger.Error(err)
 			return err
 		}
 	}

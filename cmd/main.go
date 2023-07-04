@@ -3,12 +3,17 @@ package main
 import (
 	"errors"
 	"fmt"
+	"net"
+	"net/http"
 	"os"
+	"strconv"
 
-	"github.com/SENERGY-Platform/mgw-secret-manager/internal/api"
-	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
+	srv_base_types "github.com/SENERGY-Platform/go-service-base/srv-base/types"
 
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/api"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/logger"
 )
 
 var version string
@@ -16,14 +21,15 @@ var version string
 func main() {
 	srv_base.PrintInfo("mgw-github.com/SENERGY-Platform/mgw-secret-manager", version)
 
-	flags := config.NewFlags()
-	config, err := config.NewConfig(flags.ConfPath)
+	config.ParseFlags()
+
+	config, err := config.NewConfig(config.Flags.ConfPath)
 	if err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 
-	logFile, err := srv_base.InitLogger(config.Logger)
+	logFile, err := logger.InitLogger(config.Logger)
 	if err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, err)
 		var logFileError *srv_base.LogFileError
@@ -35,9 +41,15 @@ func main() {
 		defer logFile.Close()
 	}
 
-	srv_base.Logger.Debugf("config: %s", srv_base.ToJsonStr(config))
+	logger.Logger.Debugf("config: %s", srv_base.ToJsonStr(config))
 
-	apiEngine, _, _ := api.InitServer(config)
-	apiEngine.Run()
-	//srv_base.StartServer(&http.Server{Handler: apiEngine}, listener, srv_base_types.DefaultShutdownSignals)
+	httpHandler, _, _ := api.InitServer(config)
+	listener, err := net.Listen("tcp", ":"+strconv.FormatInt(int64(config.ServerPort), 10))
+	if err != nil {
+		logger.Logger.Error(err)
+		return
+	}
+
+	srv_base.StartServer(&http.Server{Handler: httpHandler}, listener, srv_base_types.DefaultShutdownSignals, logger.Logger)
+
 }

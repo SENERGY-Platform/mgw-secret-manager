@@ -7,19 +7,20 @@ import (
 	"strings"
 	"testing"
 
-	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
+
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/logger"
 	"github.com/SENERGY-Platform/mgw-secret-manager/test"
 
 	"github.com/stretchr/testify/assert"
 )
 
-var _, _ = srv_base.InitLogger(testConfig.Logger)
+var testConfig, _ = config.NewConfig(config.Flags.ConfPath)
+var _, _ = logger.InitLogger(testConfig.Logger)
 
 func TestPostKey(t *testing.T) {
-	var config, _ = config.NewConfig(nil)
-	config.EnableEncryption = true
-	router, dbHandler, _ := InitServer(config)
+	testConfig.EnableEncryption = true
+	router, dbHandler, _ := InitServer(testConfig)
 	defer dbHandler.Cleanup()
 
 	w := httptest.NewRecorder()
@@ -29,9 +30,8 @@ func TestPostKey(t *testing.T) {
 }
 
 func TestPostKeyWithDisabledEncryption(t *testing.T) {
-	var config, _ = config.NewConfig(nil)
-	config.EnableEncryption = false
-	router, dbHandler, _ := InitServer(config)
+	testConfig.EnableEncryption = false
+	router, dbHandler, _ := InitServer(testConfig)
 	defer dbHandler.Cleanup()
 
 	w := httptest.NewRecorder()

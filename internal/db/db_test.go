@@ -4,15 +4,14 @@ import (
 	"testing"
 
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/logger"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/models"
-
-	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 
 	"github.com/stretchr/testify/assert"
 )
 
-var testConfig, _ = config.NewConfig(nil)
-var _, err = srv_base.InitLogger(testConfig.Logger)
+var testConfig, _ = config.NewConfig(config.Flags.ConfPath)
+var _, _ = logger.InitLogger(testConfig.Logger)
 
 func TestSetSecret(t *testing.T) {
 	testHandler, err := NewDBHandler(testConfig)

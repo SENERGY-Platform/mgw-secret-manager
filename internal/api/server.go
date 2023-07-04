@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"os"
 
-	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/db"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/logger"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/secretHandler"
+	"github.com/gin-contrib/requestid"
 
 	gin_mw "github.com/SENERGY-Platform/gin-middleware"
 	"github.com/gin-gonic/gin"
@@ -36,24 +37,24 @@ func CORS() gin.HandlerFunc {
 func InitServer(config *config.Config) (*gin.Engine, db.Database, secretHandler.SecretHandler) {
 	dbHandler, err := db.NewDBHandler(config)
 	if err != nil {
-		srv_base.Logger.Error(err)
+		logger.Logger.Error(err)
 		os.Exit(1)
 	}
 
 	gin.SetMode(gin.ReleaseMode)
-	apiEngine := gin.New()
+	httpHandler := gin.New()
 
 	if config.Dev {
-		apiEngine.Use(CORS())
+		httpHandler.Use(CORS())
 	}
 
-	apiEngine.Use(gin_mw.LoggerHandler(srv_base.Logger), gin_mw.ErrorHandler, gin.Recovery())
+	httpHandler.Use(gin_mw.LoggerHandler(logger.Logger), gin_mw.ErrorHandler, requestid.New(), gin.Recovery())
 
-	apiEngine.UseRawPath = true
+	httpHandler.UseRawPath = true
 	secretHandler := secretHandler.NewSecretHandler(config.EnableEncryption, dbHandler, config.TMPFSPath)
 	keyHandler := keyHandler.NewKeyHandler(config.MasterKeyPath, nil)
-	Api := New(*config, dbHandler, secretHandler, keyHandler)
-	Api.SetRoutes(apiEngine)
+	Api := New(*config, dbHandler, &secretHandler, keyHandler)
+	Api.SetRoutes(httpHandler)
 
-	return apiEngine, dbHandler, secretHandler
+	return httpHandler, dbHandler, secretHandler
 }

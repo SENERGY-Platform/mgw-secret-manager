@@ -21,9 +21,10 @@ type Config struct {
 	MasterKeyPath    string                `json:"master_key_file_path" env_var:"MASTER_KEY_FILE_PATH"`
 	Socket           SocketConfig          `json:"socket" env_var:"SOCKET_CONFIG"`
 	Dev              bool                  `json:"dev" env_var:"DEV"`
+	ServerPort       int64                 `json:"server_port" env_var:"SERVER_PORT"`
 }
 
-func NewConfig(path *string) (*Config, error) {
+func NewConfig(path string) (*Config, error) {
 	cfg := Config{
 		Logger: srv_base.LoggerConfig{
 			Level:        level.Debug,
@@ -42,10 +43,9 @@ func NewConfig(path *string) (*Config, error) {
 		DBConnectionURL:  "./db.sqlite",
 		MasterKeyPath:    "./key",
 		Dev:              false,
+		ServerPort:       8080,
 	}
-	if path == nil || *path == "" {
-		path = nil
-	}
+
 	err := srv_base.LoadConfig(path, &cfg, nil, nil, nil)
 	return &cfg, err
 }

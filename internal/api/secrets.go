@@ -6,9 +6,9 @@ import (
 	"net/http"
 
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/customErrors"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/logger"
 	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
 
-	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,6 +29,7 @@ func (a *Api) StoreSecret(gc *gin.Context) {
 
 	body, err := ioutil.ReadAll(gc.Request.Body)
 	if err != nil {
+		logger.Logger.Errorf(err.Error())
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
@@ -36,7 +37,7 @@ func (a *Api) StoreSecret(gc *gin.Context) {
 	var secretRequest api_model.SecretRequest
 	err = json.Unmarshal(body, &secretRequest)
 	if err != nil {
-		srv_base.Logger.Errorf(err.Error())
+		logger.Logger.Errorf(err.Error())
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
@@ -65,7 +66,7 @@ func (a *Api) UpdateSecret(gc *gin.Context) {
 	var secretRequest api_model.SecretRequest
 	err = json.Unmarshal(body, &secretRequest)
 	if err != nil {
-		srv_base.Logger.Errorf(err.Error())
+		logger.Logger.Errorf(err.Error())
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}

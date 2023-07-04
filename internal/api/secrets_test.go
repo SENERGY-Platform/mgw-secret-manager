@@ -10,17 +10,14 @@ import (
 	"strings"
 	"testing"
 
-	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
 	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
 
 	"github.com/stretchr/testify/assert"
 )
 
-var _, _ = srv_base.InitLogger(testConfig.Logger)
-
 func TestLoadSecret(t *testing.T) {
-	var config, _ = config.NewConfig(nil)
+	var config, _ = config.NewConfig(config.Flags.ConfPath)
 	config.EnableEncryption = false
 
 	testCases := []api_model.SecretRequest{
@@ -48,7 +45,7 @@ func TestLoadSecret(t *testing.T) {
 }
 
 func TestLoadSecretMissingQuery(t *testing.T) {
-	var config, _ = config.NewConfig(nil)
+	var config, _ = config.NewConfig(config.Flags.ConfPath)
 	config.EnableEncryption = false
 	router, dbHandler, _ := InitServer(config)
 	defer dbHandler.Cleanup()
@@ -60,7 +57,7 @@ func TestLoadSecretMissingQuery(t *testing.T) {
 }
 
 func TestStoreSecret(t *testing.T) {
-	var config, _ = config.NewConfig(nil)
+	var config, _ = config.NewConfig(config.Flags.ConfPath)
 	config.EnableEncryption = false
 	w := httptest.NewRecorder()
 
@@ -99,7 +96,7 @@ func TestStoreSecret(t *testing.T) {
 }
 
 func TestGetSecret(t *testing.T) {
-	var config, _ = config.NewConfig(nil)
+	var config, _ = config.NewConfig(config.Flags.ConfPath)
 	config.EnableEncryption = false
 	router, dbHandler, secretHandler := InitServer(config)
 	defer dbHandler.Cleanup()
@@ -128,7 +125,7 @@ type a struct {
 }
 
 func TestUpdateSecret(t *testing.T) {
-	var config, _ = config.NewConfig(nil)
+	var config, _ = config.NewConfig(config.Flags.ConfPath)
 	config.EnableEncryption = false
 	w := httptest.NewRecorder()
 
@@ -208,7 +205,7 @@ func TestUpdateSecret(t *testing.T) {
 
 func TestDeleteSecret(t *testing.T) {
 	w := httptest.NewRecorder()
-	var config, _ = config.NewConfig(nil)
+	var config, _ = config.NewConfig(config.Flags.ConfPath)
 	config.EnableEncryption = false
 	router, dbHandler, secretHandler := InitServer(config)
 	defer dbHandler.Cleanup()

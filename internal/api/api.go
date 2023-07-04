@@ -12,11 +12,11 @@ import (
 type Api struct {
 	config        config.Config
 	dbHandler     db.Database // sql.db is threadsafe
-	secretHandler secretHandler.SecretHandler
+	secretHandler *secretHandler.SecretHandler
 	keyHandler    keyHandler.KeyHandler
 }
 
-func New(config config.Config, dbHandler db.Database, secretHandler secretHandler.SecretHandler, keyHandler keyHandler.KeyHandler) *Api {
+func New(config config.Config, dbHandler db.Database, secretHandler *secretHandler.SecretHandler, keyHandler keyHandler.KeyHandler) *Api {
 	return &Api{
 		config:        config,
 		dbHandler:     dbHandler,

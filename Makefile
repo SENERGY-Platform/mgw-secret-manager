@@ -5,7 +5,7 @@ build:
 
 run: 
 	docker compose -f deployments/docker-compose.yml up -d --force-recreate db 
-	DEV=true ENABLE_ENCRYPTION=false DB_CONNECTION_URL=user:password@tcp\(localhost:3307\)/db go run ./...
+	DEV=true ENABLE_ENCRYPTION=true DB_CONNECTION_URL=user:password@tcp\(localhost:3307\)/db go run ./...
 
 run_docker:
 	docker compose -f deployments/docker-compose.yml up --build --force-recreate
@@ -21,3 +21,6 @@ run_test:
 
 run_test_docker:
 	docker compose -f test/docker-compose.yml up --build --force-recreate --exit-code-from test
+
+run_load_test:
+	locust -f test/locustfile.py
