@@ -101,6 +101,22 @@ func (a *Api) LoadSecretIntoTMPFS(gc *gin.Context) {
 	}
 }
 
+func (a *Api) GetSecret(gc *gin.Context) {
+	ok := a.CheckIfEncryptionKeyExists(gc)
+	if !ok {
+		return
+	}
+
+	secretID := gc.Param("id")
+	secret, err := a.secretHandler.GetSecret(secretID)
+	if err != nil {
+		gc.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	gc.JSON(http.StatusOK, secret)
+}
+
 func (a *Api) GetSecrets(gc *gin.Context) {
 	ok := a.CheckIfEncryptionKeyExists(gc)
 	if !ok {

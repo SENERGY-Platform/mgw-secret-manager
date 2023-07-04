@@ -29,6 +29,7 @@ func (a *Api) SetRoutes(e *gin.Engine) {
 	e.POST("/secrets", a.StoreSecret)
 	e.GET("/secrets", a.GetSecrets)
 	e.PUT("/secrets/:id", a.UpdateSecret)
+	e.GET("/secrets/:id", a.GetSecret)
 	e.DELETE("/secrets/:id", a.DeleteSecret)
 	e.GET("/types", a.GetTypes)
 	e.POST("/load", a.LoadSecretIntoTMPFS)

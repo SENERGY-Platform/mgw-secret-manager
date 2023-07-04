@@ -106,7 +106,6 @@ func TestGetSecret(t *testing.T) {
 
 	// Setup dummy secrets
 	var expectedSecrets []api_model.ShortSecret
-
 	_, shortSecret1 := SetupDummySecret(t, "secret", "geheim", "type", secretHandler)
 	expectedSecrets = append(expectedSecrets, shortSecret1)
 	_, shortSecret2 := SetupDummySecret(t, "secret2", "geheim2", "type2", secretHandler)
