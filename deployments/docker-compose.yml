@@ -29,6 +29,7 @@ services:
       - ENABLE_ENCRYPTION=false
       - DB_CONNECTION_URL=user:password@tcp(db:3306)/db
       - MASTER_KEY_FILE_PATH=/tmp/key
+      - LOGGER_TERMINAL=true
       - DEV=true
     volumes:
       - /tmp:/tmp

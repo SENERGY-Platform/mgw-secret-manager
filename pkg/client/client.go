@@ -91,9 +91,10 @@ func (c *RealClient) DeleteSecret(id string) (err error, errCode int) {
 	return do(req, c.HTTPClient)
 }
 
-func NewClient(url string) (client Client) {
+func NewClient(url string, httpClient HttpClient) (client Client) {
 	return &RealClient{
-		BaseUrl: url,
+		BaseUrl:    url,
+		HTTPClient: httpClient,
 	}
 }
 
