@@ -65,23 +65,38 @@ func (secretHandler *SecretHandler) StoreSecret(secret *models.Secret) (err erro
 	return
 }
 
-func (secretHandler *SecretHandler) GetSecret(secretID string) (secret *models.Secret, err error) {
-	logger.Logger.Debugf("Get Secret: %s from DB", secretID)
-
+func (secretHandler *SecretHandler) GetFullSecret(secretID string) (secret *models.Secret, err error) {
 	storedSecret, err := secretHandler.db.GetSecret(secretID)
 	if err != nil {
 		return
 	}
 
 	if secretHandler.encryptionIsEnabled {
+		logger.Logger.Debugf("Decrypt Secret Value")
 		secret, err = secretHandler.DecryptSecret(storedSecret)
 		if err != nil {
-			return
+			return nil, err
 		}
-		logger.Logger.Debugf("Decrypted Secret Value: %s", secret.Value)
 	} else {
-		secret = &models.Secret{Name: storedSecret.Name, SecretType: storedSecret.SecretType, ID: storedSecret.ID, Value: string(storedSecret.Value)}
+		secret = &models.Secret{
+			Name:       storedSecret.Name,
+			Value:      string(storedSecret.Value),
+			SecretType: storedSecret.SecretType,
+			ID:         storedSecret.ID,
+		}
 	}
+
+	return
+}
+
+func (secretHandler *SecretHandler) GetSecret(secretID string) (shortSecret *api_model.ShortSecret, err error) {
+	logger.Logger.Debugf("Get Secret: %s from DB", secretID)
+
+	secret, err := secretHandler.GetFullSecret(secretID)
+	if err != nil {
+		return
+	}
+	shortSecret = &api_model.ShortSecret{Name: secret.Name, SecretType: secret.SecretType, ID: secret.ID}
 
 	return
 }
@@ -89,7 +104,7 @@ func (secretHandler *SecretHandler) GetSecret(secretID string) (secret *models.S
 func (secretHandler *SecretHandler) LoadSecretToFileSystem(secretID string) (fileName string, err error) {
 	logger.Logger.Debugf("Get Secret and load into TMPFS")
 
-	secret, err := secretHandler.GetSecret(secretID)
+	secret, err := secretHandler.GetFullSecret(secretID)
 	if err != nil {
 		return
 	}
@@ -98,34 +113,9 @@ func (secretHandler *SecretHandler) LoadSecretToFileSystem(secretID string) (fil
 	fullOutputPath := filepath.Join(secretHandler.TMPFSPath, fileName)
 	logger.Logger.Debugf("Load Secret: %s to %s", secret.ID, fullOutputPath)
 
-	err = files.WriteToFile(secret.Value, fullOutputPath)
+	err = files.WriteToFile(string(secret.Value), fullOutputPath)
 	if err != nil {
 		logger.Logger.Errorf("Write to TMPFS failed: %s", err.Error())
-	}
-	return
-}
-
-func (secretHandler *SecretHandler) GetFullSecrets(db db.Database) (secrets []*models.Secret, err error) {
-	logger.Logger.Debugf("Load all full secrets")
-
-	storedSecrets, err := secretHandler.db.GetSecrets()
-	if err != nil {
-		return
-	}
-
-	for _, storedSecret := range storedSecrets {
-		var secret *models.Secret
-
-		if secretHandler.encryptionIsEnabled {
-			secret, err = secretHandler.DecryptSecret(storedSecret)
-			if err != nil {
-				return
-			}
-		} else {
-			secret = &models.Secret{Name: storedSecret.Name, SecretType: storedSecret.SecretType, ID: storedSecret.ID, Value: string(storedSecret.Value)}
-		}
-
-		secrets = append(secrets, secret)
 	}
 	return
 }

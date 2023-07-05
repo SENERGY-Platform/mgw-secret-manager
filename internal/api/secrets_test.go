@@ -89,7 +89,6 @@ func TestStoreSecret(t *testing.T) {
 			t.Errorf(err.Error())
 		}
 		assert.Equal(t, tc.Name, secretFromDB.Name)
-		assert.Equal(t, tc.Value, secretFromDB.Value)
 		assert.Equal(t, tc.SecretType, secretFromDB.SecretType)
 		assert.Equal(t, secretID, secretFromDB.ID)
 	}
@@ -176,7 +175,6 @@ func TestUpdateSecret(t *testing.T) {
 
 		_, shortSecret := SetupDummySecret(t, tc.ExistingSecret.Name, tc.ExistingSecret.Value, tc.ExistingSecret.SecretType, secretHandler)
 		secretID := shortSecret.ID
-		fmt.Printf(secretID)
 
 		body, err := json.Marshal(tc.ChangedSecret)
 		if err != nil {
@@ -197,7 +195,6 @@ func TestUpdateSecret(t *testing.T) {
 			t.Errorf(err.Error())
 		}
 		assert.Equal(t, tc.ChangedSecret.Name, secretFromDB.Name)
-		assert.Equal(t, tc.ChangedSecret.Value, secretFromDB.Value)
 		assert.Equal(t, tc.ChangedSecret.SecretType, secretFromDB.SecretType)
 		assert.Equal(t, secretID, secretFromDB.ID)
 	}

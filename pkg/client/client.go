@@ -10,8 +10,13 @@ import (
 	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
 )
 
+type HttpClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 type RealClient struct {
-	BaseUrl string
+	BaseUrl    string
+	HTTPClient HttpClient
 }
 
 func (c *RealClient) StoreSecret(name string, value string, secretType string) (err error, errCode int) {
@@ -29,7 +34,7 @@ func (c *RealClient) StoreSecret(name string, value string, secretType string) (
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
-	return do(req)
+	return do(req, c.HTTPClient)
 }
 
 func (c *RealClient) LoadSecretToTMPFS(secretID string) (fullTMPFSPath string, err error, errCode int) {
@@ -41,7 +46,7 @@ func (c *RealClient) LoadSecretToTMPFS(secretID string) (fullTMPFSPath string, e
 	if err != nil {
 		return "", err, http.StatusInternalServerError
 	}
-	return doWithResponse[string](req)
+	return doWithResponse[string](req, c.HTTPClient)
 }
 
 func (c *RealClient) SetEncryptionKey(encryptionKey []byte) (err error, errCode int) {
@@ -49,7 +54,7 @@ func (c *RealClient) SetEncryptionKey(encryptionKey []byte) (err error, errCode 
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
-	return do(req)
+	return do(req, c.HTTPClient)
 }
 
 func (c *RealClient) GetSecrets() (secrets []api_model.ShortSecret, err error, errCode int) {
@@ -57,7 +62,7 @@ func (c *RealClient) GetSecrets() (secrets []api_model.ShortSecret, err error, e
 	if err != nil {
 		return nil, err, http.StatusInternalServerError
 	}
-	return doWithResponse[[]api_model.ShortSecret](req)
+	return doWithResponse[[]api_model.ShortSecret](req, c.HTTPClient)
 }
 
 func (c *RealClient) UpdateSecret(name string, value string, secretType string, id string) (err error, errCode int) {
@@ -75,7 +80,7 @@ func (c *RealClient) UpdateSecret(name string, value string, secretType string, 
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
-	return do(req)
+	return do(req, c.HTTPClient)
 }
 
 func (c *RealClient) DeleteSecret(id string) (err error, errCode int) {
@@ -83,7 +88,7 @@ func (c *RealClient) DeleteSecret(id string) (err error, errCode int) {
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
-	return do(req)
+	return do(req, c.HTTPClient)
 }
 
 func NewClient(url string) (client Client) {
@@ -92,16 +97,16 @@ func NewClient(url string) (client Client) {
 	}
 }
 
-func do(req *http.Request) (err error, code int) {
-	_, err = http.DefaultClient.Do(req)
+func do(req *http.Request, client HttpClient) (err error, code int) {
+	_, err = client.Do(req)
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
 	return
 }
 
-func doWithResponse[T any](req *http.Request) (result T, err error, code int) {
-	resp, err := http.DefaultClient.Do(req)
+func doWithResponse[T any](req *http.Request, client HttpClient) (result T, err error, code int) {
+	resp, err := client.Do(req)
 	if err != nil {
 		return result, err, http.StatusInternalServerError
 	}
