@@ -60,6 +60,32 @@ func (c *RealClient) GetSecrets() (secrets []api_model.ShortSecret, err error, e
 	return doWithResponse[[]api_model.ShortSecret](req)
 }
 
+func (c *RealClient) UpdateSecret(name string, value string, secretType string, id string) (err error, errCode int) {
+	secretRequest := api_model.SecretRequest{
+		Name:       name,
+		Value:      value,
+		SecretType: secretType,
+	}
+	body, err := json.Marshal(secretRequest)
+	if err != nil {
+		return err, http.StatusInternalServerError
+	}
+
+	req, err := http.NewRequest(http.MethodPut, c.BaseUrl+"/secrets/"+id, strings.NewReader(string(body)))
+	if err != nil {
+		return err, http.StatusInternalServerError
+	}
+	return do(req)
+}
+
+func (c *RealClient) DeleteSecret(id string) (err error, errCode int) {
+	req, err := http.NewRequest(http.MethodDelete, c.BaseUrl+"/secrets/"+id, nil)
+	if err != nil {
+		return err, http.StatusInternalServerError
+	}
+	return do(req)
+}
+
 func NewClient(url string) (client Client) {
 	return &RealClient{
 		BaseUrl: url,

@@ -57,9 +57,10 @@ func (handler *DBHandler) DeleteSecret(secretID string) (err error) {
 
 func (handler *DBHandler) Connect() (err error) {
 	connectionUrl := fmt.Sprintf("%s", handler.config.DBConnectionURL)
-	logger.Logger.Debugf("Connect to DB: %s", connectionUrl)
+	logger.Logger.Debugf("Inital connect to DB: %s", connectionUrl)
 	handler.db, err = gorm.Open(mysql.Open(connectionUrl), &gorm.Config{})
 	for err != nil {
+		logger.Logger.Debugf("DB is not reachable -> try again in 5s")
 		retries := 5
 		if retries > 1 {
 			retries--
