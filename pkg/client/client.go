@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -19,7 +20,7 @@ type RealClient struct {
 	HTTPClient HttpClient
 }
 
-func (c *RealClient) StoreSecret(name string, value string, secretType string) (err error, errCode int) {
+func (c *RealClient) StoreSecret(ctx context.Context, name string, value string, secretType string) (err error, errCode int) {
 	secretRequest := api_model.SecretRequest{
 		Name:       name,
 		Value:      value,
@@ -30,15 +31,15 @@ func (c *RealClient) StoreSecret(name string, value string, secretType string) (
 		return err, http.StatusInternalServerError
 	}
 
-	req, err := http.NewRequest(http.MethodPost, c.BaseUrl+"/secrets", strings.NewReader(string(body)))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseUrl+"/secrets", strings.NewReader(string(body)))
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
 	return do(req, c.HTTPClient)
 }
 
-func (c *RealClient) LoadSecretToTMPFS(secretID string) (fullTMPFSPath string, err error, errCode int) {
-	req, err := http.NewRequest(http.MethodPost, c.BaseUrl+"/load", nil)
+func (c *RealClient) LoadSecretToTMPFS(ctx context.Context, secretID string) (fullTMPFSPath string, err error, errCode int) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseUrl+"/load", nil)
 	q := req.URL.Query()
 	q.Add("secret", secretID)
 	req.URL.RawQuery = q.Encode()
@@ -49,23 +50,23 @@ func (c *RealClient) LoadSecretToTMPFS(secretID string) (fullTMPFSPath string, e
 	return doWithResponse[string](req, c.HTTPClient)
 }
 
-func (c *RealClient) SetEncryptionKey(encryptionKey []byte) (err error, errCode int) {
-	req, err := http.NewRequest(http.MethodPost, c.BaseUrl+"/key", strings.NewReader(string(encryptionKey)))
+func (c *RealClient) SetEncryptionKey(ctx context.Context, encryptionKey []byte) (err error, errCode int) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseUrl+"/key", strings.NewReader(string(encryptionKey)))
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
 	return do(req, c.HTTPClient)
 }
 
-func (c *RealClient) GetSecrets() (secrets []api_model.ShortSecret, err error, errCode int) {
-	req, err := http.NewRequest(http.MethodGet, c.BaseUrl+"/secrets", nil)
+func (c *RealClient) GetSecrets(ctx context.Context) (secrets []api_model.ShortSecret, err error, errCode int) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.BaseUrl+"/secrets", nil)
 	if err != nil {
 		return nil, err, http.StatusInternalServerError
 	}
 	return doWithResponse[[]api_model.ShortSecret](req, c.HTTPClient)
 }
 
-func (c *RealClient) UpdateSecret(name string, value string, secretType string, id string) (err error, errCode int) {
+func (c *RealClient) UpdateSecret(ctx context.Context, name string, value string, secretType string, id string) (err error, errCode int) {
 	secretRequest := api_model.SecretRequest{
 		Name:       name,
 		Value:      value,
@@ -76,15 +77,15 @@ func (c *RealClient) UpdateSecret(name string, value string, secretType string, 
 		return err, http.StatusInternalServerError
 	}
 
-	req, err := http.NewRequest(http.MethodPut, c.BaseUrl+"/secrets/"+id, strings.NewReader(string(body)))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, c.BaseUrl+"/secrets/"+id, strings.NewReader(string(body)))
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
 	return do(req, c.HTTPClient)
 }
 
-func (c *RealClient) DeleteSecret(id string) (err error, errCode int) {
-	req, err := http.NewRequest(http.MethodDelete, c.BaseUrl+"/secrets/"+id, nil)
+func (c *RealClient) DeleteSecret(ctx context.Context, id string) (err error, errCode int) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, c.BaseUrl+"/secrets/"+id, nil)
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

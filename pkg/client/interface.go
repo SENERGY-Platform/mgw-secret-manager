@@ -1,12 +1,16 @@
 package client
 
-import "github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
+import (
+	"context"
+
+	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
+)
 
 type Client interface {
-	StoreSecret(name string, value string, secretType string) (err error, errCode int)
-	GetSecrets() (secrets []api_model.ShortSecret, err error, errCode int)
-	LoadSecretToTMPFS(secretID string) (fullTMPFSPath string, err error, errCode int)
-	SetEncryptionKey(encryptionKey []byte) (err error, errCode int)
-	UpdateSecret(name string, value string, secretType string, id string) (err error, errCode int)
-	DeleteSecret(secretID string) (err error, errCode int)
+	StoreSecret(ctx context.Context, name string, value string, secretType string) (err error, errCode int)
+	GetSecrets(ctx context.Context) (secrets []api_model.ShortSecret, err error, errCode int)
+	LoadSecretToTMPFS(ctx context.Context, secretID string) (fullTMPFSPath string, err error, errCode int)
+	SetEncryptionKey(ctx context.Context, encryptionKey []byte) (err error, errCode int)
+	UpdateSecret(ctx context.Context, name string, value string, secretType string, id string) (err error, errCode int)
+	DeleteSecret(ctx context.Context, secretID string) (err error, errCode int)
 }
