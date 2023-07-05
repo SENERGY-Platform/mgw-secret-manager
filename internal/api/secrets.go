@@ -96,7 +96,7 @@ func (a *Api) LoadSecretIntoTMPFS(gc *gin.Context) {
 			gc.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
-		gc.JSON(http.StatusOK, fullTMPFSPath)
+		gc.String(http.StatusOK, fullTMPFSPath)
 	} else {
 		gc.AbortWithError(http.StatusInternalServerError, customErrors.MissingQueryError{Parameter: "secret"})
 	}
