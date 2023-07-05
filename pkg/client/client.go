@@ -32,10 +32,10 @@ func (c *RealClient) StoreSecret(name string, value string, secretType string) (
 	return do(req)
 }
 
-func (c *RealClient) LoadSecretToTMPFS(secretName string) (fullTMPFSPath string, err error, errCode int) {
+func (c *RealClient) LoadSecretToTMPFS(secretID string) (fullTMPFSPath string, err error, errCode int) {
 	req, err := http.NewRequest(http.MethodPost, c.BaseUrl+"/load", nil)
 	q := req.URL.Query()
-	q.Add("secret", secretName)
+	q.Add("secret", secretID)
 	req.URL.RawQuery = q.Encode()
 
 	if err != nil {
