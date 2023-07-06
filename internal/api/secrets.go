@@ -41,9 +41,9 @@ func (a *Api) StoreSecret(gc *gin.Context) {
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	secret := a.secretHandler.CreateSecret(secretRequest.Name, secretRequest.Value, secretRequest.SecretType)
+	secret := a.secretHandler.CreateSecret(secretRequest.Name, secretRequest.Value, secretRequest.SecretType, secretRequest.FileName)
 
-	err = a.secretHandler.StoreSecret(&secret)
+	err = a.secretHandler.StoreSecret(gc.Request.Context(), &secret)
 	if err != nil {
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -73,7 +73,7 @@ func (a *Api) UpdateSecret(gc *gin.Context) {
 
 	secretID := gc.Param("id")
 
-	err = a.secretHandler.UpdateSecret(secretRequest, secretID)
+	err = a.secretHandler.UpdateSecret(gc.Request.Context(), secretRequest, secretID)
 
 	if err != nil {
 		gc.AbortWithError(http.StatusInternalServerError, err)
@@ -91,7 +91,7 @@ func (a *Api) LoadSecretIntoTMPFS(gc *gin.Context) {
 	if secretIDs, ok := gc.Request.URL.Query()["secret"]; ok {
 		secretID := secretIDs[0]
 
-		fullTMPFSPath, err := a.secretHandler.LoadSecretToFileSystem(secretID)
+		fullTMPFSPath, err := a.secretHandler.LoadSecretToFileSystem(gc.Request.Context(), secretID)
 		if err != nil {
 			gc.AbortWithError(http.StatusInternalServerError, err)
 			return
@@ -109,7 +109,7 @@ func (a *Api) GetSecret(gc *gin.Context) {
 	}
 
 	secretID := gc.Param("id")
-	secret, err := a.secretHandler.GetSecret(secretID)
+	secret, err := a.secretHandler.GetSecret(gc.Request.Context(), secretID)
 	if err != nil {
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -124,7 +124,23 @@ func (a *Api) GetSecrets(gc *gin.Context) {
 		return
 	}
 
-	secrets, err := a.secretHandler.GetSecrets()
+	secrets, err := a.secretHandler.GetSecrets(gc.Request.Context())
+	if err != nil {
+		gc.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	gc.JSON(http.StatusOK, secrets)
+}
+
+func (a *Api) GetFullSecret(gc *gin.Context) {
+	ok := a.CheckIfEncryptionKeyExists(gc)
+	if !ok {
+		return
+	}
+
+	secretID := gc.Param("id")
+	secrets, err := a.secretHandler.GetFullSecret(gc.Request.Context(), secretID)
 	if err != nil {
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -136,7 +152,7 @@ func (a *Api) GetSecrets(gc *gin.Context) {
 func (a *Api) DeleteSecret(gc *gin.Context) {
 	secretID := gc.Param("id")
 
-	err := a.secretHandler.DeleteSecret(secretID)
+	err := a.secretHandler.DeleteSecret(gc.Request.Context(), secretID)
 	if err != nil {
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return

@@ -23,7 +23,7 @@ func (a *Api) SetEncryptionKey(gc *gin.Context) {
 	}
 	encryptionKey := body
 
-	err = a.keyHandler.SetEncryptionKey(encryptionKey, a.secretHandler)
+	err = a.keyHandler.SetEncryptionKey(gc.Request.Context(), encryptionKey, a.secretHandler)
 	if err != nil {
 		logger.Logger.Errorf("Error setting encryption key: %s", err.Error())
 		gc.AbortWithError(http.StatusInternalServerError, err)

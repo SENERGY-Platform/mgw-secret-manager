@@ -1,6 +1,7 @@
 package secretHandler
 
 import (
+	"context"
 	"path/filepath"
 	"sync"
 
@@ -30,16 +31,17 @@ func NewSecretHandler(encryptionIsEnabled bool, db db.Database, TMPFSPath string
 	}
 }
 
-func (secretHandler *SecretHandler) CreateSecret(name string, value string, secretType string) models.Secret {
-	return models.Secret{
+func (secretHandler *SecretHandler) CreateSecret(name string, value string, secretType string, fileName string) api_model.Secret {
+	return api_model.Secret{
 		Name:       name,
 		Value:      value,
 		SecretType: secretType,
 		ID:         uuid.New().String(),
+		FileName:   fileName,
 	}
 }
 
-func (secretHandler *SecretHandler) SetKey(key []byte) {
+func (secretHandler *SecretHandler) SetKey(ctx context.Context, key []byte) {
 	logger.Logger.Debugf("Save encryption key in secret handler")
 
 	secretHandler.KeyMutex.Lock()
@@ -47,7 +49,7 @@ func (secretHandler *SecretHandler) SetKey(key []byte) {
 	secretHandler.KeyMutex.Unlock()
 }
 
-func (secretHandler *SecretHandler) StoreSecret(secret *models.Secret) (err error) {
+func (secretHandler *SecretHandler) StoreSecret(ctx context.Context, secret *api_model.Secret) (err error) {
 	logger.Logger.Debugf("Store Secret: %s", secret.Name)
 
 	var storedSecret *models.EncryptedSecret
@@ -58,15 +60,21 @@ func (secretHandler *SecretHandler) StoreSecret(secret *models.Secret) (err erro
 			return
 		}
 	} else {
-		storedSecret = &models.EncryptedSecret{Name: secret.Name, SecretType: secret.SecretType, Value: []byte(secret.Value), ID: secret.ID}
+		storedSecret = &models.EncryptedSecret{
+			Name:       secret.Name,
+			SecretType: secret.SecretType,
+			Value:      []byte(secret.Value),
+			ID:         secret.ID,
+			FileName:   secret.FileName,
+		}
 	}
 
-	err = secretHandler.db.SetSecret(storedSecret)
+	err = secretHandler.db.SetSecret(ctx, storedSecret)
 	return
 }
 
-func (secretHandler *SecretHandler) GetFullSecret(secretID string) (secret *models.Secret, err error) {
-	storedSecret, err := secretHandler.db.GetSecret(secretID)
+func (secretHandler *SecretHandler) GetFullSecret(ctx context.Context, secretID string) (secret *api_model.Secret, err error) {
+	storedSecret, err := secretHandler.db.GetSecret(ctx, secretID)
 	if err != nil {
 		return
 	}
@@ -78,39 +86,45 @@ func (secretHandler *SecretHandler) GetFullSecret(secretID string) (secret *mode
 			return nil, err
 		}
 	} else {
-		secret = &models.Secret{
+		secret = &api_model.Secret{
 			Name:       storedSecret.Name,
 			Value:      string(storedSecret.Value),
 			SecretType: storedSecret.SecretType,
 			ID:         storedSecret.ID,
+			FileName:   storedSecret.FileName,
 		}
 	}
 
 	return
 }
 
-func (secretHandler *SecretHandler) GetSecret(secretID string) (shortSecret *api_model.ShortSecret, err error) {
+func (secretHandler *SecretHandler) GetSecret(ctx context.Context, secretID string) (shortSecret *api_model.ShortSecret, err error) {
 	logger.Logger.Debugf("Get Secret: %s from DB", secretID)
 
-	secret, err := secretHandler.GetFullSecret(secretID)
+	secret, err := secretHandler.GetFullSecret(ctx, secretID)
 	if err != nil {
 		return
 	}
-	shortSecret = &api_model.ShortSecret{Name: secret.Name, SecretType: secret.SecretType, ID: secret.ID}
+	shortSecret = &api_model.ShortSecret{
+		Name:       secret.Name,
+		SecretType: secret.SecretType,
+		ID:         secret.ID,
+		FileName:   secret.FileName,
+	}
 
 	return
 }
 
-func (secretHandler *SecretHandler) LoadSecretToFileSystem(secretID string) (fileName string, err error) {
+func (secretHandler *SecretHandler) LoadSecretToFileSystem(ctx context.Context, secretID string) (relativeFilePath string, err error) {
 	logger.Logger.Debugf("Get Secret and load into TMPFS")
 
-	secret, err := secretHandler.GetFullSecret(secretID)
+	secret, err := secretHandler.GetFullSecret(ctx, secretID)
 	if err != nil {
 		return
 	}
 
-	fileName = secret.ID
-	fullOutputPath := filepath.Join(secretHandler.TMPFSPath, fileName)
+	relativeFilePath = filepath.Join(secret.ID, secret.FileName)
+	fullOutputPath := filepath.Join(secretHandler.TMPFSPath, relativeFilePath)
 	logger.Logger.Debugf("Load Secret: %s to %s", secret.ID, fullOutputPath)
 
 	err = files.WriteToFile(string(secret.Value), fullOutputPath)
@@ -120,22 +134,27 @@ func (secretHandler *SecretHandler) LoadSecretToFileSystem(secretID string) (fil
 	return
 }
 
-func (secretHandler *SecretHandler) GetSecrets() (secrets []*api_model.ShortSecret, err error) {
+func (secretHandler *SecretHandler) GetSecrets(ctx context.Context) (secrets []*api_model.ShortSecret, err error) {
 	logger.Logger.Debugf("Load all short secrets")
 
-	storedSecrets, err := secretHandler.db.GetSecrets()
+	storedSecrets, err := secretHandler.db.GetSecrets(ctx)
 	if err != nil {
 		return
 	}
 
 	for _, storedSecret := range storedSecrets {
-		shortSecret := api_model.ShortSecret{Name: storedSecret.Name, SecretType: storedSecret.SecretType, ID: storedSecret.ID}
+		shortSecret := api_model.ShortSecret{
+			Name:       storedSecret.Name,
+			SecretType: storedSecret.SecretType,
+			ID:         storedSecret.ID,
+			FileName:   storedSecret.FileName,
+		}
 		secrets = append(secrets, &shortSecret)
 	}
 	return
 }
 
-func (secretHandler *SecretHandler) EncryptSecret(secret *models.Secret) (encryptedSecret *models.EncryptedSecret, err error) {
+func (secretHandler *SecretHandler) EncryptSecret(secret *api_model.Secret) (encryptedSecret *models.EncryptedSecret, err error) {
 	encryptedValue, err := crypto.Encrypt([]byte(secret.Value), secretHandler.Key)
 	if err != nil {
 		return
@@ -145,25 +164,27 @@ func (secretHandler *SecretHandler) EncryptSecret(secret *models.Secret) (encryp
 		Value:      encryptedValue,
 		SecretType: secret.SecretType,
 		ID:         secret.ID,
+		FileName:   secret.FileName,
 	}
 	return
 }
 
-func (secretHandler *SecretHandler) DecryptSecret(secret *models.EncryptedSecret) (decryptedSecret *models.Secret, err error) {
+func (secretHandler *SecretHandler) DecryptSecret(secret *models.EncryptedSecret) (decryptedSecret *api_model.Secret, err error) {
 	decryptedValue, err := crypto.Decrypt(secret.Value, secretHandler.Key)
 	if err != nil {
 		return
 	}
-	decryptedSecret = &models.Secret{
+	decryptedSecret = &api_model.Secret{
 		Name:       secret.Name,
 		Value:      string(decryptedValue),
 		SecretType: secret.SecretType,
 		ID:         secret.ID,
+		FileName:   secret.FileName,
 	}
 	return
 }
 
-func (secretHandler *SecretHandler) UpdateSecret(secretRequest api_model.SecretRequest, secretID string) (err error) {
+func (secretHandler *SecretHandler) UpdateSecret(ctx context.Context, secretRequest api_model.SecretRequest, secretID string) (err error) {
 	logger.Logger.Debugf("Update secret %s", secretID)
 
 	secret := models.EncryptedSecret{
@@ -171,13 +192,16 @@ func (secretHandler *SecretHandler) UpdateSecret(secretRequest api_model.SecretR
 		Value:      []byte(secretRequest.Value),
 		SecretType: secretRequest.SecretType,
 		ID:         secretID,
+		FileName:   secretRequest.FileName,
 	}
-	err = secretHandler.db.UpdateSecret(&secret)
+	err = secretHandler.db.UpdateSecret(ctx, &secret)
+
+	// TODO if secrets exists in TMP, reload there
 	return
 }
 
-func (secretHandler *SecretHandler) DeleteSecret(secretID string) (err error) {
+func (secretHandler *SecretHandler) DeleteSecret(ctx context.Context, secretID string) (err error) {
 	logger.Logger.Debugf("Delete secret %s", secretID)
-	err = secretHandler.db.DeleteSecret(secretID)
+	err = secretHandler.db.DeleteSecret(ctx, secretID)
 	return
 }

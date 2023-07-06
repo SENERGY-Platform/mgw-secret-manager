@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -19,13 +20,13 @@ type DBHandler struct {
 	config config.Config
 }
 
-func (handler *DBHandler) SetSecret(secret *models.EncryptedSecret) (err error) {
-	err = handler.db.Create(&secret).Error
+func (handler *DBHandler) SetSecret(ctx context.Context, secret *models.EncryptedSecret) (err error) {
+	err = handler.db.WithContext(ctx).Create(&secret).Error
 	return
 }
 
-func (handler *DBHandler) GetSecret(secretID string) (secret *models.EncryptedSecret, err error) {
-	err = handler.db.Where("ID = ?", secretID).First(&secret).Error
+func (handler *DBHandler) GetSecret(ctx context.Context, secretID string) (secret *models.EncryptedSecret, err error) {
+	err = handler.db.WithContext(ctx).Where("ID = ?", secretID).First(&secret).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -36,21 +37,21 @@ func (handler *DBHandler) GetSecret(secretID string) (secret *models.EncryptedSe
 	return
 }
 
-func (handler *DBHandler) GetSecrets() (secrets []*models.EncryptedSecret, err error) {
-	err = handler.db.Find(&secrets).Error
+func (handler *DBHandler) GetSecrets(ctx context.Context) (secrets []*models.EncryptedSecret, err error) {
+	err = handler.db.WithContext(ctx).Find(&secrets).Error
 	return
 }
 
-func (handler *DBHandler) UpdateSecret(secret *models.EncryptedSecret) (err error) {
-	err = handler.db.Save(secret).Error
+func (handler *DBHandler) UpdateSecret(ctx context.Context, secret *models.EncryptedSecret) (err error) {
+	err = handler.db.WithContext(ctx).Save(secret).Error
 	return
 }
 
-func (handler *DBHandler) DeleteSecret(secretID string) (err error) {
+func (handler *DBHandler) DeleteSecret(ctx context.Context, secretID string) (err error) {
 	secret := models.EncryptedSecret{
 		ID: secretID,
 	}
-	err = handler.db.Delete(&secret).Error
+	err = handler.db.WithContext(ctx).Delete(&secret).Error
 
 	return
 }

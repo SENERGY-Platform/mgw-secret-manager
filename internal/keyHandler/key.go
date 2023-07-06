@@ -1,6 +1,7 @@
 package keyHandler
 
 import (
+	"context"
 	"crypto/rand"
 	"os"
 
@@ -56,7 +57,7 @@ func (keyHandler *KeyHandler) CreateAndStoreMasterKey() (masterKey []byte, err e
 	return
 }
 
-func (keyHandler *KeyHandler) SetEncryptionKey(encryptionKey []byte, secretHandler *secretHandler.SecretHandler) error {
+func (keyHandler *KeyHandler) SetEncryptionKey(ctx context.Context, encryptionKey []byte, secretHandler *secretHandler.SecretHandler) error {
 	keyHandler.EncryptionKey = &encryptionKey
 	var masterKey []byte
 
@@ -76,6 +77,6 @@ func (keyHandler *KeyHandler) SetEncryptionKey(encryptionKey []byte, secretHandl
 		}
 	}
 
-	secretHandler.SetKey(masterKey)
+	secretHandler.SetKey(ctx, masterKey)
 	return nil
 }

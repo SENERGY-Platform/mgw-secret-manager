@@ -38,11 +38,12 @@ func (c *RealClient) StoreSecret(ctx context.Context, name string, value string,
 	return do(req, c.HTTPClient)
 }
 
-func (c *RealClient) LoadSecretToTMPFS(ctx context.Context, secretID string) (fullTMPFSPath string, err error, errCode int) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseUrl+"/load", nil)
-	q := req.URL.Query()
-	q.Add("secret", secretID)
-	req.URL.RawQuery = q.Encode()
+func (c *RealClient) LoadSecretToTMPFS(ctx context.Context, secretRequest api_model.SecretPostRequest) (fullTMPFSPath string, err error, errCode int) {
+	body, err := json.Marshal(secretRequest)
+	if err != nil {
+		return "", err, http.StatusInternalServerError
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseUrl+"/load", strings.NewReader(string(body)))
 
 	if err != nil {
 		return "", err, http.StatusInternalServerError
@@ -64,6 +65,30 @@ func (c *RealClient) GetSecrets(ctx context.Context) (secrets []api_model.ShortS
 		return nil, err, http.StatusInternalServerError
 	}
 	return doWithResponse[[]api_model.ShortSecret](req, c.HTTPClient)
+}
+
+func (c *RealClient) GetSecret(ctx context.Context, secretRequest api_model.SecretPostRequest) (secrets *api_model.ShortSecret, err error, errCode int) {
+	body, err := json.Marshal(secretRequest)
+	if err != nil {
+		return nil, err, http.StatusInternalServerError
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseUrl+"/secret", strings.NewReader(string(body)))
+	if err != nil {
+		return nil, err, http.StatusInternalServerError
+	}
+	return doWithResponse[*api_model.ShortSecret](req, c.HTTPClient)
+}
+
+func (c *RealClient) GetFullSecret(ctx context.Context, secretRequest api_model.SecretPostRequest) (secrets *api_model.Secret, err error, errCode int) {
+	body, err := json.Marshal(secretRequest)
+	if err != nil {
+		return nil, err, http.StatusInternalServerError
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseUrl+"/confidential/secret", strings.NewReader(string(body)))
+	if err != nil {
+		return nil, err, http.StatusInternalServerError
+	}
+	return doWithResponse[*api_model.Secret](req, c.HTTPClient)
 }
 
 func (c *RealClient) UpdateSecret(ctx context.Context, name string, value string, secretType string, id string) (err error, errCode int) {

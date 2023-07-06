@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"testing"
 
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
@@ -23,13 +24,15 @@ func TestSetSecret(t *testing.T) {
 		Name:  "test",
 		Value: make([]byte, 2),
 	}
-	err = testHandler.SetSecret(secret)
+	ctx := context.Background()
+	err = testHandler.SetSecret(ctx, secret)
 	assert.Equal(t, err, nil)
 }
 
 func TestGetSecret(t *testing.T) {
 	secretID := "id"
 	testHandler, err := NewDBHandler(testConfig)
+	ctx := context.Background()
 	defer testHandler.Cleanup()
 	if err != nil {
 		t.Errorf(err.Error())
@@ -39,9 +42,9 @@ func TestGetSecret(t *testing.T) {
 		Value: make([]byte, 2),
 		ID:    secretID,
 	}
-	err = testHandler.SetSecret(secret)
+	err = testHandler.SetSecret(ctx, secret)
 
-	storedSecret, err := testHandler.GetSecret(secretID)
+	storedSecret, err := testHandler.GetSecret(ctx, secretID)
 	assert.Nil(t, err)
 	assert.Equal(t, secret, storedSecret)
 }

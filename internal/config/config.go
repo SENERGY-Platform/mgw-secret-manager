@@ -14,14 +14,15 @@ type SocketConfig struct {
 	FileMode fs.FileMode `json:"file_mode" env_var:"SOCKET_FILE_MODE"`
 }
 type Config struct {
-	Logger           srv_base.LoggerConfig `json:"logger" env_var:"LOGGER_CONFIG"`
-	TMPFSPath        string                `json:"tmpfs_path" env_var:"TMPFS_PATH"`
-	EnableEncryption bool                  `json:"enable_encryption" env_var:"ENABLE_ENCRYPTION"`
-	DBConnectionURL  string                `json:"db_connection_url" env_var:"DB_CONNECTION_URL"`
-	MasterKeyPath    string                `json:"master_key_file_path" env_var:"MASTER_KEY_FILE_PATH"`
-	Socket           SocketConfig          `json:"socket" env_var:"SOCKET_CONFIG"`
-	Dev              bool                  `json:"dev" env_var:"DEV"`
-	ServerPort       int64                 `json:"server_port" env_var:"SERVER_PORT"`
+	Logger                       srv_base.LoggerConfig `json:"logger" env_var:"LOGGER_CONFIG"`
+	TMPFSPath                    string                `json:"tmpfs_path" env_var:"TMPFS_PATH"`
+	EnableEncryption             bool                  `json:"enable_encryption" env_var:"ENABLE_ENCRYPTION"`
+	DBConnectionURL              string                `json:"db_connection_url" env_var:"DB_CONNECTION_URL"`
+	MasterKeyPath                string                `json:"master_key_file_path" env_var:"MASTER_KEY_FILE_PATH"`
+	Socket                       SocketConfig          `json:"socket" env_var:"SOCKET_CONFIG"`
+	Dev                          bool                  `json:"dev" env_var:"DEV"`
+	ServerPort                   int64                 `json:"server_port" env_var:"SERVER_PORT"`
+	EexposeConfidentialEndpoints bool                  `json:"expose_confidential_endpoints" env_var:"EXPOSE_CONFIDENTIAL_ENDPOINTS"`
 }
 
 func NewConfig(path string) (*Config, error) {
@@ -38,12 +39,13 @@ func NewConfig(path string) (*Config, error) {
 			GroupID:  os.Getgid(),
 			FileMode: 0660,
 		},
-		TMPFSPath:        "/tmp",
-		EnableEncryption: false,
-		DBConnectionURL:  "./db.sqlite",
-		MasterKeyPath:    "./key",
-		Dev:              false,
-		ServerPort:       8080,
+		TMPFSPath:                    "/tmp",
+		EnableEncryption:             false,
+		DBConnectionURL:              "./db.sqlite",
+		MasterKeyPath:                "./key",
+		Dev:                          false,
+		ServerPort:                   8080,
+		EexposeConfidentialEndpoints: false,
 	}
 
 	err := srv_base.LoadConfig(path, &cfg, nil, nil, nil)

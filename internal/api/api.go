@@ -34,4 +34,8 @@ func (a *Api) SetRoutes(e *gin.Engine) {
 	e.GET("/types", a.GetTypes)
 	e.POST("/load", a.LoadSecretIntoTMPFS)
 	e.POST("/key", a.SetEncryptionKey)
+
+	if a.config.EexposeConfidentialEndpoints {
+		e.GET("/confidential/secrets/:id", a.GetFullSecret)
+	}
 }

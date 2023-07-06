@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -21,15 +22,15 @@ func TestLoadSecret(t *testing.T) {
 	config.EnableEncryption = false
 
 	testCases := []api_model.SecretRequest{
-		{Name: "name1", Value: "value1", SecretType: "Type1"},
-		{Name: "name1", Value: "value1", SecretType: "Type1"},
-		{Name: "name2", Value: "value2", SecretType: "Type2"},
+		{Name: "name1", Value: "value1", SecretType: "Type1", FileName: "file.txt"},
+		{Name: "name1", Value: "value1", SecretType: "Type1", FileName: "file1.txt"},
+		{Name: "name2", Value: "value2", SecretType: "Type2", FileName: "file2.txt"},
 	}
 	for _, tc := range testCases {
 		router, dbHandler, secretHandler := InitServer(config)
 		defer dbHandler.Cleanup()
 
-		secret, _ := SetupDummySecret(t, tc.Name, tc.Value, tc.SecretType, secretHandler)
+		secret, _ := SetupDummySecret(t, tc.Name, tc.Value, tc.SecretType, tc.FileName, secretHandler)
 
 		w := httptest.NewRecorder()
 		req, _ := http.NewRequest("POST", fmt.Sprintf("/load?secret=%s", secret.ID), nil)
@@ -37,7 +38,7 @@ func TestLoadSecret(t *testing.T) {
 
 		assert.Equal(t, 200, w.Code)
 
-		pathToSecretInTMPFS := filepath.Join(secretHandler.TMPFSPath, secret.ID)
+		pathToSecretInTMPFS := filepath.Join(secretHandler.TMPFSPath, secret.ID, secret.FileName)
 		_, err := os.Stat(pathToSecretInTMPFS)
 		// TODO assert file value == secret value
 		assert.Equal(t, nil, err)
@@ -60,6 +61,7 @@ func TestStoreSecret(t *testing.T) {
 	var config, _ = config.NewConfig(config.Flags.ConfPath)
 	config.EnableEncryption = false
 	w := httptest.NewRecorder()
+	ctx := context.Background()
 
 	testCases := []api_model.SecretRequest{
 		{Name: "name1", Value: "value1", SecretType: "Type1"},
@@ -84,7 +86,7 @@ func TestStoreSecret(t *testing.T) {
 
 		assert.Equal(t, 200, w.Code)
 
-		secretFromDB, err := secretHandler.GetSecret(secretID)
+		secretFromDB, err := secretHandler.GetSecret(ctx, secretID)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
@@ -94,7 +96,7 @@ func TestStoreSecret(t *testing.T) {
 	}
 }
 
-func TestGetSecret(t *testing.T) {
+func TestGetSecrets(t *testing.T) {
 	var config, _ = config.NewConfig(config.Flags.ConfPath)
 	config.EnableEncryption = false
 	router, dbHandler, secretHandler := InitServer(config)
@@ -102,9 +104,9 @@ func TestGetSecret(t *testing.T) {
 
 	// Setup dummy secrets
 	var expectedSecrets []api_model.ShortSecret
-	_, shortSecret1 := SetupDummySecret(t, "secret", "geheim", "type", secretHandler)
+	_, shortSecret1 := SetupDummySecret(t, "secret", "geheim", "type", "file.txt", secretHandler)
 	expectedSecrets = append(expectedSecrets, shortSecret1)
-	_, shortSecret2 := SetupDummySecret(t, "secret2", "geheim2", "type2", secretHandler)
+	_, shortSecret2 := SetupDummySecret(t, "secret2", "geheim2", "type2", "file2.txt", secretHandler)
 	expectedSecrets = append(expectedSecrets, shortSecret2)
 
 	w := httptest.NewRecorder()
@@ -127,44 +129,21 @@ func TestUpdateSecret(t *testing.T) {
 	var config, _ = config.NewConfig(config.Flags.ConfPath)
 	config.EnableEncryption = false
 	w := httptest.NewRecorder()
+	ctx := context.Background()
 
 	testCases := []a{
 		// Change Name
 		{
 			ExistingSecret: api_model.SecretRequest{
-				Name:       "name1",
+				Name:       "name",
+				FileName:   "file.txt",
 				Value:      "value1",
 				SecretType: "type1",
 			},
 			ChangedSecret: api_model.SecretRequest{
 				Name:       "name2",
-				Value:      "value1",
-				SecretType: "type1",
-			},
-		},
-		// Change Value
-		{
-			ExistingSecret: api_model.SecretRequest{
-				Name:       "name1",
+				FileName:   "file2.txt",
 				Value:      "value2",
-				SecretType: "type1",
-			},
-			ChangedSecret: api_model.SecretRequest{
-				Name:       "name1",
-				Value:      "value2",
-				SecretType: "type1",
-			},
-		},
-		// Change Type
-		{
-			ExistingSecret: api_model.SecretRequest{
-				Name:       "name1",
-				Value:      "value1",
-				SecretType: "type1",
-			},
-			ChangedSecret: api_model.SecretRequest{
-				Name:       "name1",
-				Value:      "value1",
 				SecretType: "type2",
 			},
 		},
@@ -173,7 +152,7 @@ func TestUpdateSecret(t *testing.T) {
 		router, dbHandler, secretHandler := InitServer(config)
 		defer dbHandler.Cleanup()
 
-		_, shortSecret := SetupDummySecret(t, tc.ExistingSecret.Name, tc.ExistingSecret.Value, tc.ExistingSecret.SecretType, secretHandler)
+		_, shortSecret := SetupDummySecret(t, tc.ExistingSecret.Name, tc.ExistingSecret.Value, tc.ExistingSecret.SecretType, tc.ExistingSecret.FileName, secretHandler)
 		secretID := shortSecret.ID
 
 		body, err := json.Marshal(tc.ChangedSecret)
@@ -190,7 +169,7 @@ func TestUpdateSecret(t *testing.T) {
 
 		assert.Equal(t, 200, w.Code)
 
-		secretFromDB, err := secretHandler.GetSecret(secretID)
+		secretFromDB, err := secretHandler.GetSecret(ctx, secretID)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
@@ -202,17 +181,18 @@ func TestUpdateSecret(t *testing.T) {
 
 func TestDeleteSecret(t *testing.T) {
 	w := httptest.NewRecorder()
+	ctx := context.Background()
 	var config, _ = config.NewConfig(config.Flags.ConfPath)
 	config.EnableEncryption = false
 	router, dbHandler, secretHandler := InitServer(config)
 	defer dbHandler.Cleanup()
 
-	secret, _ := SetupDummySecret(t, "secret", "geheim", "type", secretHandler)
+	secret, _ := SetupDummySecret(t, "secret", "geheim", "type", "file.txt", secretHandler)
 
 	req, _ := http.NewRequest("DELETE", "/secrets/"+secret.ID, nil)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
 
-	_, err := secretHandler.GetSecret(secret.ID)
+	_, err := secretHandler.GetSecret(ctx, secret.ID)
 	assert.NotNil(t, err)
 }

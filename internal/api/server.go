@@ -42,19 +42,19 @@ func InitServer(config *config.Config) (*gin.Engine, db.Database, secretHandler.
 	}
 
 	gin.SetMode(gin.ReleaseMode)
-	httpHandler := gin.New()
+	engine := gin.New()
 
 	if config.Dev {
-		httpHandler.Use(CORS())
+		engine.Use(CORS())
 	}
 
-	httpHandler.Use(gin_mw.LoggerHandler(logger.Logger), gin_mw.ErrorHandler, requestid.New(), gin.Recovery())
+	engine.Use(gin_mw.LoggerHandler(logger.Logger), gin_mw.ErrorHandler, requestid.New(), gin.Recovery())
 
-	httpHandler.UseRawPath = true
+	engine.UseRawPath = true
 	secretHandler := secretHandler.NewSecretHandler(config.EnableEncryption, dbHandler, config.TMPFSPath)
 	keyHandler := keyHandler.NewKeyHandler(config.MasterKeyPath, nil)
 	Api := New(*config, dbHandler, &secretHandler, keyHandler)
-	Api.SetRoutes(httpHandler)
+	Api.SetRoutes(engine)
 
-	return httpHandler, dbHandler, secretHandler
+	return engine, dbHandler, secretHandler
 }

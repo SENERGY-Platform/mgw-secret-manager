@@ -1,12 +1,13 @@
 package secretHandler
 
 import (
+	"context"
 	"testing"
 
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/db"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/logger"
-	"github.com/SENERGY-Platform/mgw-secret-manager/internal/models"
+	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
 
 	"github.com/SENERGY-Platform/mgw-secret-manager/test"
 
@@ -18,10 +19,11 @@ var _, _ = logger.InitLogger(testConfig.Logger)
 
 func TestEncryptDecryptSecret(t *testing.T) {
 	var dbHandler, _ = db.NewDBHandler(testConfig)
+	ctx := context.Background()
 
 	secretHandler := NewSecretHandler(false, dbHandler, ".")
-	secretHandler.SetKey(test.MasterKey)
-	secret := &models.Secret{
+	secretHandler.SetKey(ctx, test.MasterKey)
+	secret := &api_model.Secret{
 		Name:  "Test",
 		Value: "value",
 	}
