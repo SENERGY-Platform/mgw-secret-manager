@@ -29,13 +29,13 @@ func (a *Api) SetRoutes(e *gin.Engine) {
 	e.POST("/secrets", a.StoreSecret)
 	e.GET("/secrets", a.GetSecrets)
 	e.PUT("/secrets/:id", a.UpdateSecret)
-	e.GET("/secrets/:id", a.GetSecret)
+	e.POST("/secret", a.GetSecret)
 	e.DELETE("/secrets/:id", a.DeleteSecret)
 	e.GET("/types", a.GetTypes)
 	e.POST("/load", a.LoadSecretIntoTMPFS)
 	e.POST("/key", a.SetEncryptionKey)
 
-	if a.config.EexposeConfidentialEndpoints {
-		e.GET("/confidential/secrets/:id", a.GetFullSecret)
+	if a.config.ExposeConfidentialEndpoints {
+		e.POST("/confidential/secret", a.GetFullSecret)
 	}
 }

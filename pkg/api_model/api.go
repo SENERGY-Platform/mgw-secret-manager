@@ -23,6 +23,6 @@ type Secret struct {
 }
 
 type SecretPostRequest struct {
-	ID      string
-	Options map[string]string
+	ID      string             `json:"id"`
+	Options *map[string]string `json:"options"`
 }

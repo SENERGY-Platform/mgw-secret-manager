@@ -7,3 +7,8 @@ type EncryptedSecret struct {
 	FileName   string
 	ID         string `gorm:"primaryKey"`
 }
+
+type Credential struct {
+	Username string
+	Password string
+}

@@ -2,6 +2,7 @@ package secretHandler
 
 import (
 	"context"
+	"encoding/json"
 	"path/filepath"
 	"sync"
 
@@ -50,7 +51,7 @@ func (secretHandler *SecretHandler) SetKey(ctx context.Context, key []byte) {
 }
 
 func (secretHandler *SecretHandler) StoreSecret(ctx context.Context, secret *api_model.Secret) (err error) {
-	logger.Logger.Debugf("Store Secret: %s", secret.Name)
+	logger.Logger.Debugf("Store Secret: %s", secret.ID)
 
 	var storedSecret *models.EncryptedSecret
 
@@ -73,8 +74,9 @@ func (secretHandler *SecretHandler) StoreSecret(ctx context.Context, secret *api
 	return
 }
 
-func (secretHandler *SecretHandler) GetFullSecret(ctx context.Context, secretID string) (secret *api_model.Secret, err error) {
-	storedSecret, err := secretHandler.db.GetSecret(ctx, secretID)
+func (secretHandler *SecretHandler) GetFullSecret(ctx context.Context, secretPostRequest api_model.SecretPostRequest) (secret *api_model.Secret, err error) {
+	logger.Logger.Debugf("Get full secret")
+	storedSecret, err := secretHandler.db.GetSecret(ctx, secretPostRequest.ID)
 	if err != nil {
 		return
 	}
@@ -95,13 +97,28 @@ func (secretHandler *SecretHandler) GetFullSecret(ctx context.Context, secretID 
 		}
 	}
 
+	if secretPostRequest.Options != nil {
+		// for credentials the user can specify whether the username or password shall be used as secret value
+		var credential models.Credential
+		err = json.Unmarshal([]byte(secret.Value), &credential)
+		if err != nil {
+			logger.Logger.Errorf("Credential cant be unmarshaled %s", err.Error())
+			return
+		}
+		if (*secretPostRequest.Options)["from"] == "user" {
+			secret.Value = credential.Username
+		} else if (*secretPostRequest.Options)["from"] == "password" {
+			secret.Value = credential.Password
+		}
+	}
+
 	return
 }
 
-func (secretHandler *SecretHandler) GetSecret(ctx context.Context, secretID string) (shortSecret *api_model.ShortSecret, err error) {
-	logger.Logger.Debugf("Get Secret: %s from DB", secretID)
+func (secretHandler *SecretHandler) GetSecret(ctx context.Context, secretPostRequest api_model.SecretPostRequest) (shortSecret *api_model.ShortSecret, err error) {
+	logger.Logger.Debugf("Get Secret: %s from DB", secretPostRequest.ID)
 
-	secret, err := secretHandler.GetFullSecret(ctx, secretID)
+	secret, err := secretHandler.GetFullSecret(ctx, secretPostRequest)
 	if err != nil {
 		return
 	}
@@ -115,10 +132,10 @@ func (secretHandler *SecretHandler) GetSecret(ctx context.Context, secretID stri
 	return
 }
 
-func (secretHandler *SecretHandler) LoadSecretToFileSystem(ctx context.Context, secretID string) (relativeFilePath string, err error) {
+func (secretHandler *SecretHandler) LoadSecretToFileSystem(ctx context.Context, secretPostRequest api_model.SecretPostRequest) (relativeFilePath string, err error) {
 	logger.Logger.Debugf("Get Secret and load into TMPFS")
 
-	secret, err := secretHandler.GetFullSecret(ctx, secretID)
+	secret, err := secretHandler.GetFullSecret(ctx, secretPostRequest)
 	if err != nil {
 		return
 	}

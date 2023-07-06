@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -20,6 +19,7 @@ import (
 func TestLoadSecret(t *testing.T) {
 	var config, _ = config.NewConfig(config.Flags.ConfPath)
 	config.EnableEncryption = false
+	w := httptest.NewRecorder()
 
 	testCases := []api_model.SecretRequest{
 		{Name: "name1", Value: "value1", SecretType: "Type1", FileName: "file.txt"},
@@ -32,35 +32,26 @@ func TestLoadSecret(t *testing.T) {
 
 		secret, _ := SetupDummySecret(t, tc.Name, tc.Value, tc.SecretType, tc.FileName, secretHandler)
 
-		w := httptest.NewRecorder()
-		req, _ := http.NewRequest("POST", fmt.Sprintf("/load?secret=%s", secret.ID), nil)
+		body, err := json.Marshal(api_model.SecretPostRequest{ID: secret.ID})
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+		req, _ := http.NewRequest("POST", "/load", strings.NewReader(string(body)))
 		router.ServeHTTP(w, req)
 
 		assert.Equal(t, 200, w.Code)
 
 		pathToSecretInTMPFS := filepath.Join(secretHandler.TMPFSPath, secret.ID, secret.FileName)
-		_, err := os.Stat(pathToSecretInTMPFS)
+		_, err = os.Stat(pathToSecretInTMPFS)
 		// TODO assert file value == secret value
 		assert.Equal(t, nil, err)
 	}
 }
 
-func TestLoadSecretMissingQuery(t *testing.T) {
-	var config, _ = config.NewConfig(config.Flags.ConfPath)
-	config.EnableEncryption = false
-	router, dbHandler, _ := InitServer(config)
-	defer dbHandler.Cleanup()
-
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/load", nil)
-	router.ServeHTTP(w, req)
-	assert.Equal(t, 500, w.Code)
-}
-
 func TestStoreSecret(t *testing.T) {
 	var config, _ = config.NewConfig(config.Flags.ConfPath)
 	config.EnableEncryption = false
-	w := httptest.NewRecorder()
 	ctx := context.Background()
 
 	testCases := []api_model.SecretRequest{
@@ -69,26 +60,27 @@ func TestStoreSecret(t *testing.T) {
 		{Name: "name2", Value: "value2", SecretType: "Type2"},
 	}
 	for _, tc := range testCases {
+		w := httptest.NewRecorder()
 		router, dbHandler, secretHandler := InitServer(config)
 		defer dbHandler.Cleanup()
 
 		body, err := json.Marshal(tc)
 		if err != nil {
 			t.Errorf(err.Error())
+			return
 		}
 
 		req, _ := http.NewRequest("POST", "/secrets", strings.NewReader(string(body)))
 		router.ServeHTTP(w, req)
 
-		var secretID string
-
-		json.NewDecoder(w.Body).Decode(&secretID)
+		secretID := w.Body.String()
 
 		assert.Equal(t, 200, w.Code)
 
-		secretFromDB, err := secretHandler.GetSecret(ctx, secretID)
+		secretFromDB, err := secretHandler.GetSecret(ctx, api_model.SecretPostRequest{ID: secretID})
 		if err != nil {
 			t.Errorf(err.Error())
+			return
 		}
 		assert.Equal(t, tc.Name, secretFromDB.Name)
 		assert.Equal(t, tc.SecretType, secretFromDB.SecretType)
@@ -169,7 +161,7 @@ func TestUpdateSecret(t *testing.T) {
 
 		assert.Equal(t, 200, w.Code)
 
-		secretFromDB, err := secretHandler.GetSecret(ctx, secretID)
+		secretFromDB, err := secretHandler.GetSecret(ctx, api_model.SecretPostRequest{ID: secretID})
 		if err != nil {
 			t.Errorf(err.Error())
 		}
@@ -193,6 +185,6 @@ func TestDeleteSecret(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
 
-	_, err := secretHandler.GetSecret(ctx, secret.ID)
+	_, err := secretHandler.GetSecret(ctx, api_model.SecretPostRequest{ID: secret.ID})
 	assert.NotNil(t, err)
 }
