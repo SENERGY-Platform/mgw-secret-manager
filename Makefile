@@ -16,7 +16,9 @@ run_all_docker:
 clean:
 	go clean
 	docker compose -f test/docker-compose.yml down --remove-orphans
+	docker compose -f test/docker-compose.yml rm 
 	docker compose -f deployments/docker-compose.yml down --remove-orphans
+	docker compose -f deployments/docker-compose.yml rm 
 
 run_test_with_db:
 	docker compose -f test/docker-compose.yml up -d --force-recreate db 

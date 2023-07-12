@@ -20,8 +20,6 @@ func (secretHandler *SecretHandler) UpdateSecret(ctx context.Context, secretRequ
 	err = secretHandler.db.UpdateSecret(ctx, &secret)
 
 	// If secret exists in TMPFS, reload it
-	err = secretHandler.UpdateExistingSecretInTMPFS(ctx, api_model.SecretPostRequest{
-		ID: secretID,
-	}, true)
+	err = secretHandler.UpdateExistingSecretInTMPFS(ctx, secretID)
 	return
 }

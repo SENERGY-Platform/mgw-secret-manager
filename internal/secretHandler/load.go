@@ -2,7 +2,7 @@ package secretHandler
 
 import (
 	"context"
-	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -12,15 +12,20 @@ import (
 	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
 )
 
-func BuildTMPFSOutputPath(secretPostRequest api_model.SecretPostRequest) string {
+func (secretHandler *SecretHandler) BuildTMPFSOutputPath(secretPostRequest api_model.SecretPostRequest) string {
 	// Path must be unique for each deployment (Reference) and Secret Item in case of Credentials (Username/Password)
-	fileName := fmt.Sprintf("%s_%s_%s", secretPostRequest.ID, secretPostRequest.Reference, secretPostRequest.Item)
-	return filepath.Join(secretPostRequest.ID, fileName)
+	fileName := "value"
+	if secretPostRequest.Item != nil {
+		fileName = *secretPostRequest.Item
+	}
+	return filepath.Join(secretPostRequest.Reference, secretPostRequest.ID, fileName)
 }
 
 func (secretHandler *SecretHandler) LoadSecretToFileSystem(ctx context.Context, secretPostRequest api_model.SecretPostRequest) (err error) {
+	// Load secret to TMPFS if it does not exist already
+
 	logger.Logger.Debugf("Get Secret Value and load into TMPFS")
-	relativeFilePath := BuildTMPFSOutputPath(secretPostRequest)
+	relativeFilePath := secretHandler.BuildTMPFSOutputPath(secretPostRequest)
 	fullOutputPath := filepath.Join(secretHandler.TMPFSPath, relativeFilePath)
 
 	if _, err = os.Stat(fullOutputPath); err == nil {
@@ -33,6 +38,8 @@ func (secretHandler *SecretHandler) LoadSecretToFileSystem(ctx context.Context, 
 }
 
 func (secretHandler *SecretHandler) SaveSecretToFileSystem(ctx context.Context, secretPostRequest api_model.SecretPostRequest, fullOutputPath string) (err error) {
+	// Get secret value and write file to TMPFS
+
 	secret, errGet := secretHandler.GetFullSecret(ctx, secretPostRequest)
 	if errGet != nil {
 		return errGet
@@ -46,22 +53,33 @@ func (secretHandler *SecretHandler) SaveSecretToFileSystem(ctx context.Context, 
 	return
 }
 
-func (secretHandler *SecretHandler) UpdateExistingSecretInTMPFS(ctx context.Context, secretPostRequest api_model.SecretPostRequest, override bool) (err error) {
-	logger.Logger.Debugf("Update Secret Value in TMPFS")
-	relativeFilePath := BuildTMPFSOutputPath(secretPostRequest)
-	fullOutputPath := filepath.Join(secretHandler.TMPFSPath, relativeFilePath)
+func (secretHandler *SecretHandler) UpdateExistingSecretInTMPFS(ctx context.Context, secretID string) (err error) {
+	// Reload existing secrets to TMPFS so that services have access to the newest value
 
-	if _, err = os.Stat(fullOutputPath); err != nil {
-		return nil
+	logger.Logger.Debugf("Update existing secret files in TMPFS")
+
+	referenceDirectories, _ := ioutil.ReadDir(secretHandler.TMPFSPath)
+	for _, referenceDirectory := range referenceDirectories {
+		secretDirectories, _ := ioutil.ReadDir(referenceDirectory.Name())
+		for _, secretDirectory := range secretDirectories {
+			files, _ := ioutil.ReadDir((secretDirectory.Name()))
+			for _, fileName := range files {
+				secretPostRequest := api_model.SecretPostRequest{ID: secretID, Reference: referenceDirectory.Name()}
+				if fileName.Name() != "value" {
+					secretPostRequest.Reference = fileName.Name()
+				}
+				relativeFilePath := secretHandler.BuildTMPFSOutputPath(secretPostRequest)
+				fullOutputPath := filepath.Join(secretHandler.TMPFSPath, relativeFilePath)
+				err = secretHandler.SaveSecretToFileSystem(ctx, secretPostRequest, fullOutputPath)
+			}
+		}
 	}
-
-	err = secretHandler.SaveSecretToFileSystem(ctx, secretPostRequest, fullOutputPath)
 	return
 }
 
 func (secretHandler *SecretHandler) RemoveSecretFromFileSystem(ctx context.Context, secretPostRequest api_model.SecretPostRequest) (relativeFilePath string, err error) {
 	logger.Logger.Debugf("Remove secret from TMPFS")
-	relativeFilePath = BuildTMPFSOutputPath(secretPostRequest)
+	relativeFilePath = secretHandler.BuildTMPFSOutputPath(secretPostRequest)
 	fullOutputPath := filepath.Join(secretHandler.TMPFSPath, relativeFilePath)
 
 	err = os.Remove(fullOutputPath)

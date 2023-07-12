@@ -11,6 +11,7 @@ type ShortSecret struct {
 	SecretType string `json:"type"`
 	ID         string `json:"id"`
 	Path       string `json:"path"`
+	Item       string `json:"item"`
 }
 
 type Secret struct {
@@ -19,6 +20,7 @@ type Secret struct {
 	SecretType string `json:"type"`
 	ID         string `json:"id"`
 	Path       string `json:"path"`
+	Item       string `json:"item"`
 }
 
 type SecretPostRequest struct {

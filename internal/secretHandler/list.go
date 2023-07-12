@@ -39,28 +39,32 @@ func (secretHandler *SecretHandler) GetSecret(ctx context.Context, secretPostReq
 		Name:       secret.Name,
 		SecretType: secret.SecretType,
 		ID:         secret.ID,
-		Path:       BuildTMPFSOutputPath(secretPostRequest),
+		Path:       secretHandler.BuildTMPFSOutputPath(secretPostRequest),
 	}
 
 	return
 }
 
 func (secretHandler *SecretHandler) ExtractValue(ctx context.Context, secretPostRequest api_model.SecretPostRequest, secret models.EncryptedSecret) (value string, err error) {
+	if secretPostRequest.Item == nil {
+		return string(secret.Value), nil
+	}
+
 	var secretValue models.SecretValue
 	err = json.Unmarshal(secret.Value, &secretValue)
 	if err != nil {
-		logger.Logger.Errorf("Secret can not be unmarshaled %s", err.Error())
+		logger.Logger.Errorf("Secret can not be unmarshaled: %s This can be caused by specifing an Item on a secret that is not saved in JSON", err.Error())
 		return
 	}
 
-	val, ok := secretValue[*secretPostRequest.Item]
+	itemKey := *secretPostRequest.Item
+	val, ok := secretValue[itemKey]
 	if !ok {
-		logger.Logger.Errorf("Item %s does not exist in Secret %s", *secretPostRequest.Item, secret.ID)
+		logger.Logger.Errorf("Item %s does not exist as key in JSON secret %s", itemKey, secret.ID)
 		err = nil
 		return
 	}
-
-	return string(secret.Value), nil
+	return val, nil
 }
 
 func (secretHandler *SecretHandler) GetFullSecret(ctx context.Context, secretPostRequest api_model.SecretPostRequest) (secret *api_model.Secret, err error) {
@@ -85,7 +89,7 @@ func (secretHandler *SecretHandler) GetFullSecret(ctx context.Context, secretPos
 		}
 	}
 
-	secret.Path = BuildTMPFSOutputPath(secretPostRequest)
+	secret.Path = secretHandler.BuildTMPFSOutputPath(secretPostRequest)
 	secret.Value, err = secretHandler.ExtractValue(ctx, secretPostRequest, *storedSecret)
 	return
 }
