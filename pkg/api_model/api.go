@@ -7,20 +7,20 @@ type SecretRequest struct {
 }
 
 type ShortSecret struct {
-	Name       string `json:"name"`
-	SecretType string `json:"type"`
-	ID         string `json:"id"`
-	Path       string `json:"path"`
-	Item       string `json:"item"`
+	Name       string  `json:"name"`
+	SecretType string  `json:"type"`
+	ID         string  `json:"id"`
+	Path       string  `json:"path"`
+	Item       *string `json:"item"`
 }
 
 type Secret struct {
-	Name       string `json:"name"`
-	Value      string `json:"value"`
-	SecretType string `json:"type"`
-	ID         string `json:"id"`
-	Path       string `json:"path"`
-	Item       string `json:"item"`
+	Name       string  `json:"name"`
+	Value      string  `json:"value"`
+	SecretType string  `json:"type"`
+	ID         string  `json:"id"`
+	Path       string  `json:"path"`
+	Item       *string `json:"item"`
 }
 
 type SecretPostRequest struct {

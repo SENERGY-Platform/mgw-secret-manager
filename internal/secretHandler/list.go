@@ -90,6 +90,15 @@ func (secretHandler *SecretHandler) GetFullSecret(ctx context.Context, secretPos
 	}
 
 	secret.Path = secretHandler.BuildTMPFSOutputPath(secretPostRequest)
+	secret.Item = getItemKey(secretPostRequest.Item)
 	secret.Value, err = secretHandler.ExtractValue(ctx, secretPostRequest, *storedSecret)
 	return
+}
+
+func getItemKey(item *string) string {
+	var key string
+	if item != nil {
+		key = *item
+	}
+	return key
 }
