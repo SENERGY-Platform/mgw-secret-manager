@@ -43,7 +43,7 @@ func (handler *DBHandler) GetSecrets(ctx context.Context) (secrets []*models.Enc
 }
 
 func (handler *DBHandler) UpdateSecret(ctx context.Context, secret *models.EncryptedSecret) (err error) {
-	err = handler.db.WithContext(ctx).Save(secret).Error
+	err = handler.db.WithContext(ctx).Updates(secret).Error
 	return
 }
 

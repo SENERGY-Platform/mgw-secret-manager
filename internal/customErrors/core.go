@@ -15,3 +15,21 @@ type NoSecretFound struct {
 func (error NoSecretFound) Error() string {
 	return fmt.Sprintf("Secret with ID %s not found", error.SecretID)
 }
+
+type SecretAlreadyLoaded struct {
+	SecretID string
+	Path     string
+}
+
+func (error SecretAlreadyLoaded) Error() string {
+	return fmt.Sprintf("Secret with ID %s already loaded to %s", error.SecretID, error.Path)
+}
+
+type SecretDoesNotExistsInFilesystem struct {
+	SecretID string
+	Path     string
+}
+
+func (error SecretDoesNotExistsInFilesystem) Error() string {
+	return fmt.Sprintf("Secret with ID %s does not exist at %s", error.SecretID, error.Path)
+}

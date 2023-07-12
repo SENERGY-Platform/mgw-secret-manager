@@ -9,8 +9,8 @@ import (
 	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
 )
 
-func SetupDummySecret(t *testing.T, name string, value string, secretType string, fileName string, secretHandler secretHandler.SecretHandler) (api_model.Secret, api_model.ShortSecret) {
-	secret := secretHandler.CreateSecret(name, value, secretType, fileName)
+func SetupDummySecret(t *testing.T, name string, value string, secretType string, secretHandler secretHandler.SecretHandler) (api_model.Secret, api_model.ShortSecret) {
+	secret := secretHandler.CreateSecret(name, value, secretType)
 	ctx := context.Background()
 	err := secretHandler.StoreSecret(ctx, &secret)
 	if err != nil {
@@ -21,6 +21,5 @@ func SetupDummySecret(t *testing.T, name string, value string, secretType string
 		Name:       name,
 		SecretType: secretType,
 		ID:         secret.ID,
-		FileName:   secret.FileName,
 	}
 }

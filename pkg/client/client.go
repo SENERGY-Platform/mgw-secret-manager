@@ -38,17 +38,17 @@ func (c *RealClient) StoreSecret(ctx context.Context, name string, value string,
 	return do(req, c.HTTPClient)
 }
 
-func (c *RealClient) LoadSecretToTMPFS(ctx context.Context, secretRequest api_model.SecretPostRequest) (fullTMPFSPath string, err error, errCode int) {
+func (c *RealClient) LoadSecretToTMPFS(ctx context.Context, secretRequest api_model.SecretPostRequest) (err error, errCode int) {
 	body, err := json.Marshal(secretRequest)
 	if err != nil {
-		return "", err, http.StatusInternalServerError
+		return err, http.StatusInternalServerError
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseUrl+"/load", strings.NewReader(string(body)))
 
 	if err != nil {
-		return "", err, http.StatusInternalServerError
+		return err, http.StatusInternalServerError
 	}
-	return doWithResponse[string](req, c.HTTPClient)
+	return do(req, c.HTTPClient)
 }
 
 func (c *RealClient) SetEncryptionKey(ctx context.Context, encryptionKey []byte) (err error, errCode int) {
@@ -111,6 +111,19 @@ func (c *RealClient) UpdateSecret(ctx context.Context, name string, value string
 
 func (c *RealClient) DeleteSecret(ctx context.Context, id string) (err error, errCode int) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, c.BaseUrl+"/secrets/"+id, nil)
+	if err != nil {
+		return err, http.StatusInternalServerError
+	}
+	return do(req, c.HTTPClient)
+}
+
+func (c *RealClient) UnloadSecretFromTMPFS(ctx context.Context, secretRequest api_model.SecretPostRequest) (err error, errCode int) {
+	body, err := json.Marshal(secretRequest)
+	if err != nil {
+		return err, http.StatusInternalServerError
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseUrl+"/unload", strings.NewReader(string(body)))
+
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

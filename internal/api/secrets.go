@@ -41,7 +41,7 @@ func (a *Api) StoreSecret(gc *gin.Context) {
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	secret := a.secretHandler.CreateSecret(secretRequest.Name, secretRequest.Value, secretRequest.SecretType, secretRequest.FileName)
+	secret := a.secretHandler.CreateSecret(secretRequest.Name, secretRequest.Value, secretRequest.SecretType)
 
 	err = a.secretHandler.StoreSecret(gc.Request.Context(), &secret)
 	if err != nil {
@@ -103,13 +103,11 @@ func (a *Api) LoadSecretIntoTMPFS(gc *gin.Context) {
 		return
 	}
 
-	fullTMPFSPath, err := a.secretHandler.LoadSecretToFileSystem(gc.Request.Context(), secretPostRequest)
+	err = a.secretHandler.LoadSecretToFileSystem(gc.Request.Context(), secretPostRequest)
 	if err != nil {
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	gc.String(http.StatusOK, fullTMPFSPath)
-
 }
 
 func (a *Api) GetSecret(gc *gin.Context) {
@@ -201,4 +199,23 @@ func (a *Api) DeleteSecret(gc *gin.Context) {
 
 func (a *Api) GetTypes(gc *gin.Context) {
 	gc.JSON(http.StatusOK, []map[string]string{{"id": "certificate", "name": "Certificate"}, {"id": "basic-auth", "name": "Credentials"}, {"id": "api-key", "name": "API Key"}})
+}
+
+func (a *Api) DeleteSecretFromTMPFS(gc *gin.Context) {
+	body, err := ioutil.ReadAll(gc.Request.Body)
+	if err != nil {
+		logger.Logger.Errorf(err.Error())
+		gc.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	var secretPostRequest api_model.SecretPostRequest
+	err = json.Unmarshal(body, &secretPostRequest)
+	if err != nil {
+		logger.Logger.Errorf(err.Error())
+		gc.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	a.secretHandler.RemoveSecretFromFileSystem(gc.Request.Context(), secretPostRequest)
 }
