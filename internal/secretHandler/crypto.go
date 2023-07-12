@@ -26,10 +26,12 @@ func (secretHandler *SecretHandler) DecryptSecret(secret *models.EncryptedSecret
 		return
 	}
 	decryptedSecret = &api_model.Secret{
-		Name:       secret.Name,
-		Value:      string(decryptedValue),
-		SecretType: secret.SecretType,
-		ID:         secret.ID,
+		ShortSecret: api_model.ShortSecret{
+			Name:       secret.Name,
+			SecretType: secret.SecretType,
+			ID:         secret.ID,
+		},
+		Value: string(decryptedValue),
 	}
 	return
 }

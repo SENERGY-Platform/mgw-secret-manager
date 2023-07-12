@@ -24,7 +24,9 @@ func TestEncryptDecryptSecret(t *testing.T) {
 	secretHandler := NewSecretHandler(false, dbHandler, ".")
 	secretHandler.SetKey(ctx, test.MasterKey)
 	secret := &api_model.Secret{
-		Name:  "Test",
+		ShortSecret: api_model.ShortSecret{
+			Name: "Test",
+		},
 		Value: "value",
 	}
 	encryptedSecret, err := secretHandler.EncryptSecret(secret)

@@ -4,11 +4,11 @@ build:
 	go build -o ${BINARY_NAME} main.go
 
 run:
-	DEV=true ENABLE_ENCRYPTION=true DB_CONNECTION_URL=user:password@tcp\(localhost:3307\)/db go run ./...
+	LOGGER_TERMINAL=true DEV=true ENABLE_ENCRYPTION=true DB_CONNECTION_URL=user:password@tcp\(localhost:3307\)/db go run ./...
 
 run_with_db: 
 	docker compose -f deployments/docker-compose.yml up -d --force-recreate db 
-	LOGGER_TERMINAL=true EXPOSE_CONFIDENTIAL_ENDPOINTS=true DEV=true ENABLE_ENCRYPTION=false DB_CONNECTION_URL=user:password@tcp\(localhost:3307\)/db go run ./...
+	LOGGER_TERMINAL=true EXPOSE_CONFIDENTIAL_ENDPOINTS=true DEV=true ENABLE_ENCRYPTION=true DB_CONNECTION_URL=user:password@tcp\(localhost:3307\)/db go run ./...
 
 run_all_docker:
 	docker compose -f deployments/docker-compose.yml up --build --force-recreate

@@ -85,12 +85,14 @@ func TestGetFullSecret(t *testing.T) {
 			assert.Equal(t, 200, w.Code)
 
 			expectedSecret := api_model.Secret{
-				Name:       shortSecret.Name,
-				ID:         shortSecret.ID,
-				Value:      tc.ExpectedValue,
-				SecretType: shortSecret.SecretType,
-				Path:       secretHandler.BuildTMPFSOutputPath(tc.SecretPostRequest),
-				Item:       tc.SecretPostRequest.Item,
+				ShortSecret: api_model.ShortSecret{
+					SecretType: shortSecret.SecretType,
+					Path:       secretHandler.BuildTMPFSOutputPath(tc.SecretPostRequest),
+					Item:       tc.SecretPostRequest.Item,
+					Name:       shortSecret.Name,
+					ID:         shortSecret.ID,
+				},
+				Value: tc.ExpectedValue,
 			}
 			assert.Equal(t, expectedSecret, secretResult)
 		})

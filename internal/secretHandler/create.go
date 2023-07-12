@@ -11,10 +11,12 @@ import (
 
 func (secretHandler *SecretHandler) CreateSecret(name string, value string, secretType string) api_model.Secret {
 	return api_model.Secret{
-		Name:       name,
-		Value:      value,
-		SecretType: secretType,
-		ID:         uuid.New().String(),
+		ShortSecret: api_model.ShortSecret{
+			Name:       name,
+			SecretType: secretType,
+			ID:         uuid.New().String(),
+		},
+		Value: value,
 	}
 }
 

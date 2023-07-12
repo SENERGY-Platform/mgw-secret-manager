@@ -82,10 +82,12 @@ func (secretHandler *SecretHandler) GetFullSecret(ctx context.Context, secretPos
 		}
 	} else {
 		secret = &api_model.Secret{
-			Name:       storedSecret.Name,
-			Value:      string(storedSecret.Value),
-			SecretType: storedSecret.SecretType,
-			ID:         storedSecret.ID,
+			ShortSecret: api_model.ShortSecret{
+				Name:       storedSecret.Name,
+				SecretType: storedSecret.SecretType,
+				ID:         storedSecret.ID,
+			},
+			Value: string(storedSecret.Value),
 		}
 	}
 
