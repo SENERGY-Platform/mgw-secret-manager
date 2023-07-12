@@ -60,19 +60,24 @@ func (secretHandler *SecretHandler) UpdateExistingSecretInTMPFS(ctx context.Cont
 
 	referenceDirectories, _ := ioutil.ReadDir(secretHandler.TMPFSPath)
 	for _, referenceDirectory := range referenceDirectories {
-		secretDirectories, _ := ioutil.ReadDir(referenceDirectory.Name())
-		for _, secretDirectory := range secretDirectories {
-			files, _ := ioutil.ReadDir((secretDirectory.Name()))
-			for _, fileName := range files {
-				secretPostRequest := api_model.SecretPostRequest{ID: secretID, Reference: referenceDirectory.Name()}
-				if fileName.Name() != "value" {
-					secretPostRequest.Reference = fileName.Name()
-				}
-				relativeFilePath := secretHandler.BuildTMPFSOutputPath(secretPostRequest)
-				fullOutputPath := filepath.Join(secretHandler.TMPFSPath, relativeFilePath)
-				err = secretHandler.SaveSecretToFileSystem(ctx, secretPostRequest, fullOutputPath)
+		pathToFiles := filepath.Join(secretHandler.TMPFSPath, referenceDirectory.Name(), secretID)
+		files, _ := ioutil.ReadDir(pathToFiles)
+		logger.Logger.Debugf(pathToFiles)
+		// TODO if exists
+		for _, fileName := range files {
+			logger.Logger.Debugf(fileName.Name())
+			secretPostRequest := api_model.SecretPostRequest{ID: secretID, Reference: referenceDirectory.Name()}
+
+			// "Value" is the reserved secret key for single value secrets
+			if fileName.Name() != "value" {
+				fileNameValue := fileName.Name()
+				secretPostRequest.Item = &fileNameValue
 			}
+			relativeFilePath := secretHandler.BuildTMPFSOutputPath(secretPostRequest)
+			fullOutputPath := filepath.Join(secretHandler.TMPFSPath, relativeFilePath)
+			err = secretHandler.SaveSecretToFileSystem(ctx, secretPostRequest, fullOutputPath)
 		}
+
 	}
 	return
 }

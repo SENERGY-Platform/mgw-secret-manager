@@ -40,6 +40,7 @@ func TestGetFullSecret(t *testing.T) {
 		Secret            api_model.SecretRequest
 		SecretPostRequest api_model.SecretPostRequest
 		CaseName          string
+		ExpectedValue     string
 	}
 
 	username := "username"
@@ -49,17 +50,20 @@ func TestGetFullSecret(t *testing.T) {
 			Secret:            api_model.SecretRequest{Name: "name1", Value: "value1", SecretType: "Type1"},
 			SecretPostRequest: api_model.SecretPostRequest{ID: "", Reference: "ref1", Item: nil},
 			CaseName:          "Without Item",
+			ExpectedValue:     "value1",
 		},
 		{
 			Secret:            api_model.SecretRequest{Name: "name2", Value: "{\"username\": \"user\", \"password\": \"password\"}", SecretType: "Type2"},
 			SecretPostRequest: api_model.SecretPostRequest{ID: "", Reference: "ref2", Item: &username},
 			CaseName:          "With Item",
+			ExpectedValue:     "user",
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.CaseName, func(t *testing.T) {
 			var config, _ = config.NewConfig(config.Flags.ConfPath)
 			config.EnableEncryption = false
+			config.ExposeConfidentialEndpoints = true
 			router, dbHandler, secretHandler := InitServer(config)
 			defer dbHandler.Cleanup()
 
@@ -72,7 +76,7 @@ func TestGetFullSecret(t *testing.T) {
 				return
 			}
 
-			req, _ := http.NewRequest("POST", "/load", strings.NewReader(string(body)))
+			req, _ := http.NewRequest("POST", "/confidential/secret", strings.NewReader(string(body)))
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 
@@ -83,11 +87,12 @@ func TestGetFullSecret(t *testing.T) {
 			expectedSecret := api_model.Secret{
 				Name:       shortSecret.Name,
 				ID:         shortSecret.ID,
+				Value:      tc.ExpectedValue,
 				SecretType: shortSecret.SecretType,
 				Path:       secretHandler.BuildTMPFSOutputPath(tc.SecretPostRequest),
 				Item:       tc.SecretPostRequest.Item,
 			}
-			assert.ElementsMatch(t, expectedSecret, secretResult)
+			assert.Equal(t, expectedSecret, secretResult)
 		})
 	}
 }

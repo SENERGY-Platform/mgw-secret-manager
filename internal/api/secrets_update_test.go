@@ -58,6 +58,7 @@ func TestUpdateSecret(t *testing.T) {
 			},
 			CaseName: "Secret was loaded into TMPFS before update",
 		},
+		// TODO add case with credentials
 	}
 
 	for _, tc := range testCases {
