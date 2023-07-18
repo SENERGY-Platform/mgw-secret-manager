@@ -8,7 +8,7 @@ import (
 	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
 )
 
-func (secretHandler *SecretHandler) UpdateSecret(ctx context.Context, secretRequest api_model.SecretRequest, secretID string) (err error) {
+func (secretHandler *SecretHandler) UpdateSecret(ctx context.Context, secretRequest api_model.SecretCreateRequest, secretID string) (err error) {
 	logger.Logger.Debugf("Update secret %s", secretID)
 
 	secret := models.EncryptedSecret{

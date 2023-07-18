@@ -21,7 +21,7 @@ type RealClient struct {
 }
 
 func (c *RealClient) StoreSecret(ctx context.Context, name string, value string, secretType string) (err error, errCode int) {
-	secretRequest := api_model.SecretRequest{
+	secretRequest := api_model.SecretCreateRequest{
 		Name:       name,
 		Value:      value,
 		SecretType: secretType,
@@ -38,7 +38,7 @@ func (c *RealClient) StoreSecret(ctx context.Context, name string, value string,
 	return do(req, c.HTTPClient)
 }
 
-func (c *RealClient) LoadSecretToTMPFS(ctx context.Context, secretRequest api_model.SecretPostRequest) (err error, errCode int) {
+func (c *RealClient) LoadSecretToTMPFS(ctx context.Context, secretRequest api_model.SecretVariantRequest) (err error, errCode int) {
 	body, err := json.Marshal(secretRequest)
 	if err != nil {
 		return err, http.StatusInternalServerError
@@ -67,7 +67,7 @@ func (c *RealClient) GetSecrets(ctx context.Context) (secrets []api_model.ShortS
 	return doWithResponse[[]api_model.ShortSecret](req, c.HTTPClient)
 }
 
-func (c *RealClient) GetSecret(ctx context.Context, secretRequest api_model.SecretPostRequest) (secrets *api_model.ShortSecret, err error, errCode int) {
+func (c *RealClient) GetSecret(ctx context.Context, secretRequest api_model.SecretVariantRequest) (secrets *api_model.ShortSecret, err error, errCode int) {
 	body, err := json.Marshal(secretRequest)
 	if err != nil {
 		return nil, err, http.StatusInternalServerError
@@ -79,7 +79,7 @@ func (c *RealClient) GetSecret(ctx context.Context, secretRequest api_model.Secr
 	return doWithResponse[*api_model.ShortSecret](req, c.HTTPClient)
 }
 
-func (c *RealClient) GetFullSecret(ctx context.Context, secretRequest api_model.SecretPostRequest) (secrets *api_model.Secret, err error, errCode int) {
+func (c *RealClient) GetFullSecret(ctx context.Context, secretRequest api_model.SecretVariantRequest) (secrets *api_model.Secret, err error, errCode int) {
 	body, err := json.Marshal(secretRequest)
 	if err != nil {
 		return nil, err, http.StatusInternalServerError
@@ -92,7 +92,7 @@ func (c *RealClient) GetFullSecret(ctx context.Context, secretRequest api_model.
 }
 
 func (c *RealClient) UpdateSecret(ctx context.Context, name string, value string, secretType string, id string) (err error, errCode int) {
-	secretRequest := api_model.SecretRequest{
+	secretRequest := api_model.SecretCreateRequest{
 		Name:       name,
 		Value:      value,
 		SecretType: secretType,
@@ -117,7 +117,7 @@ func (c *RealClient) DeleteSecret(ctx context.Context, id string) (err error, er
 	return do(req, c.HTTPClient)
 }
 
-func (c *RealClient) UnloadSecretFromTMPFS(ctx context.Context, secretRequest api_model.SecretPostRequest) (err error, errCode int) {
+func (c *RealClient) UnloadSecretFromTMPFS(ctx context.Context, secretRequest api_model.SecretVariantRequest) (err error, errCode int) {
 	body, err := json.Marshal(secretRequest)
 	if err != nil {
 		return err, http.StatusInternalServerError

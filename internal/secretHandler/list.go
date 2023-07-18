@@ -28,7 +28,7 @@ func (secretHandler *SecretHandler) GetSecrets(ctx context.Context) (secrets []*
 	return
 }
 
-func (secretHandler *SecretHandler) GetSecret(ctx context.Context, secretPostRequest api_model.SecretPostRequest) (shortSecret *api_model.ShortSecret, err error) {
+func (secretHandler *SecretHandler) GetSecret(ctx context.Context, secretPostRequest api_model.SecretVariantRequest) (shortSecret *api_model.ShortSecret, err error) {
 	logger.Logger.Debugf("Get Secret: %s from DB", secretPostRequest.ID)
 
 	secret, err := secretHandler.GetFullSecret(ctx, secretPostRequest)
@@ -45,7 +45,7 @@ func (secretHandler *SecretHandler) GetSecret(ctx context.Context, secretPostReq
 	return
 }
 
-func (secretHandler *SecretHandler) ExtractValue(ctx context.Context, secretPostRequest api_model.SecretPostRequest, secret models.EncryptedSecret) (value string, err error) {
+func (secretHandler *SecretHandler) ExtractValue(ctx context.Context, secretPostRequest api_model.SecretVariantRequest, secret models.EncryptedSecret) (value string, err error) {
 	if secretPostRequest.Item == nil {
 		return string(secret.Value), nil
 	}
@@ -67,7 +67,7 @@ func (secretHandler *SecretHandler) ExtractValue(ctx context.Context, secretPost
 	return val, nil
 }
 
-func (secretHandler *SecretHandler) GetFullSecret(ctx context.Context, secretPostRequest api_model.SecretPostRequest) (secret *api_model.Secret, err error) {
+func (secretHandler *SecretHandler) GetFullSecret(ctx context.Context, secretPostRequest api_model.SecretVariantRequest) (secret *api_model.Secret, err error) {
 	logger.Logger.Debugf("Get full secret")
 	storedSecret, err := secretHandler.db.GetSecret(ctx, secretPostRequest.ID)
 	if err != nil {

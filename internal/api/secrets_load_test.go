@@ -19,8 +19,8 @@ import (
 func TestLoadSecret(t *testing.T) {
 	type TestCase struct {
 		ExpectedValue     string
-		Secret            api_model.SecretRequest
-		SecretPostRequest api_model.SecretPostRequest
+		Secret            api_model.SecretCreateRequest
+		SecretPostRequest api_model.SecretVariantRequest
 		CaseName          string
 	}
 
@@ -33,24 +33,24 @@ func TestLoadSecret(t *testing.T) {
 		// Simple single value secret
 		{
 			ExpectedValue:     "value1",
-			Secret:            api_model.SecretRequest{Name: "name1", Value: "value1", SecretType: "Type1"},
-			SecretPostRequest: api_model.SecretPostRequest{ID: "", Reference: "ref1", Item: nil},
+			Secret:            api_model.SecretCreateRequest{Name: "name1", Value: "value1", SecretType: "Type1"},
+			SecretPostRequest: api_model.SecretVariantRequest{ID: "", Reference: "ref1", Item: nil},
 			CaseName:          "Single Value",
 		},
 
 		// Credential secret where username is expected as value
 		{
 			ExpectedValue:     "user",
-			Secret:            api_model.SecretRequest{Name: "name1", Value: "{\"username\": \"user\", \"password\": \"password\"}", SecretType: "Type1"},
-			SecretPostRequest: api_model.SecretPostRequest{ID: "", Reference: "ref2", Item: &username},
+			Secret:            api_model.SecretCreateRequest{Name: "name1", Value: "{\"username\": \"user\", \"password\": \"password\"}", SecretType: "Type1"},
+			SecretPostRequest: api_model.SecretVariantRequest{ID: "", Reference: "ref2", Item: &username},
 			CaseName:          "Username",
 		},
 
 		// Credential secret where password is expected as value
 		{
 			ExpectedValue:     "password",
-			Secret:            api_model.SecretRequest{Name: "name1", Value: "{\"username\": \"user\", \"password\": \"password\"}", SecretType: "Type1"},
-			SecretPostRequest: api_model.SecretPostRequest{ID: "", Reference: "ref3", Item: &password},
+			Secret:            api_model.SecretCreateRequest{Name: "name1", Value: "{\"username\": \"user\", \"password\": \"password\"}", SecretType: "Type1"},
+			SecretPostRequest: api_model.SecretVariantRequest{ID: "", Reference: "ref3", Item: &password},
 			CaseName:          "Password",
 		},
 	}
@@ -93,8 +93,8 @@ func TestLoadSecret(t *testing.T) {
 
 func TestUnloadSecret(t *testing.T) {
 	type TestCase struct {
-		Secret            api_model.SecretRequest
-		SecretPostRequest api_model.SecretPostRequest
+		Secret            api_model.SecretCreateRequest
+		SecretPostRequest api_model.SecretVariantRequest
 		CaseName          string
 	}
 
@@ -105,14 +105,14 @@ func TestUnloadSecret(t *testing.T) {
 	testCases := []TestCase{
 		// Simple single value secret
 		{
-			Secret:            api_model.SecretRequest{Name: "name1", Value: "value1", SecretType: "Type1"},
-			SecretPostRequest: api_model.SecretPostRequest{ID: "", Reference: "ref1", Item: nil},
+			Secret:            api_model.SecretCreateRequest{Name: "name1", Value: "value1", SecretType: "Type1"},
+			SecretPostRequest: api_model.SecretVariantRequest{ID: "", Reference: "ref1", Item: nil},
 			CaseName:          "Single Value",
 		},
 		// Credential secret where filename is Item value
 		{
-			Secret:            api_model.SecretRequest{Name: "name1", Value: "{\"username\": \"user\", \"password\": \"password\"}", SecretType: "Type1"},
-			SecretPostRequest: api_model.SecretPostRequest{ID: "", Reference: "ref2", Item: &username},
+			Secret:            api_model.SecretCreateRequest{Name: "name1", Value: "{\"username\": \"user\", \"password\": \"password\"}", SecretType: "Type1"},
+			SecretPostRequest: api_model.SecretVariantRequest{ID: "", Reference: "ref2", Item: &username},
 			CaseName:          "JSON Value",
 		},
 	}

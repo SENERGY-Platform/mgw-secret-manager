@@ -19,7 +19,7 @@ func TestStoreSecret(t *testing.T) {
 	config.EnableEncryption = false
 	ctx := context.Background()
 
-	testCases := []api_model.SecretRequest{
+	testCases := []api_model.SecretCreateRequest{
 		{Name: "name1", Value: "value1", SecretType: "Type1"},
 		{Name: "name1", Value: "value1", SecretType: "Type1"},
 		{Name: "name2", Value: "value2", SecretType: "Type2"},
@@ -42,7 +42,7 @@ func TestStoreSecret(t *testing.T) {
 
 		assert.Equal(t, 200, w.Code)
 
-		secretFromDB, err := secretHandler.GetSecret(ctx, api_model.SecretPostRequest{ID: secretID})
+		secretFromDB, err := secretHandler.GetSecret(ctx, api_model.SecretVariantRequest{ID: secretID})
 		if err != nil {
 			t.Errorf(err.Error())
 			return

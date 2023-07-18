@@ -16,8 +16,8 @@ import (
 )
 
 type a struct {
-	ExistingSecret api_model.SecretRequest
-	ChangedSecret  api_model.SecretRequest
+	ExistingSecret api_model.SecretCreateRequest
+	ChangedSecret  api_model.SecretCreateRequest
 	LoadIntoTMPFS  bool
 	CaseName       string
 }
@@ -32,12 +32,12 @@ func TestUpdateSecret(t *testing.T) {
 	testCases := []a{
 		{
 			LoadIntoTMPFS: false,
-			ExistingSecret: api_model.SecretRequest{
+			ExistingSecret: api_model.SecretCreateRequest{
 				Name:       "name1",
 				Value:      "value1",
 				SecretType: "type1",
 			},
-			ChangedSecret: api_model.SecretRequest{
+			ChangedSecret: api_model.SecretCreateRequest{
 				Name:       "name2",
 				Value:      "value2",
 				SecretType: "type2",
@@ -46,12 +46,12 @@ func TestUpdateSecret(t *testing.T) {
 		},
 		{
 			LoadIntoTMPFS: true,
-			ExistingSecret: api_model.SecretRequest{
+			ExistingSecret: api_model.SecretCreateRequest{
 				Name:       "name3",
 				Value:      "value3",
 				SecretType: "type3",
 			},
-			ChangedSecret: api_model.SecretRequest{
+			ChangedSecret: api_model.SecretCreateRequest{
 				Name:       "name4",
 				Value:      "value4",
 				SecretType: "type4",
@@ -71,7 +71,7 @@ func TestUpdateSecret(t *testing.T) {
 
 			if tc.LoadIntoTMPFS {
 				// Load the secret into TMPFS and check whether the value is new
-				secretHandler.LoadSecretToFileSystem(context.Background(), api_model.SecretPostRequest{ID: secretID, Reference: reference})
+				secretHandler.LoadSecretToFileSystem(context.Background(), api_model.SecretVariantRequest{ID: secretID, Reference: reference})
 			}
 
 			body, err := json.Marshal(tc.ChangedSecret)
@@ -88,7 +88,7 @@ func TestUpdateSecret(t *testing.T) {
 
 			assert.Equal(t, 200, w.Code)
 
-			secretFromDB, err := secretHandler.GetSecret(ctx, api_model.SecretPostRequest{ID: secretID})
+			secretFromDB, err := secretHandler.GetSecret(ctx, api_model.SecretVariantRequest{ID: secretID})
 			if err != nil {
 				t.Errorf(err.Error())
 			}
@@ -97,7 +97,7 @@ func TestUpdateSecret(t *testing.T) {
 			assert.Equal(t, secretID, secretFromDB.ID)
 
 			if tc.LoadIntoTMPFS {
-				pathToSecretInTMPFS := secretHandler.BuildTMPFSOutputPath(api_model.SecretPostRequest{ID: secretID, Reference: reference})
+				pathToSecretInTMPFS := secretHandler.BuildTMPFSOutputPath(api_model.SecretVariantRequest{ID: secretID, Reference: reference})
 				fullSecretPath := filepath.Join(config.TMPFSPath, pathToSecretInTMPFS)
 				fileContent, err := ioutil.ReadFile(fullSecretPath)
 				if err != nil {

@@ -24,7 +24,7 @@ func (a *Api) LoadSecretIntoTMPFS(gc *gin.Context) {
 	}
 	logger.Logger.Printf("POST Body: %s\n", body)
 
-	var secretPostRequest api_model.SecretPostRequest
+	var secretPostRequest api_model.SecretVariantRequest
 	err = json.Unmarshal(body, &secretPostRequest)
 	if err != nil {
 		logger.Logger.Errorf(err.Error())
@@ -47,7 +47,7 @@ func (a *Api) DeleteSecretFromTMPFS(gc *gin.Context) {
 		return
 	}
 
-	var secretPostRequest api_model.SecretPostRequest
+	var secretPostRequest api_model.SecretVariantRequest
 	err = json.Unmarshal(body, &secretPostRequest)
 	if err != nil {
 		logger.Logger.Errorf(err.Error())

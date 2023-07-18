@@ -37,8 +37,8 @@ func TestGetSecrets(t *testing.T) {
 
 func TestGetFullSecret(t *testing.T) {
 	type TestCase struct {
-		Secret            api_model.SecretRequest
-		SecretPostRequest api_model.SecretPostRequest
+		Secret            api_model.SecretCreateRequest
+		SecretPostRequest api_model.SecretVariantRequest
 		CaseName          string
 		ExpectedValue     string
 	}
@@ -47,14 +47,14 @@ func TestGetFullSecret(t *testing.T) {
 
 	testCases := []TestCase{
 		{
-			Secret:            api_model.SecretRequest{Name: "name1", Value: "value1", SecretType: "Type1"},
-			SecretPostRequest: api_model.SecretPostRequest{ID: "", Reference: "ref1", Item: nil},
+			Secret:            api_model.SecretCreateRequest{Name: "name1", Value: "value1", SecretType: "Type1"},
+			SecretPostRequest: api_model.SecretVariantRequest{ID: "", Reference: "ref1", Item: nil},
 			CaseName:          "Without Item",
 			ExpectedValue:     "value1",
 		},
 		{
-			Secret:            api_model.SecretRequest{Name: "name2", Value: "{\"username\": \"user\", \"password\": \"password\"}", SecretType: "Type2"},
-			SecretPostRequest: api_model.SecretPostRequest{ID: "", Reference: "ref2", Item: &username},
+			Secret:            api_model.SecretCreateRequest{Name: "name2", Value: "{\"username\": \"user\", \"password\": \"password\"}", SecretType: "Type2"},
+			SecretPostRequest: api_model.SecretVariantRequest{ID: "", Reference: "ref2", Item: &username},
 			CaseName:          "With Item",
 			ExpectedValue:     "user",
 		},

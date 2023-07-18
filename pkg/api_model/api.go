@@ -1,6 +1,6 @@
 package api_model
 
-type SecretRequest struct {
+type SecretCreateRequest struct {
 	Name       string `json:"name"`
 	Value      string `json:"value"`
 	SecretType string `json:"type"`
@@ -19,7 +19,7 @@ type Secret struct {
 	Value string `json:"value"`
 }
 
-type SecretPostRequest struct {
+type SecretVariantRequest struct {
 	ID        string  `json:"id"`
 	Item      *string `json:"item"`
 	Reference string  `json:"ref"`

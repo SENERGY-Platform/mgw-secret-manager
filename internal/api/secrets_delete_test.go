@@ -25,6 +25,6 @@ func TestDeleteSecret(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
 
-	_, err := secretHandler.GetSecret(ctx, api_model.SecretPostRequest{ID: secret.ID})
+	_, err := secretHandler.GetSecret(ctx, api_model.SecretVariantRequest{ID: secret.ID})
 	assert.NotNil(t, err)
 }

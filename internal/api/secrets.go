@@ -34,7 +34,7 @@ func (a *Api) StoreSecret(gc *gin.Context) {
 		return
 	}
 
-	var secretRequest api_model.SecretRequest
+	var secretRequest api_model.SecretCreateRequest
 	err = json.Unmarshal(body, &secretRequest)
 	if err != nil {
 		logger.Logger.Errorf(err.Error())
@@ -63,7 +63,7 @@ func (a *Api) UpdateSecret(gc *gin.Context) {
 		return
 	}
 
-	var secretRequest api_model.SecretRequest
+	var secretRequest api_model.SecretCreateRequest
 	err = json.Unmarshal(body, &secretRequest)
 	if err != nil {
 		logger.Logger.Errorf(err.Error())
@@ -95,7 +95,7 @@ func (a *Api) GetSecret(gc *gin.Context) {
 		return
 	}
 
-	var secretPostRequest api_model.SecretPostRequest
+	var secretPostRequest api_model.SecretVariantRequest
 	err = json.Unmarshal(body, &secretPostRequest)
 	if err != nil {
 		logger.Logger.Errorf(err.Error())
@@ -140,7 +140,7 @@ func (a *Api) GetFullSecret(gc *gin.Context) {
 		return
 	}
 
-	var secretPostRequest api_model.SecretPostRequest
+	var secretPostRequest api_model.SecretVariantRequest
 	err = json.Unmarshal(body, &secretPostRequest)
 	if err != nil {
 		logger.Logger.Errorf(err.Error())
