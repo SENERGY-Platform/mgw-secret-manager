@@ -6,16 +6,24 @@ type SecretCreateRequest struct {
 	SecretType string `json:"type"`
 }
 
-type ShortSecret struct {
-	Name       string  `json:"name"`
-	SecretType string  `json:"type"`
-	ID         string  `json:"id"`
-	Path       string  `json:"path"`
-	Item       *string `json:"item"`
+type Secret struct {
+	Name       string `json:"name"`
+	SecretType string `json:"type"`
+	ID         string `json:"id"`
 }
 
-type Secret struct {
-	ShortSecret
+type SecretVariant struct {
+	Secret
+	Item *string `json:"item"`
+}
+
+type SecretPathVariant struct {
+	SecretVariant
+	Path string `json:"path"`
+}
+
+type SecretValueVariant struct {
+	SecretVariant
 	Value string `json:"value"`
 }
 
