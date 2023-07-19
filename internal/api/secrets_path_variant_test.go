@@ -74,7 +74,7 @@ func TestLoadSecret(t *testing.T) {
 				return
 			}
 
-			req, _ := http.NewRequest("POST", LoadPathVariantPath, strings.NewReader(string(body)))
+			req, _ := http.NewRequest("POST", api_model.LoadPathVariantPath, strings.NewReader(string(body)))
 			router.ServeHTTP(w, req)
 
 			assert.Equal(t, 200, w.Code)
@@ -112,13 +112,13 @@ func TestDoubleLoad(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", LoadPathVariantPath, strings.NewReader(string(body)))
+	req, _ := http.NewRequest("POST", api_model.LoadPathVariantPath, strings.NewReader(string(body)))
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
 
 	// Load request after the file was already created
 	w = httptest.NewRecorder()
-	req, _ = http.NewRequest("POST", LoadPathVariantPath, strings.NewReader(string(body)))
+	req, _ = http.NewRequest("POST", api_model.LoadPathVariantPath, strings.NewReader(string(body)))
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 500, w.Code)
 }
@@ -140,7 +140,7 @@ func TestInitPathVariant(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", InitPathVariantPath, strings.NewReader(string(body)))
+	req, _ := http.NewRequest("POST", api_model.InitPathVariantPath, strings.NewReader(string(body)))
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
 
@@ -173,12 +173,12 @@ func TestInitLoad(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", InitPathVariantPath, strings.NewReader(string(body)))
+	req, _ := http.NewRequest("POST", api_model.InitPathVariantPath, strings.NewReader(string(body)))
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
 
 	w = httptest.NewRecorder()
-	req, _ = http.NewRequest("POST", LoadPathVariantPath, strings.NewReader(string(body)))
+	req, _ = http.NewRequest("POST", api_model.LoadPathVariantPath, strings.NewReader(string(body)))
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
 
@@ -238,7 +238,7 @@ func TestUnloadSecret(t *testing.T) {
 				return
 			}
 
-			req, _ := http.NewRequest("POST", UnLoadPathVariantPath, strings.NewReader(string(body)))
+			req, _ := http.NewRequest("POST", api_model.UnLoadPathVariantPath, strings.NewReader(string(body)))
 			router.ServeHTTP(w, req)
 
 			assert.Equal(t, 200, w.Code)

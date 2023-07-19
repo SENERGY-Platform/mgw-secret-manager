@@ -31,7 +31,7 @@ func (c *RealClient) StoreSecret(ctx context.Context, name string, value string,
 		return err, http.StatusInternalServerError
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseUrl+"/secrets", strings.NewReader(string(body)))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseUrl+api_model.SecretsPath, strings.NewReader(string(body)))
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
@@ -43,7 +43,7 @@ func (c *RealClient) LoadPathVariant(ctx context.Context, secretRequest api_mode
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseUrl+"/load", strings.NewReader(string(body)))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseUrl+api_model.LoadPathVariantPath, strings.NewReader(string(body)))
 
 	if err != nil {
 		return err, http.StatusInternalServerError
@@ -60,7 +60,7 @@ func (c *RealClient) SetEncryptionKey(ctx context.Context, encryptionKey []byte)
 }
 
 func (c *RealClient) GetSecrets(ctx context.Context) (secrets []api_model.Secret, err error, errCode int) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.BaseUrl+"/secrets", nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.BaseUrl+api_model.SecretsPath, nil)
 	if err != nil {
 		return nil, err, http.StatusInternalServerError
 	}
@@ -72,7 +72,7 @@ func (c *RealClient) GetValueVariant(ctx context.Context, secretRequest api_mode
 	if err != nil {
 		return api_model.SecretValueVariant{}, err, http.StatusInternalServerError
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseUrl+"/confidential/secret", strings.NewReader(string(body)))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseUrl+api_model.ValueVariantPath, strings.NewReader(string(body)))
 	if err != nil {
 		return api_model.SecretValueVariant{}, err, http.StatusInternalServerError
 	}
@@ -84,7 +84,7 @@ func (c *RealClient) InitPathVariant(ctx context.Context, secretRequest api_mode
 	if err != nil {
 		return api_model.SecretPathVariant{}, err, http.StatusInternalServerError
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseUrl+"/secrets/init-path", strings.NewReader(string(body)))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseUrl+api_model.InitPathVariantPath, strings.NewReader(string(body)))
 	if err != nil {
 		return api_model.SecretPathVariant{}, err, http.StatusInternalServerError
 	}
@@ -102,7 +102,7 @@ func (c *RealClient) UpdateSecret(ctx context.Context, name string, value string
 		return err, http.StatusInternalServerError
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPut, c.BaseUrl+"/secrets/"+id, strings.NewReader(string(body)))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, c.BaseUrl+api_model.SecretsPath+"/"+id, strings.NewReader(string(body)))
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
@@ -110,7 +110,7 @@ func (c *RealClient) UpdateSecret(ctx context.Context, name string, value string
 }
 
 func (c *RealClient) DeleteSecret(ctx context.Context, id string) (err error, errCode int) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, c.BaseUrl+"/secrets/"+id, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, c.BaseUrl+api_model.SecretsPath+"/"+id, nil)
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
@@ -122,7 +122,7 @@ func (c *RealClient) UnloadPathVariant(ctx context.Context, secretRequest api_mo
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseUrl+"/unload", strings.NewReader(string(body)))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseUrl+api_model.UnLoadPathVariantPath, strings.NewReader(string(body)))
 
 	if err != nil {
 		return err, http.StatusInternalServerError

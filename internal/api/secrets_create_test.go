@@ -35,7 +35,7 @@ func TestStoreSecret(t *testing.T) {
 			return
 		}
 
-		req, _ := http.NewRequest("POST", "/secrets", strings.NewReader(string(body)))
+		req, _ := http.NewRequest("POST", api_model.SecretsPath, strings.NewReader(string(body)))
 		router.ServeHTTP(w, req)
 
 		secretID := w.Body.String()

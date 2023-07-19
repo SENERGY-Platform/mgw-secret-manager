@@ -33,7 +33,7 @@ func TestGetSecrets(t *testing.T) {
 	})
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/secrets", w.Body)
+	req, _ := http.NewRequest("GET", api_model.SecretsPath, w.Body)
 	router.ServeHTTP(w, req)
 
 	var secretResult []api_model.Secret

@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
+	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,7 +21,7 @@ func TestDeleteSecret(t *testing.T) {
 
 	secret := SetupDummySecret(t, "secret", "geheim", "type", secretHandler)
 
-	req, _ := http.NewRequest("DELETE", "/secrets/"+secret.ID, nil)
+	req, _ := http.NewRequest("DELETE", api_model.SecretsPath+"/"+secret.ID, nil)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
 

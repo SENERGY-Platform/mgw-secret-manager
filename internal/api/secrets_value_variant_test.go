@@ -53,7 +53,7 @@ func TestGetValueVariant(t *testing.T) {
 				return
 			}
 
-			req, _ := http.NewRequest("POST", ValueVariantPath, strings.NewReader(string(body)))
+			req, _ := http.NewRequest("POST", api_model.ValueVariantPath, strings.NewReader(string(body)))
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 

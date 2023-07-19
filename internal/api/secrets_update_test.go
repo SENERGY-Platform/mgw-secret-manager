@@ -79,7 +79,7 @@ func TestUpdateSecret(t *testing.T) {
 				t.Errorf(err.Error())
 			}
 
-			req, _ := http.NewRequest("PUT", "/secrets/"+secretID, strings.NewReader(string(body)))
+			req, _ := http.NewRequest("PUT", api_model.SecretsPath+"/"+secretID, strings.NewReader(string(body)))
 			router.ServeHTTP(w, req)
 
 			var response string

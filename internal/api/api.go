@@ -5,6 +5,7 @@ import (
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/db"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/keyHandler"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/secretHandler"
+	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
 
 	"github.com/gin-gonic/gin"
 )
@@ -25,32 +26,22 @@ func New(config config.Config, dbHandler db.Database, secretHandler *secretHandl
 	}
 }
 
-const SecretsPath = "/secrets"
-const PathVariantPath = "/path-variant"
-const SecretPath = SecretsPath + "/:id"
-const LoadPathVariantPath = PathVariantPath + "/load"
-const InitPathVariantPath = PathVariantPath + "/init"
-const UnLoadPathVariantPath = PathVariantPath + "/unload"
-
-const ConfidentialPath = "/confidential"
-const ValueVariantPath = ConfidentialPath + "/value-variant"
-
 func (a *Api) SetRoutes(e *gin.Engine) {
-	e.POST(SecretsPath, a.StoreSecret)
-	e.GET(SecretsPath, a.GetSecrets)
+	e.POST(api_model.SecretsPath, a.StoreSecret)
+	e.GET(api_model.SecretsPath, a.GetSecrets)
 
-	e.PUT(SecretPath, a.UpdateSecret)
-	e.DELETE(SecretPath, a.DeleteSecret)
+	e.PUT(api_model.SecretPath, a.UpdateSecret)
+	e.DELETE(api_model.SecretPath, a.DeleteSecret)
 
-	e.POST(LoadPathVariantPath, a.LoadPathVariant)
-	e.POST(InitPathVariantPath, a.InitPathVariant)
-	e.POST(UnLoadPathVariantPath, a.DeleteSecretFromTMPFS)
+	e.POST(api_model.LoadPathVariantPath, a.LoadPathVariant)
+	e.POST(api_model.InitPathVariantPath, a.InitPathVariant)
+	e.POST(api_model.UnLoadPathVariantPath, a.DeleteSecretFromTMPFS)
 
 	e.GET("/types", a.GetTypes)
 
 	e.POST("/key", a.SetEncryptionKey)
 
 	if a.config.ExposeConfidentialEndpoints {
-		e.POST(ValueVariantPath, a.GetValueVariant)
+		e.POST(api_model.ValueVariantPath, a.GetValueVariant)
 	}
 }
