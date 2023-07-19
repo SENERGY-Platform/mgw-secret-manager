@@ -102,13 +102,31 @@ func (secretHandler *SecretHandler) RemoveSecretFromFileSystem(ctx context.Conte
 	return
 }
 
-func (secretHandler *SecretHandler) InitPathVariant(ctx context.Context, secretPostRequest api_model.SecretVariantRequest) (err error) {
+func (secretHandler *SecretHandler) InitPathVariant(ctx context.Context, secretPostRequest api_model.SecretVariantRequest) (secretVariant api_model.SecretPathVariant, err error) {
 	logger.Logger.Debugf("Init empty file for path variant")
+	secret, err := secretHandler.GetSecret(ctx, secretPostRequest.ID)
+	if err != nil {
+		return api_model.SecretPathVariant{}, err
+	}
+
 	relativeFilePath := secretHandler.BuildTMPFSOutputPath(secretPostRequest)
 	fullOutputPath := filepath.Join(secretHandler.TMPFSPath, relativeFilePath)
 	err = files.WriteToFile("", fullOutputPath)
 	if err != nil {
 		logger.Logger.Errorf("Write empty placeholder file failed: %s", err.Error())
+		return api_model.SecretPathVariant{}, err
 	}
-	return nil
+
+	secretPathVariant := api_model.SecretPathVariant{
+		SecretVariant: api_model.SecretVariant{
+			Secret: api_model.Secret{
+				Name:       secret.Name,
+				SecretType: secret.SecretType,
+				ID:         secret.ID,
+			},
+			Item: secretPostRequest.Item,
+		},
+		Path: relativeFilePath,
+	}
+	return secretPathVariant, nil
 }

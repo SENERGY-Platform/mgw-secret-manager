@@ -22,13 +22,13 @@ func (a *Api) InitPathVariant(gc *gin.Context) {
 		return
 	}
 
-	err = a.secretHandler.InitPathVariant(gc.Request.Context(), secretVariantRequest)
+	secretPathVariant, err := a.secretHandler.InitPathVariant(gc.Request.Context(), secretVariantRequest)
 	if err != nil {
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	gc.String(http.StatusOK, "")
+	gc.JSON(http.StatusOK, secretPathVariant)
 }
 
 func (a *Api) LoadPathVariant(gc *gin.Context) {
