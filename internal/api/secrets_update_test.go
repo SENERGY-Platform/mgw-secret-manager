@@ -66,8 +66,8 @@ func TestUpdateSecret(t *testing.T) {
 			router, dbHandler, secretHandler := InitServer(config)
 			defer dbHandler.Cleanup()
 
-			_, shortSecret := SetupDummySecret(t, tc.ExistingSecret.Name, tc.ExistingSecret.Value, tc.ExistingSecret.SecretType, secretHandler)
-			secretID := shortSecret.ID
+			secret := SetupDummySecret(t, tc.ExistingSecret.Name, tc.ExistingSecret.Value, tc.ExistingSecret.SecretType, secretHandler)
+			secretID := secret.ID
 
 			if tc.LoadIntoTMPFS {
 				// Load the secret into TMPFS and check whether the value is new
@@ -88,7 +88,7 @@ func TestUpdateSecret(t *testing.T) {
 
 			assert.Equal(t, 200, w.Code)
 
-			secretFromDB, err := secretHandler.GetSecret(ctx, api_model.SecretVariantRequest{ID: secretID})
+			secretFromDB, err := secretHandler.GetSecret(ctx, secretID)
 			if err != nil {
 				t.Errorf(err.Error())
 			}

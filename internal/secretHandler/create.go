@@ -5,22 +5,19 @@ import (
 
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/logger"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/models"
-	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
 	"github.com/google/uuid"
 )
 
-func (secretHandler *SecretHandler) CreateSecret(name string, value string, secretType string) api_model.Secret {
-	return api_model.Secret{
-		ShortSecret: api_model.ShortSecret{
-			Name:       name,
-			SecretType: secretType,
-			ID:         uuid.New().String(),
-		},
-		Value: value,
+func (secretHandler *SecretHandler) CreateSecret(name string, value string, secretType string) models.Secret {
+	return models.Secret{
+		Name:       name,
+		SecretType: secretType,
+		ID:         uuid.New().String(),
+		Value:      value,
 	}
 }
 
-func (secretHandler *SecretHandler) StoreSecret(ctx context.Context, secret *api_model.Secret) (err error) {
+func (secretHandler *SecretHandler) StoreSecret(ctx context.Context, secret *models.Secret) (err error) {
 	logger.Logger.Debugf("Store Secret: %s", secret.ID)
 
 	var storedSecret *models.EncryptedSecret

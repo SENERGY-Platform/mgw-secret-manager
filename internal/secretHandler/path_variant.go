@@ -23,14 +23,23 @@ func (secretHandler *SecretHandler) BuildTMPFSOutputPath(secretPostRequest api_m
 
 func (secretHandler *SecretHandler) LoadSecretToFileSystem(ctx context.Context, secretPostRequest api_model.SecretVariantRequest) (err error) {
 	// Load secret to TMPFS if it does not exist already
+	// Dont load if it already exists with non-empty value
 
 	logger.Logger.Debugf("Get Secret Value and load into TMPFS")
 	relativeFilePath := secretHandler.BuildTMPFSOutputPath(secretPostRequest)
 	fullOutputPath := filepath.Join(secretHandler.TMPFSPath, relativeFilePath)
 
 	if _, err = os.Stat(fullOutputPath); err == nil {
-		err = customErrors.SecretAlreadyLoaded{SecretID: secretPostRequest.ID, Path: relativeFilePath}
-		return
+		// TODO check if not empty
+		content, errRead := ioutil.ReadFile(fullOutputPath)
+		if errRead != nil {
+			return errRead
+		}
+
+		if string(content) != "" {
+			err = customErrors.SecretAlreadyLoaded{SecretID: secretPostRequest.ID, Path: relativeFilePath}
+			return
+		}
 	}
 
 	err = secretHandler.SaveSecretToFileSystem(ctx, secretPostRequest, fullOutputPath)
@@ -39,11 +48,15 @@ func (secretHandler *SecretHandler) LoadSecretToFileSystem(ctx context.Context, 
 
 func (secretHandler *SecretHandler) SaveSecretToFileSystem(ctx context.Context, secretPostRequest api_model.SecretVariantRequest, fullOutputPath string) (err error) {
 	// Get secret value and write file to TMPFS
-
-	secret, errGet := secretHandler.GetFullSecret(ctx, secretPostRequest)
-	if errGet != nil {
-		return errGet
+	secret, err := secretHandler.GetSecret(ctx, secretPostRequest.ID)
+	if err != nil {
+		return err
 	}
+	extractedValue, err := secretHandler.ExtractValue(ctx, secretPostRequest, secret.Value)
+	if err != nil {
+		return err
+	}
+	secret.Value = extractedValue
 
 	logger.Logger.Debugf("Load Secret: %s to %s", secret.ID, fullOutputPath)
 	err = files.WriteToFile(string(secret.Value), fullOutputPath)
@@ -62,10 +75,8 @@ func (secretHandler *SecretHandler) UpdateExistingSecretInTMPFS(ctx context.Cont
 	for _, referenceDirectory := range referenceDirectories {
 		pathToFiles := filepath.Join(secretHandler.TMPFSPath, referenceDirectory.Name(), secretID)
 		files, _ := ioutil.ReadDir(pathToFiles)
-		logger.Logger.Debugf(pathToFiles)
 		// TODO if exists
 		for _, fileName := range files {
-			logger.Logger.Debugf(fileName.Name())
 			secretPostRequest := api_model.SecretVariantRequest{ID: secretID, Reference: referenceDirectory.Name()}
 
 			// "Value" is the reserved secret key for single value secrets
@@ -89,4 +100,15 @@ func (secretHandler *SecretHandler) RemoveSecretFromFileSystem(ctx context.Conte
 
 	err = os.Remove(fullOutputPath)
 	return
+}
+
+func (secretHandler *SecretHandler) InitPathVariant(ctx context.Context, secretPostRequest api_model.SecretVariantRequest) (err error) {
+	logger.Logger.Debugf("Init empty file for path variant")
+	relativeFilePath := secretHandler.BuildTMPFSOutputPath(secretPostRequest)
+	fullOutputPath := filepath.Join(secretHandler.TMPFSPath, relativeFilePath)
+	err = files.WriteToFile("", fullOutputPath)
+	if err != nil {
+		logger.Logger.Errorf("Write empty placeholder file failed: %s", err.Error())
+	}
+	return nil
 }

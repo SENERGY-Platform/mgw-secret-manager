@@ -16,6 +16,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func CreateDummySecretAndVariantRequest() {
+
+}
+
 func TestLoadSecret(t *testing.T) {
 	type TestCase struct {
 		ExpectedValue     string
@@ -61,7 +65,7 @@ func TestLoadSecret(t *testing.T) {
 			router, dbHandler, secretHandler := InitServer(config)
 			defer dbHandler.Cleanup()
 
-			secret, _ := SetupDummySecret(t, tc.Secret.Name, tc.Secret.Value, tc.Secret.SecretType, secretHandler)
+			secret := SetupDummySecret(t, tc.Secret.Name, tc.Secret.Value, tc.Secret.SecretType, secretHandler)
 
 			tc.SecretPostRequest.ID = secret.ID
 			body, err := json.Marshal(tc.SecretPostRequest)
@@ -70,7 +74,7 @@ func TestLoadSecret(t *testing.T) {
 				return
 			}
 
-			req, _ := http.NewRequest("POST", "/load", strings.NewReader(string(body)))
+			req, _ := http.NewRequest("POST", LoadPathVariantPath, strings.NewReader(string(body)))
 			router.ServeHTTP(w, req)
 
 			assert.Equal(t, 200, w.Code)
@@ -89,6 +93,104 @@ func TestLoadSecret(t *testing.T) {
 			assert.Equal(t, tc.ExpectedValue, string(fileContent))
 		})
 	}
+}
+
+func TestDoubleLoad(t *testing.T) {
+	var config, _ = config.NewConfig(config.Flags.ConfPath)
+	config.EnableEncryption = false
+	router, dbHandler, secretHandler := InitServer(config)
+	defer dbHandler.Cleanup()
+
+	secretCreateRequest := api_model.SecretCreateRequest{Name: "name1", Value: "value1", SecretType: "Type1"}
+	secret := SetupDummySecret(t, secretCreateRequest.Name, secretCreateRequest.Value, secretCreateRequest.SecretType, secretHandler)
+	secretPostRequest := api_model.SecretVariantRequest{ID: secret.ID, Reference: "ref1", Item: nil}
+
+	body, err := json.Marshal(secretPostRequest)
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", LoadPathVariantPath, strings.NewReader(string(body)))
+	router.ServeHTTP(w, req)
+	assert.Equal(t, 200, w.Code)
+
+	// Load request after the file was already created
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest("POST", LoadPathVariantPath, strings.NewReader(string(body)))
+	router.ServeHTTP(w, req)
+	assert.Equal(t, 500, w.Code)
+}
+
+func TestInitPathVariant(t *testing.T) {
+	var config, _ = config.NewConfig(config.Flags.ConfPath)
+	config.EnableEncryption = false
+	router, dbHandler, secretHandler := InitServer(config)
+	defer dbHandler.Cleanup()
+
+	secretCreateRequest := api_model.SecretCreateRequest{Name: "name1", Value: "value1", SecretType: "Type1"}
+	secret := SetupDummySecret(t, secretCreateRequest.Name, secretCreateRequest.Value, secretCreateRequest.SecretType, secretHandler)
+	secretPostRequest := api_model.SecretVariantRequest{ID: secret.ID, Reference: "ref1", Item: nil}
+
+	body, err := json.Marshal(secretPostRequest)
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", InitPathVariantPath, strings.NewReader(string(body)))
+	router.ServeHTTP(w, req)
+	assert.Equal(t, 200, w.Code)
+
+	pathToSecretInTMPFS := secretHandler.BuildTMPFSOutputPath(secretPostRequest)
+	fullSecretPath := filepath.Join(config.TMPFSPath, pathToSecretInTMPFS)
+	fileContent, err := ioutil.ReadFile(fullSecretPath)
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+
+	assert.Equal(t, "", string(fileContent))
+}
+
+func TestInitLoad(t *testing.T) {
+	var config, _ = config.NewConfig(config.Flags.ConfPath)
+	config.EnableEncryption = false
+	router, dbHandler, secretHandler := InitServer(config)
+	defer dbHandler.Cleanup()
+
+	secretCreateRequest := api_model.SecretCreateRequest{Name: "name1", Value: "value1", SecretType: "Type1"}
+	expectedValue := "value1"
+	secret := SetupDummySecret(t, secretCreateRequest.Name, secretCreateRequest.Value, secretCreateRequest.SecretType, secretHandler)
+	secretPostRequest := api_model.SecretVariantRequest{ID: secret.ID, Reference: "ref1", Item: nil}
+
+	body, err := json.Marshal(secretPostRequest)
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", InitPathVariantPath, strings.NewReader(string(body)))
+	router.ServeHTTP(w, req)
+	assert.Equal(t, 200, w.Code)
+
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest("POST", LoadPathVariantPath, strings.NewReader(string(body)))
+	router.ServeHTTP(w, req)
+	assert.Equal(t, 200, w.Code)
+
+	pathToSecretInTMPFS := secretHandler.BuildTMPFSOutputPath(secretPostRequest)
+	fullSecretPath := filepath.Join(config.TMPFSPath, pathToSecretInTMPFS)
+	fileContent, err := ioutil.ReadFile(fullSecretPath)
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+
+	assert.Equal(t, expectedValue, string(fileContent))
 }
 
 func TestUnloadSecret(t *testing.T) {
@@ -124,7 +226,7 @@ func TestUnloadSecret(t *testing.T) {
 			router, dbHandler, secretHandler := InitServer(config)
 			defer dbHandler.Cleanup()
 
-			secret, _ := SetupDummySecret(t, tc.Secret.Name, tc.Secret.Value, tc.Secret.SecretType, secretHandler)
+			secret := SetupDummySecret(t, tc.Secret.Name, tc.Secret.Value, tc.Secret.SecretType, secretHandler)
 
 			tc.SecretPostRequest.ID = secret.ID
 			secretHandler.LoadSecretToFileSystem(ctx, tc.SecretPostRequest)
@@ -136,7 +238,7 @@ func TestUnloadSecret(t *testing.T) {
 				return
 			}
 
-			req, _ := http.NewRequest("POST", "/unload", strings.NewReader(string(body)))
+			req, _ := http.NewRequest("POST", UnLoadPathVariantPath, strings.NewReader(string(body)))
 			router.ServeHTTP(w, req)
 
 			assert.Equal(t, 200, w.Code)

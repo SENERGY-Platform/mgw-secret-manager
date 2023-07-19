@@ -7,4 +7,11 @@ type EncryptedSecret struct {
 	ID         string `gorm:"primaryKey"`
 }
 
+type Secret struct {
+	Name       string
+	Value      string
+	SecretType string
+	ID         string
+}
+
 type SecretValue map[string]string

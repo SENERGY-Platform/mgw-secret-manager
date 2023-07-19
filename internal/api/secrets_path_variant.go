@@ -10,33 +10,46 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (a *Api) LoadSecretIntoTMPFS(gc *gin.Context) {
+func (a *Api) InitPathVariant(gc *gin.Context) {
 	ok := a.CheckIfEncryptionKeyExists(gc)
 	if !ok {
 		return
 	}
 
-	body, err := ioutil.ReadAll(gc.Request.Body)
+	secretVariantRequest, err := ParseVariantRequest(gc)
 	if err != nil {
-		logger.Logger.Errorf(err.Error())
-		gc.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-	logger.Logger.Printf("POST Body: %s\n", body)
-
-	var secretPostRequest api_model.SecretVariantRequest
-	err = json.Unmarshal(body, &secretPostRequest)
-	if err != nil {
-		logger.Logger.Errorf(err.Error())
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	err = a.secretHandler.LoadSecretToFileSystem(gc.Request.Context(), secretPostRequest)
+	err = a.secretHandler.InitPathVariant(gc.Request.Context(), secretVariantRequest)
 	if err != nil {
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
+
+	gc.String(http.StatusOK, "")
+}
+
+func (a *Api) LoadPathVariant(gc *gin.Context) {
+	ok := a.CheckIfEncryptionKeyExists(gc)
+	if !ok {
+		return
+	}
+
+	secretVariantRequest, err := ParseVariantRequest(gc)
+	if err != nil {
+		gc.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	err = a.secretHandler.LoadSecretToFileSystem(gc.Request.Context(), secretVariantRequest)
+	if err != nil {
+		gc.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	gc.String(http.StatusOK, "")
 }
 
 func (a *Api) DeleteSecretFromTMPFS(gc *gin.Context) {

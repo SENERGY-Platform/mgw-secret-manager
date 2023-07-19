@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
@@ -19,82 +18,26 @@ func TestGetSecrets(t *testing.T) {
 	defer dbHandler.Cleanup()
 
 	// Setup dummy secrets
-	var expectedSecrets []api_model.ShortSecret
-	_, shortSecret1 := SetupDummySecret(t, "secret", "geheim", "type", secretHandler)
-	expectedSecrets = append(expectedSecrets, shortSecret1)
-	_, shortSecret2 := SetupDummySecret(t, "secret2", "geheim2", "type2", secretHandler)
-	expectedSecrets = append(expectedSecrets, shortSecret2)
+	var expectedSecrets []api_model.Secret
+	secret1 := SetupDummySecret(t, "secret", "geheim", "type", secretHandler)
+	expectedSecrets = append(expectedSecrets, api_model.Secret{
+		Name:       secret1.Name,
+		SecretType: secret1.SecretType,
+		ID:         secret1.ID,
+	})
+	secret2 := SetupDummySecret(t, "secret2", "geheim2", "type2", secretHandler)
+	expectedSecrets = append(expectedSecrets, api_model.Secret{
+		Name:       secret2.Name,
+		SecretType: secret2.SecretType,
+		ID:         secret2.ID,
+	})
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/secrets", w.Body)
 	router.ServeHTTP(w, req)
 
-	var secretResult []api_model.ShortSecret
+	var secretResult []api_model.Secret
 	json.NewDecoder(w.Body).Decode(&secretResult)
 	assert.Equal(t, 200, w.Code)
 	assert.ElementsMatch(t, expectedSecrets, secretResult)
-}
-
-func TestGetFullSecret(t *testing.T) {
-	type TestCase struct {
-		Secret            api_model.SecretCreateRequest
-		SecretPostRequest api_model.SecretVariantRequest
-		CaseName          string
-		ExpectedValue     string
-	}
-
-	username := "username"
-
-	testCases := []TestCase{
-		{
-			Secret:            api_model.SecretCreateRequest{Name: "name1", Value: "value1", SecretType: "Type1"},
-			SecretPostRequest: api_model.SecretVariantRequest{ID: "", Reference: "ref1", Item: nil},
-			CaseName:          "Without Item",
-			ExpectedValue:     "value1",
-		},
-		{
-			Secret:            api_model.SecretCreateRequest{Name: "name2", Value: "{\"username\": \"user\", \"password\": \"password\"}", SecretType: "Type2"},
-			SecretPostRequest: api_model.SecretVariantRequest{ID: "", Reference: "ref2", Item: &username},
-			CaseName:          "With Item",
-			ExpectedValue:     "user",
-		},
-	}
-	for _, tc := range testCases {
-		t.Run(tc.CaseName, func(t *testing.T) {
-			var config, _ = config.NewConfig(config.Flags.ConfPath)
-			config.EnableEncryption = false
-			config.ExposeConfidentialEndpoints = true
-			router, dbHandler, secretHandler := InitServer(config)
-			defer dbHandler.Cleanup()
-
-			_, shortSecret := SetupDummySecret(t, tc.Secret.Name, tc.Secret.Value, tc.Secret.SecretType, secretHandler)
-
-			tc.SecretPostRequest.ID = shortSecret.ID
-			body, err := json.Marshal(tc.SecretPostRequest)
-			if err != nil {
-				t.Errorf(err.Error())
-				return
-			}
-
-			req, _ := http.NewRequest("POST", "/confidential/secret", strings.NewReader(string(body)))
-			w := httptest.NewRecorder()
-			router.ServeHTTP(w, req)
-
-			var secretResult api_model.Secret
-			json.NewDecoder(w.Body).Decode(&secretResult)
-			assert.Equal(t, 200, w.Code)
-
-			expectedSecret := api_model.Secret{
-				ShortSecret: api_model.ShortSecret{
-					SecretType: shortSecret.SecretType,
-					Path:       secretHandler.BuildTMPFSOutputPath(tc.SecretPostRequest),
-					Item:       tc.SecretPostRequest.Item,
-					Name:       shortSecret.Name,
-					ID:         shortSecret.ID,
-				},
-				Value: tc.ExpectedValue,
-			}
-			assert.Equal(t, expectedSecret, secretResult)
-		})
-	}
 }

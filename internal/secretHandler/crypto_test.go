@@ -7,7 +7,7 @@ import (
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/db"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/logger"
-	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/models"
 
 	"github.com/SENERGY-Platform/mgw-secret-manager/test"
 
@@ -23,10 +23,8 @@ func TestEncryptDecryptSecret(t *testing.T) {
 
 	secretHandler := NewSecretHandler(false, dbHandler, ".")
 	secretHandler.SetKey(ctx, test.MasterKey)
-	secret := &api_model.Secret{
-		ShortSecret: api_model.ShortSecret{
-			Name: "Test",
-		},
+	secret := &models.Secret{
+		Name:  "Test",
 		Value: "value",
 	}
 	encryptedSecret, err := secretHandler.EncryptSecret(secret)

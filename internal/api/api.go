@@ -25,18 +25,32 @@ func New(config config.Config, dbHandler db.Database, secretHandler *secretHandl
 	}
 }
 
+const SecretsPath = "/secrets"
+const PathVariantPath = "/path-variant"
+const SecretPath = SecretsPath + "/:id"
+const LoadPathVariantPath = PathVariantPath + "/load"
+const InitPathVariantPath = PathVariantPath + "/init"
+const UnLoadPathVariantPath = PathVariantPath + "/unload"
+
+const ConfidentialPath = "/confidential"
+const ValueVariantPath = ConfidentialPath + "/value-variant"
+
 func (a *Api) SetRoutes(e *gin.Engine) {
-	e.POST("/secrets", a.StoreSecret)
-	e.GET("/secrets", a.GetSecrets)
-	e.PUT("/secrets/:id", a.UpdateSecret)
-	e.POST("/secret", a.GetSecret)
-	e.DELETE("/secrets/:id", a.DeleteSecret)
+	e.POST(SecretsPath, a.StoreSecret)
+	e.GET(SecretsPath, a.GetSecrets)
+
+	e.PUT(SecretPath, a.UpdateSecret)
+	e.DELETE(SecretPath, a.DeleteSecret)
+
+	e.POST(LoadPathVariantPath, a.LoadPathVariant)
+	e.POST(InitPathVariantPath, a.InitPathVariant)
+	e.POST(UnLoadPathVariantPath, a.DeleteSecretFromTMPFS)
+
 	e.GET("/types", a.GetTypes)
-	e.POST("/load", a.LoadSecretIntoTMPFS)
+
 	e.POST("/key", a.SetEncryptionKey)
-	e.POST("/unload", a.DeleteSecretFromTMPFS)
 
 	if a.config.ExposeConfidentialEndpoints {
-		e.POST("/confidential/secret", a.GetFullSecret)
+		e.POST(ValueVariantPath, a.GetValueVariant)
 	}
 }

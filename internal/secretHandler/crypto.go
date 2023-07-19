@@ -3,10 +3,9 @@ package secretHandler
 import (
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/crypto"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/models"
-	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
 )
 
-func (secretHandler *SecretHandler) EncryptSecret(secret *api_model.Secret) (encryptedSecret *models.EncryptedSecret, err error) {
+func (secretHandler *SecretHandler) EncryptSecret(secret *models.Secret) (encryptedSecret *models.EncryptedSecret, err error) {
 	encryptedValue, err := crypto.Encrypt([]byte(secret.Value), secretHandler.Key)
 	if err != nil {
 		return
@@ -20,18 +19,16 @@ func (secretHandler *SecretHandler) EncryptSecret(secret *api_model.Secret) (enc
 	return
 }
 
-func (secretHandler *SecretHandler) DecryptSecret(secret *models.EncryptedSecret) (decryptedSecret *api_model.Secret, err error) {
+func (secretHandler *SecretHandler) DecryptSecret(secret *models.EncryptedSecret) (decryptedSecret models.Secret, err error) {
 	decryptedValue, err := crypto.Decrypt(secret.Value, secretHandler.Key)
 	if err != nil {
 		return
 	}
-	decryptedSecret = &api_model.Secret{
-		ShortSecret: api_model.ShortSecret{
-			Name:       secret.Name,
-			SecretType: secret.SecretType,
-			ID:         secret.ID,
-		},
-		Value: string(decryptedValue),
+	decryptedSecret = models.Secret{
+		Name:       secret.Name,
+		SecretType: secret.SecretType,
+		ID:         secret.ID,
+		Value:      string(decryptedValue),
 	}
 	return
 }

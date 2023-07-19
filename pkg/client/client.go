@@ -38,7 +38,7 @@ func (c *RealClient) StoreSecret(ctx context.Context, name string, value string,
 	return do(req, c.HTTPClient)
 }
 
-func (c *RealClient) LoadSecretToTMPFS(ctx context.Context, secretRequest api_model.SecretVariantRequest) (err error, errCode int) {
+func (c *RealClient) LoadPathVariant(ctx context.Context, secretRequest api_model.SecretVariantRequest) (err error, errCode int) {
 	body, err := json.Marshal(secretRequest)
 	if err != nil {
 		return err, http.StatusInternalServerError
@@ -59,36 +59,36 @@ func (c *RealClient) SetEncryptionKey(ctx context.Context, encryptionKey []byte)
 	return do(req, c.HTTPClient)
 }
 
-func (c *RealClient) GetSecrets(ctx context.Context) (secrets []api_model.ShortSecret, err error, errCode int) {
+func (c *RealClient) GetSecrets(ctx context.Context) (secrets []api_model.Secret, err error, errCode int) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.BaseUrl+"/secrets", nil)
 	if err != nil {
 		return nil, err, http.StatusInternalServerError
 	}
-	return doWithResponse[[]api_model.ShortSecret](req, c.HTTPClient)
+	return doWithResponse[[]api_model.Secret](req, c.HTTPClient)
 }
 
-func (c *RealClient) GetSecret(ctx context.Context, secretRequest api_model.SecretVariantRequest) (secrets *api_model.ShortSecret, err error, errCode int) {
+func (c *RealClient) GetValueVariant(ctx context.Context, secretRequest api_model.SecretVariantRequest) (secrets api_model.SecretValueVariant, err error, errCode int) {
 	body, err := json.Marshal(secretRequest)
 	if err != nil {
-		return nil, err, http.StatusInternalServerError
-	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseUrl+"/secret", strings.NewReader(string(body)))
-	if err != nil {
-		return nil, err, http.StatusInternalServerError
-	}
-	return doWithResponse[*api_model.ShortSecret](req, c.HTTPClient)
-}
-
-func (c *RealClient) GetFullSecret(ctx context.Context, secretRequest api_model.SecretVariantRequest) (secrets *api_model.Secret, err error, errCode int) {
-	body, err := json.Marshal(secretRequest)
-	if err != nil {
-		return nil, err, http.StatusInternalServerError
+		return api_model.SecretValueVariant{}, err, http.StatusInternalServerError
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseUrl+"/confidential/secret", strings.NewReader(string(body)))
 	if err != nil {
-		return nil, err, http.StatusInternalServerError
+		return api_model.SecretValueVariant{}, err, http.StatusInternalServerError
 	}
-	return doWithResponse[*api_model.Secret](req, c.HTTPClient)
+	return doWithResponse[api_model.SecretValueVariant](req, c.HTTPClient)
+}
+
+func (c *RealClient) InitPathVariant(ctx context.Context, secretRequest api_model.SecretVariantRequest) (secrets api_model.SecretPathVariant, err error, errCode int) {
+	body, err := json.Marshal(secretRequest)
+	if err != nil {
+		return api_model.SecretPathVariant{}, err, http.StatusInternalServerError
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseUrl+"/secrets/init-path", strings.NewReader(string(body)))
+	if err != nil {
+		return api_model.SecretPathVariant{}, err, http.StatusInternalServerError
+	}
+	return doWithResponse[api_model.SecretPathVariant](req, c.HTTPClient)
 }
 
 func (c *RealClient) UpdateSecret(ctx context.Context, name string, value string, secretType string, id string) (err error, errCode int) {
@@ -117,7 +117,7 @@ func (c *RealClient) DeleteSecret(ctx context.Context, id string) (err error, er
 	return do(req, c.HTTPClient)
 }
 
-func (c *RealClient) UnloadSecretFromTMPFS(ctx context.Context, secretRequest api_model.SecretVariantRequest) (err error, errCode int) {
+func (c *RealClient) UnloadPathVariant(ctx context.Context, secretRequest api_model.SecretVariantRequest) (err error, errCode int) {
 	body, err := json.Marshal(secretRequest)
 	if err != nil {
 		return err, http.StatusInternalServerError
@@ -128,6 +128,10 @@ func (c *RealClient) UnloadSecretFromTMPFS(ctx context.Context, secretRequest ap
 		return err, http.StatusInternalServerError
 	}
 	return do(req, c.HTTPClient)
+}
+
+func (c *RealClient) CleanPathVariants(ctx context.Context, ref string) (err error, errCode int) {
+	return
 }
 
 func NewClient(url string, httpClient HttpClient) (client Client) {

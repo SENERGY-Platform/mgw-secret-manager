@@ -42,7 +42,7 @@ func TestStoreSecret(t *testing.T) {
 
 		assert.Equal(t, 200, w.Code)
 
-		secretFromDB, err := secretHandler.GetSecret(ctx, api_model.SecretVariantRequest{ID: secretID})
+		secretFromDB, err := secretHandler.GetSecret(ctx, secretID)
 		if err != nil {
 			t.Errorf(err.Error())
 			return
