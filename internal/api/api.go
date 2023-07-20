@@ -30,6 +30,7 @@ func (a *Api) SetRoutes(e *gin.Engine) {
 	e.POST(api_model.SecretsPath, a.StoreSecret)
 	e.GET(api_model.SecretsPath, a.GetSecrets)
 
+	e.GET(api_model.SecretPath, a.GetShortSecret)
 	e.PUT(api_model.SecretPath, a.UpdateSecret)
 	e.DELETE(api_model.SecretPath, a.DeleteSecret)
 

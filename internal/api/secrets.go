@@ -40,21 +40,6 @@ func (a *Api) CheckIfEncryptionKeyExists(gc *gin.Context) bool {
 	return true
 }
 
-func (a *Api) GetSecrets(gc *gin.Context) {
-	ok := a.CheckIfEncryptionKeyExists(gc)
-	if !ok {
-		return
-	}
-
-	secrets, err := a.secretHandler.GetSecrets(gc.Request.Context())
-	if err != nil {
-		gc.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-
-	gc.JSON(http.StatusOK, secrets)
-}
-
 func (a *Api) GetTypes(gc *gin.Context) {
 	gc.JSON(http.StatusOK, []map[string]string{{"id": "certificate", "name": "Certificate"}, {"id": "basic-auth", "name": "Credentials"}, {"id": "api-key", "name": "API Key"}})
 }

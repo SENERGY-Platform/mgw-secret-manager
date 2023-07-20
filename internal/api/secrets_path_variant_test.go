@@ -144,6 +144,10 @@ func TestInitPathVariant(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
 
+	var secretPathVariant []api_model.SecretPathVariant
+	json.NewDecoder(w.Body).Decode(&secretPathVariant)
+	// TODO test variant returned correctly
+
 	pathToSecretInTMPFS := secretHandler.BuildTMPFSOutputPath(secretPostRequest)
 	fullSecretPath := filepath.Join(config.TMPFSPath, pathToSecretInTMPFS)
 	fileContent, err := ioutil.ReadFile(fullSecretPath)
