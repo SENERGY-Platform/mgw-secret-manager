@@ -33,7 +33,13 @@ func (secretHandler *SecretHandler) ExtractValue(ctx context.Context, secretPost
 
 func (secretHandler *SecretHandler) GetValueVariant(ctx context.Context, secretPostRequest api_model.SecretVariantRequest) (variant api_model.SecretValueVariant, err error) {
 	secret, err := secretHandler.GetSecret(ctx, secretPostRequest.ID)
+	if err != nil {
+		return
+	}
 	extractedValue, err := secretHandler.ExtractValue(ctx, secretPostRequest, secret.Value)
+	if err != nil {
+		return
+	}
 
 	variant = api_model.SecretValueVariant{
 		SecretVariant: api_model.SecretVariant{

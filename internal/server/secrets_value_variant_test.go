@@ -1,4 +1,4 @@
-package api
+package server
 
 import (
 	"encoding/json"
@@ -75,4 +75,46 @@ func TestGetValueVariant(t *testing.T) {
 			assert.Equal(t, expectedSecret, secretResult)
 		})
 	}
+}
+
+func TestGetValueVariantBadPayload(t *testing.T) {
+	var config, _ = config.NewConfig(config.Flags.ConfPath)
+	config.EnableEncryption = false
+	config.ExposeConfidentialEndpoints = true
+	router, dbHandler, _ := InitServer(config)
+	defer dbHandler.Cleanup()
+
+	badPayload := "bad"
+	body, err := json.Marshal(badPayload)
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+
+	req, _ := http.NewRequest("POST", api_model.ValueVariantPath, strings.NewReader(string(body)))
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, 500, w.Code)
+}
+
+func TestGetValueVariantNotFound(t *testing.T) {
+	var config, _ = config.NewConfig(config.Flags.ConfPath)
+	config.EnableEncryption = false
+	config.ExposeConfidentialEndpoints = true
+	router, dbHandler, _ := InitServer(config)
+	defer dbHandler.Cleanup()
+
+	badPayload := api_model.SecretVariantRequest{ID: "not_exist_id", Reference: "ref2"}
+	body, err := json.Marshal(badPayload)
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+
+	req, _ := http.NewRequest("POST", api_model.ValueVariantPath, strings.NewReader(string(body)))
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, 500, w.Code)
 }

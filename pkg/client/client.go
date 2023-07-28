@@ -130,8 +130,14 @@ func (c *RealClient) UnloadPathVariant(ctx context.Context, secretRequest api_mo
 	return do(req, c.HTTPClient)
 }
 
-func (c *RealClient) CleanPathVariants(ctx context.Context, ref string) (err error, errCode int) {
-	return
+func (c *RealClient) CleanPathVariants(ctx context.Context, reference string) (err error, errCode int) {
+	url := c.BaseUrl + api_model.CleanPathVariantsPath + "?reference=" + reference
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, nil)
+
+	if err != nil {
+		return err, http.StatusInternalServerError
+	}
+	return do(req, c.HTTPClient)
 }
 
 func NewClient(url string, httpClient HttpClient) (client Client) {

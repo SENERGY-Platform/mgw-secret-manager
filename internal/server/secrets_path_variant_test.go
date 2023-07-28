@@ -1,4 +1,4 @@
-package api
+package server
 
 import (
 	"context"
@@ -253,4 +253,55 @@ func TestUnloadSecret(t *testing.T) {
 			assert.NotNil(t, err)
 		})
 	}
+}
+
+func TestCleanReference(t *testing.T) {
+	var config, _ = config.NewConfig(config.Flags.ConfPath)
+	w := httptest.NewRecorder()
+	ctx := context.Background()
+	router, dbHandler, secretHandler := InitServer(config)
+	defer dbHandler.Cleanup()
+
+	referenceToDelete := "ref1"
+	referenceToKeep := "ref2"
+
+	// Load dummy secrets
+	secret1 := SetupDummySecret(t, "secret", "value", "type", secretHandler)
+	secret2 := SetupDummySecret(t, "secret", "value", "type", secretHandler)
+
+	type Case struct {
+		SecretID  string
+		Reference string
+	}
+
+	cases := []Case{
+		Case{
+			SecretID:  secret1.ID,
+			Reference: referenceToDelete,
+		},
+		Case{
+			SecretID:  secret2.ID,
+			Reference: referenceToKeep,
+		},
+	}
+	for _, secretCase := range cases {
+		secretPostRequest := api_model.SecretVariantRequest{
+			ID:        secretCase.SecretID,
+			Reference: secretCase.Reference,
+		}
+		secretHandler.LoadSecretToFileSystem(ctx, secretPostRequest)
+	}
+
+	req, _ := http.NewRequest("POST", api_model.CleanPathVariantsPath+"?reference="+referenceToDelete, nil)
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, 200, w.Code)
+
+	refToBeDeletedPath := filepath.Join(config.TMPFSPath, referenceToDelete)
+	_, err := os.Stat(refToBeDeletedPath)
+	assert.NotNil(t, err)
+
+	refToKeepPath := filepath.Join(config.TMPFSPath, referenceToKeep)
+	_, err = os.Stat(refToKeepPath)
+	assert.Nil(t, err)
 }

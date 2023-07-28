@@ -1,4 +1,4 @@
-package api
+package server
 
 import (
 	"context"
@@ -51,4 +51,24 @@ func TestStoreSecret(t *testing.T) {
 		assert.Equal(t, tc.SecretType, secretFromDB.SecretType)
 		assert.Equal(t, secretID, secretFromDB.ID)
 	}
+}
+
+func TestStoreSecretBadPayload(t *testing.T) {
+	var config, _ = config.NewConfig(config.Flags.ConfPath)
+	config.EnableEncryption = false
+	w := httptest.NewRecorder()
+	router, dbHandler, _ := InitServer(config)
+	defer dbHandler.Cleanup()
+
+	request := "bad_payload"
+	body, err := json.Marshal(request)
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+
+	req, _ := http.NewRequest("POST", api_model.SecretsPath, strings.NewReader(string(body)))
+	router.ServeHTTP(w, req)
+	assert.Equal(t, 500, w.Code)
+
 }

@@ -130,3 +130,9 @@ func (secretHandler *SecretHandler) InitPathVariant(ctx context.Context, secretP
 	}
 	return secretPathVariant, nil
 }
+
+func (secretHandler *SecretHandler) CleanReferenceDirectory(ctx context.Context, reference string) (err error) {
+	pathToReferenceDirectory := filepath.Join(secretHandler.TMPFSPath, reference)
+	err = os.RemoveAll(pathToReferenceDirectory)
+	return
+}

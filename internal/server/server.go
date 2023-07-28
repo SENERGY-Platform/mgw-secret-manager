@@ -1,13 +1,17 @@
-package api
+package server
 
 import (
 	"fmt"
 	"os"
 
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/api"
+
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/db"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/httpHandler"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/logger"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/secretHandler"
+
 	"github.com/gin-contrib/requestid"
 
 	gin_mw "github.com/SENERGY-Platform/gin-middleware"
@@ -53,8 +57,8 @@ func InitServer(config *config.Config) (*gin.Engine, db.Database, secretHandler.
 	engine.UseRawPath = true
 	secretHandler := secretHandler.NewSecretHandler(config.EnableEncryption, dbHandler, config.TMPFSPath)
 	keyHandler := keyHandler.NewKeyHandler(config.MasterKeyPath, nil)
-	Api := New(*config, dbHandler, &secretHandler, keyHandler)
-	Api.SetRoutes(engine)
+	api := api.New(*config, dbHandler, &secretHandler, keyHandler)
+	httpHandler.SetRoutes(engine, api)
 
 	return engine, dbHandler, secretHandler
 }

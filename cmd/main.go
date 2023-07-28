@@ -11,9 +11,9 @@ import (
 	srv_base_types "github.com/SENERGY-Platform/go-service-base/srv-base/types"
 
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
-	"github.com/SENERGY-Platform/mgw-secret-manager/internal/api"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/logger"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/server"
 )
 
 var version string
@@ -43,7 +43,7 @@ func main() {
 
 	logger.Logger.Debugf("config: %s", srv_base.ToJsonStr(config))
 
-	httpHandler, _, _ := api.InitServer(config)
+	httpHandler, _, _ := server.InitServer(config)
 	listener, err := net.Listen("tcp", ":"+strconv.FormatInt(int64(config.ServerPort), 10))
 	if err != nil {
 		logger.Logger.Error(err)
