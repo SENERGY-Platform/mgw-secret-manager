@@ -18,7 +18,7 @@ import (
 var testConfig, _ = config.NewConfig(config.Flags.ConfPath)
 var _, _ = logger.InitLogger(testConfig.Logger)
 
-func TestPostKey(t *testing.T) {
+func TestSetKey(t *testing.T) {
 	testConfig.EnableEncryption = true
 	router, dbHandler, _ := InitServer(testConfig)
 	defer dbHandler.Cleanup()
@@ -29,13 +29,24 @@ func TestPostKey(t *testing.T) {
 	assert.Equal(t, w.Code, 200)
 }
 
-func TestPostKeyWithDisabledEncryption(t *testing.T) {
+func TestSetKeyWithDisabledEncryption(t *testing.T) {
 	testConfig.EnableEncryption = false
 	router, dbHandler, _ := InitServer(testConfig)
 	defer dbHandler.Cleanup()
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", fmt.Sprintf("/key"), strings.NewReader(string(test.EncryptionKey)))
+	router.ServeHTTP(w, req)
+	assert.Equal(t, w.Code, 500)
+}
+
+func TestMissingKey(t *testing.T) {
+	testConfig.EnableEncryption = true
+	router, dbHandler, _ := InitServer(testConfig)
+	defer dbHandler.Cleanup()
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", fmt.Sprintf("/key"), nil)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, w.Code, 500)
 }
