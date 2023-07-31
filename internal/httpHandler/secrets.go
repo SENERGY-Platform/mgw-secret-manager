@@ -22,6 +22,8 @@ func ParseVariantRequest(gc *gin.Context) (api_model.SecretVariantRequest, error
 		return api_model.SecretVariantRequest{}, err
 	}
 
+	logger.Logger.Debugf("Payload: %s", string(body))
+
 	var secretVariantRequest api_model.SecretVariantRequest
 	err = json.Unmarshal(body, &secretVariantRequest)
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/api"
+
 	"github.com/gin-gonic/gin"
 )
 
