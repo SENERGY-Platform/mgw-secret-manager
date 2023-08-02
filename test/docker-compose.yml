@@ -13,7 +13,10 @@ services:
     environment:
       - TEST_MODE=INTEGRATION
       - DB_CONNECTION_URL=user:password@tcp(db:3306)/db
-
+    depends_on:
+      db:
+        condition: service_healthy
+        
   db:
     image: mysql
     environment:
@@ -23,3 +26,7 @@ services:
       MYSQL_DATABASE: db
     ports:
       - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 2s
+      retries: 10
