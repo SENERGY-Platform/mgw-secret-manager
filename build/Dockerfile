@@ -11,7 +11,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o ../app
 FROM alpine:3.18 AS prod
 WORKDIR /root
 COPY --from=builder /app/app .
-COPY --from=builder /app/version.txt .
+#COPY --from=builder /app/version.txt .
 
 EXPOSE 8080
 
