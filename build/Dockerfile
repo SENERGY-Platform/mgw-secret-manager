@@ -3,7 +3,7 @@ ENV GO111MODULE=on
 
 COPY . /app
 WORKDIR /app
-RUN git log -1 --oneline > version.txt
+#RUN git log -1 --oneline > version.txt
 
 WORKDIR /app/cmd
 RUN CGO_ENABLED=0 GOOS=linux go build -o ../app
