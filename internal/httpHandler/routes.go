@@ -28,5 +28,5 @@ func SetRoutes(e *gin.Engine, api *api.Api) {
 		e.POST(api_model.ValueVariantPath, GetValueVariant(api))
 	}
 
-	e.POST("/health-check", HealthCheck(api))
+	e.GET("/health-check", HealthCheck(api))
 }
