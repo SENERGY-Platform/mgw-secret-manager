@@ -62,7 +62,7 @@ func TestLoadSecret(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.CaseName, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			router, dbHandler, secretHandler := InitServer(config)
+			router, dbHandler, secretHandler := InitServer(config, "")
 			defer dbHandler.Cleanup()
 
 			secret := SetupDummySecret(t, tc.Secret.Name, tc.Secret.Value, tc.Secret.SecretType, secretHandler)
@@ -98,7 +98,7 @@ func TestLoadSecret(t *testing.T) {
 func TestDoubleLoad(t *testing.T) {
 	var config, _ = config.NewConfig(config.Flags.ConfPath)
 	config.EnableEncryption = false
-	router, dbHandler, secretHandler := InitServer(config)
+	router, dbHandler, secretHandler := InitServer(config, "")
 	defer dbHandler.Cleanup()
 
 	secretCreateRequest := api_model.SecretCreateRequest{Name: "name1", Value: "value1", SecretType: "Type1"}
@@ -126,7 +126,7 @@ func TestDoubleLoad(t *testing.T) {
 func TestInitPathVariant(t *testing.T) {
 	var config, _ = config.NewConfig(config.Flags.ConfPath)
 	config.EnableEncryption = false
-	router, dbHandler, secretHandler := InitServer(config)
+	router, dbHandler, secretHandler := InitServer(config, "")
 	defer dbHandler.Cleanup()
 
 	secretCreateRequest := api_model.SecretCreateRequest{Name: "name1", Value: "value1", SecretType: "Type1"}
@@ -162,7 +162,7 @@ func TestInitPathVariant(t *testing.T) {
 func TestInitLoad(t *testing.T) {
 	var config, _ = config.NewConfig(config.Flags.ConfPath)
 	config.EnableEncryption = false
-	router, dbHandler, secretHandler := InitServer(config)
+	router, dbHandler, secretHandler := InitServer(config, "")
 	defer dbHandler.Cleanup()
 
 	secretCreateRequest := api_model.SecretCreateRequest{Name: "name1", Value: "value1", SecretType: "Type1"}
@@ -227,7 +227,7 @@ func TestUnloadSecret(t *testing.T) {
 		t.Run(tc.CaseName, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			ctx := context.Background()
-			router, dbHandler, secretHandler := InitServer(config)
+			router, dbHandler, secretHandler := InitServer(config, "")
 			defer dbHandler.Cleanup()
 
 			secret := SetupDummySecret(t, tc.Secret.Name, tc.Secret.Value, tc.Secret.SecretType, secretHandler)
@@ -259,7 +259,7 @@ func TestCleanReference(t *testing.T) {
 	var config, _ = config.NewConfig(config.Flags.ConfPath)
 	w := httptest.NewRecorder()
 	ctx := context.Background()
-	router, dbHandler, secretHandler := InitServer(config)
+	router, dbHandler, secretHandler := InitServer(config, "")
 	defer dbHandler.Cleanup()
 
 	referenceToDelete := "ref1"

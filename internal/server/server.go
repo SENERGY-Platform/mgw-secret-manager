@@ -38,7 +38,7 @@ func CORS() gin.HandlerFunc {
 	}
 }
 
-func InitServer(config *config.Config) (*gin.Engine, db.Database, secretHandler.SecretHandler) {
+func InitServer(config *config.Config, version string) (*gin.Engine, db.Database, secretHandler.SecretHandler) {
 
 	dbHandler, err := db.NewDBHandler(config)
 	if err != nil {
@@ -56,7 +56,12 @@ func InitServer(config *config.Config) (*gin.Engine, db.Database, secretHandler.
 		engine.Use(CORS())
 	}
 
+	staticHeader := map[string]string{
+		"X-Api-Version": version,
+	}
+
 	engine.Use(
+		gin_mw.StaticHeaderHandler(staticHeader),
 		gin_mw.LoggerHandler(logger.Logger, nil, func(gc *gin.Context) string {
 			return requestid.Get(gc)
 		}),

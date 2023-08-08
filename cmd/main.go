@@ -51,7 +51,7 @@ func main() {
 
 	logger.Logger.Debugf("config: %s", srv_base.ToJsonStr(config))
 
-	httpHandler, _, _ := server.InitServer(config)
+	httpHandler, _, _ := server.InitServer(config, version)
 	listener, err := net.Listen("tcp", ":"+strconv.FormatInt(int64(config.ServerPort), 10))
 	if err != nil {
 		logger.Logger.Error(err)

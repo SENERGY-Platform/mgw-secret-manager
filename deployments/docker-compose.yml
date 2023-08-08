@@ -12,7 +12,7 @@ services:
       - "3307:3306"
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-      timeout: 2s
+      timeout: 1s
       retries: 10
 
   mgw-secret-manager:
@@ -23,7 +23,7 @@ services:
     container_name: mgw-secret-manager2
     image: mgw-secret-manager
     ports:
-      - 8080:8080
+      - 8081:8080
     environment:
       - TMPFS_PATH=/tmp
       - ENABLE_ENCRYPTION=false

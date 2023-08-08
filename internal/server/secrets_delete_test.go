@@ -16,7 +16,7 @@ func TestDeleteSecret(t *testing.T) {
 	ctx := context.Background()
 	var config, _ = config.NewConfig(config.Flags.ConfPath)
 	config.EnableEncryption = false
-	router, dbHandler, secretHandler := InitServer(config)
+	router, dbHandler, secretHandler := InitServer(config, "")
 	defer dbHandler.Cleanup()
 
 	secret := SetupDummySecret(t, "secret", "geheim", "type", secretHandler)

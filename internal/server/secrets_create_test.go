@@ -26,7 +26,7 @@ func TestStoreSecret(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		w := httptest.NewRecorder()
-		router, dbHandler, secretHandler := InitServer(config)
+		router, dbHandler, secretHandler := InitServer(config, "")
 		defer dbHandler.Cleanup()
 
 		body, err := json.Marshal(tc)
@@ -57,7 +57,7 @@ func TestStoreSecretBadPayload(t *testing.T) {
 	var config, _ = config.NewConfig(config.Flags.ConfPath)
 	config.EnableEncryption = false
 	w := httptest.NewRecorder()
-	router, dbHandler, _ := InitServer(config)
+	router, dbHandler, _ := InitServer(config, "")
 	defer dbHandler.Cleanup()
 
 	request := "bad_payload"

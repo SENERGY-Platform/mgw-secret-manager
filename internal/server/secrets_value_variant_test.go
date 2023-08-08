@@ -41,7 +41,7 @@ func TestGetValueVariant(t *testing.T) {
 			var config, _ = config.NewConfig(config.Flags.ConfPath)
 			config.EnableEncryption = false
 			config.ExposeConfidentialEndpoints = true
-			router, dbHandler, secretHandler := InitServer(config)
+			router, dbHandler, secretHandler := InitServer(config, "")
 			defer dbHandler.Cleanup()
 
 			secret := SetupDummySecret(t, tc.Secret.Name, tc.Secret.Value, tc.Secret.SecretType, secretHandler)
@@ -81,7 +81,7 @@ func TestGetValueVariantBadPayload(t *testing.T) {
 	var config, _ = config.NewConfig(config.Flags.ConfPath)
 	config.EnableEncryption = false
 	config.ExposeConfidentialEndpoints = true
-	router, dbHandler, _ := InitServer(config)
+	router, dbHandler, _ := InitServer(config, "")
 	defer dbHandler.Cleanup()
 
 	badPayload := "bad"
@@ -102,7 +102,7 @@ func TestGetValueVariantNotFound(t *testing.T) {
 	var config, _ = config.NewConfig(config.Flags.ConfPath)
 	config.EnableEncryption = false
 	config.ExposeConfidentialEndpoints = true
-	router, dbHandler, _ := InitServer(config)
+	router, dbHandler, _ := InitServer(config, "")
 	defer dbHandler.Cleanup()
 
 	badPayload := api_model.SecretVariantRequest{ID: "not_exist_id", Reference: "ref2"}

@@ -4,9 +4,10 @@ ENV GO111MODULE=on
 COPY . /app
 WORKDIR /app
 #RUN git log -1 --oneline > version.txt
+ARG VERSION=dev
 
 WORKDIR /app/cmd
-RUN CGO_ENABLED=0 GOOS=linux go build -o ../app
+RUN CGO_ENABLED=0 GOOS=linux go build -o ../app -ldflags="-X 'main.version=$VERSION'"
 
 FROM alpine:3.18 AS prod
 WORKDIR /root

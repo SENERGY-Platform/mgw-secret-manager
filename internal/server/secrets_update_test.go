@@ -63,7 +63,7 @@ func TestUpdateSecret(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.CaseName, func(t *testing.T) {
-			router, dbHandler, secretHandler := InitServer(config)
+			router, dbHandler, secretHandler := InitServer(config, "")
 			defer dbHandler.Cleanup()
 
 			secret := SetupDummySecret(t, tc.ExistingSecret.Name, tc.ExistingSecret.Value, tc.ExistingSecret.SecretType, secretHandler)

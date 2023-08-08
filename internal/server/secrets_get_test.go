@@ -14,7 +14,7 @@ import (
 func TestGetSecrets(t *testing.T) {
 	var config, _ = config.NewConfig(config.Flags.ConfPath)
 	config.EnableEncryption = false
-	router, dbHandler, secretHandler := InitServer(config)
+	router, dbHandler, secretHandler := InitServer(config, "")
 	defer dbHandler.Cleanup()
 
 	// Setup dummy secrets

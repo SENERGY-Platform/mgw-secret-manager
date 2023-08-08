@@ -20,7 +20,7 @@ var _, _ = logger.InitLogger(testConfig.Logger)
 
 func TestSetKey(t *testing.T) {
 	testConfig.EnableEncryption = true
-	router, dbHandler, _ := InitServer(testConfig)
+	router, dbHandler, _ := InitServer(testConfig, "")
 	defer dbHandler.Cleanup()
 
 	w := httptest.NewRecorder()
@@ -31,7 +31,7 @@ func TestSetKey(t *testing.T) {
 
 func TestSetKeyWithDisabledEncryption(t *testing.T) {
 	testConfig.EnableEncryption = false
-	router, dbHandler, _ := InitServer(testConfig)
+	router, dbHandler, _ := InitServer(testConfig, "")
 	defer dbHandler.Cleanup()
 
 	w := httptest.NewRecorder()
@@ -42,7 +42,7 @@ func TestSetKeyWithDisabledEncryption(t *testing.T) {
 
 func TestMissingKey(t *testing.T) {
 	testConfig.EnableEncryption = true
-	router, dbHandler, _ := InitServer(testConfig)
+	router, dbHandler, _ := InitServer(testConfig, "")
 	defer dbHandler.Cleanup()
 
 	w := httptest.NewRecorder()
