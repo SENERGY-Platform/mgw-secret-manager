@@ -33,3 +33,9 @@ type SecretDoesNotExistsInFilesystem struct {
 func (error SecretDoesNotExistsInFilesystem) Error() string {
 	return fmt.Sprintf("Secret with ID %s does not exist at %s", error.SecretID, error.Path)
 }
+
+type EncryptionIsDisabled struct{}
+
+func (error EncryptionIsDisabled) Error() string {
+	return "Encryption is disabled"
+}

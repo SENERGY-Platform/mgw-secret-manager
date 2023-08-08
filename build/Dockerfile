@@ -15,6 +15,8 @@ COPY --from=builder /app/app .
 
 EXPOSE 8080
 
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 CMD wget -nv -t1 --spider 'http://localhost/health-check' || exit 1
+
 CMD ["./app"]
 
 FROM golang:1.18 AS test 

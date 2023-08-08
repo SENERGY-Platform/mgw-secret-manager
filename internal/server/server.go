@@ -39,11 +39,15 @@ func CORS() gin.HandlerFunc {
 }
 
 func InitServer(config *config.Config) (*gin.Engine, db.Database, secretHandler.SecretHandler) {
+
 	dbHandler, err := db.NewDBHandler(config)
 	if err != nil {
 		logger.Logger.Error(err)
 		os.Exit(1)
 	}
+
+	secretHandler := secretHandler.NewSecretHandler(config.EnableEncryption, dbHandler, config.TMPFSPath)
+	keyHandler := keyHandler.NewKeyHandler(config.MasterKeyPath, nil)
 
 	gin.SetMode(gin.ReleaseMode)
 	engine := gin.New()
@@ -52,11 +56,16 @@ func InitServer(config *config.Config) (*gin.Engine, db.Database, secretHandler.
 		engine.Use(CORS())
 	}
 
-	engine.Use(gin_mw.LoggerHandler(logger.Logger), gin_mw.ErrorHandler, requestid.New(), gin.Recovery())
-
+	engine.Use(
+		gin_mw.LoggerHandler(logger.Logger, nil, func(gc *gin.Context) string {
+			return requestid.Get(gc)
+		}),
+		gin_mw.ErrorHandler(httpHandler.GetStatusCode, ", "),
+		requestid.New(),
+		gin.Recovery(),
+	)
 	engine.UseRawPath = true
-	secretHandler := secretHandler.NewSecretHandler(config.EnableEncryption, dbHandler, config.TMPFSPath)
-	keyHandler := keyHandler.NewKeyHandler(config.MasterKeyPath, nil)
+
 	api := api.New(*config, dbHandler, &secretHandler, keyHandler)
 	httpHandler.SetRoutes(engine, api)
 

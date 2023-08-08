@@ -26,7 +26,7 @@ run_test_with_db:
 
 run_single_test_with_db:
 	docker compose -f test/docker-compose.yml up -d --force-recreate db 
-	DB_CONNECTION_URL=user:password@tcp\(localhost:3306\)/db go test -run TestCleanReference github.com/SENERGY-Platform/mgw-secret-manager/internal/server
+	DB_CONNECTION_URL=user:password@tcp\(localhost:3306\)/db go test -run TestSetKeyWithDisabledEncryption github.com/SENERGY-Platform/mgw-secret-manager/internal/server
 
 run_test_docker:
 	docker compose -f test/docker-compose.yml up --build --force-recreate --exit-code-from test

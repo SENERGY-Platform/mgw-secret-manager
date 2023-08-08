@@ -27,4 +27,6 @@ func SetRoutes(e *gin.Engine, api *api.Api) {
 	if api.Config.ExposeConfidentialEndpoints {
 		e.POST(api_model.ValueVariantPath, GetValueVariant(api))
 	}
+
+	e.POST("/health-check", HealthCheck(api))
 }

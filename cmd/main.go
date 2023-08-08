@@ -1,14 +1,15 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net"
 	"net/http"
 	"os"
 	"strconv"
-
-	srv_base_types "github.com/SENERGY-Platform/go-service-base/srv-base/types"
+	"syscall"
+	"time"
 
 	srv_base "github.com/SENERGY-Platform/go-service-base/srv-base"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
@@ -19,6 +20,11 @@ import (
 var version string
 
 func main() {
+	ec := 0
+	defer func() {
+		os.Exit(ec)
+	}()
+
 	srv_base.PrintInfo("mgw-github.com/SENERGY-Platform/mgw-secret-manager", version)
 
 	config.ParseFlags()
@@ -41,6 +47,8 @@ func main() {
 		defer logFile.Close()
 	}
 
+	watchdog := srv_base.NewWatchdog(logger.Logger, syscall.SIGINT, syscall.SIGTERM)
+
 	logger.Logger.Debugf("config: %s", srv_base.ToJsonStr(config))
 
 	httpHandler, _, _ := server.InitServer(config)
@@ -50,6 +58,32 @@ func main() {
 		return
 	}
 
-	srv_base.StartServer(&http.Server{Handler: httpHandler}, listener, srv_base_types.DefaultShutdownSignals, logger.Logger)
+	server := &http.Server{Handler: httpHandler}
 
+	srvCtx, srvCF := context.WithCancel(context.Background())
+	watchdog.RegisterStopFunc(func() error {
+		if srvCtx.Err() == nil {
+			ctxWt, cf := context.WithTimeout(context.Background(), time.Second*5)
+			defer cf()
+			if err := server.Shutdown(ctxWt); err != nil {
+				return err
+			}
+			logger.Logger.Info("http server shutdown complete")
+		}
+		return nil
+	})
+
+	watchdog.Start()
+
+	go func() {
+		defer srvCF()
+		logger.Logger.Info("starting http server ...")
+		if err := server.Serve(listener); !errors.Is(err, http.ErrServerClosed) {
+			logger.Logger.Error(err)
+			ec = 1
+			return
+		}
+	}()
+
+	ec = watchdog.Join()
 }

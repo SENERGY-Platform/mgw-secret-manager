@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/api"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/customErrors"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/logger"
 	"github.com/gin-gonic/gin"
 )
@@ -13,7 +14,8 @@ func SetEncryptionKey(api *api.Api) gin.HandlerFunc {
 	return func(gc *gin.Context) {
 		if !api.Config.EnableEncryption {
 			logger.Logger.Errorf("Key was posted but encryption is disabled")
-			gc.AbortWithError(http.StatusInternalServerError, gin.Error{})
+			err := customErrors.EncryptionIsDisabled{}
+			gc.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
 
