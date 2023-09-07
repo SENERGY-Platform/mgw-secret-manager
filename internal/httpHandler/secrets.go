@@ -62,6 +62,6 @@ func CheckIfEncryptionKeyExists(gc *gin.Context, api *api.Api) bool {
 
 func GetTypes(api interfaces.ApiInterface) gin.HandlerFunc {
 	return func(gc *gin.Context) {
-		gc.JSON(http.StatusOK, []map[string]string{{"id": "certificate", "name": "Certificate"}, {"id": "basic-auth", "name": "Credentials"}, {"id": "api-key", "name": "API Key"}})
+		gc.JSON(http.StatusOK, []map[string]string{{"id": "certificate", "name": "Certificate"}, {"id": "basic-auth", "name": "Credentials"}, {"id": "api-key", "name": "API Key"}, {"id": "client-id", "name": "Client ID"}, {"id": "private-key", "name": "Private Key"}})
 	}
 }
