@@ -6,6 +6,10 @@ github.com/SENERGY-Platform/go-service-base v0.8.0 h1:KUo+OugFxoy4X9b7IEm65O/56C
 github.com/SENERGY-Platform/go-service-base v0.8.0/go.mod h1:3ZD/Bo3uqhb3KzR70teqLEHyRCEXBJay9v9vzUpXqmI=
 github.com/SENERGY-Platform/go-service-base v0.11.1 h1:WoLQI/u8u8SHBwd8Y7DZybsWZ0NbdoOY5u4+vccX/qE=
 github.com/SENERGY-Platform/go-service-base v0.11.1/go.mod h1:3ZD/Bo3uqhb3KzR70teqLEHyRCEXBJay9v9vzUpXqmI=
+github.com/SENERGY-Platform/go-service-base/srv-info-hdl v0.0.3 h1:/A2bZFh3Aol1uXuR0YAxVB4POcRSshBIG2qfIEIW+gg=
+github.com/SENERGY-Platform/go-service-base/srv-info-hdl v0.0.3/go.mod h1:Go9v41HF8FYnGr40jnzl8pfT7xvls3HXinJOiPj4Yh0=
+github.com/SENERGY-Platform/go-service-base/srv-info-hdl/lib v0.0.2 h1:Bcdxt7i3DGGvlwS6U3NY9eGJjiPuv3ZpbMwebEUV+nE=
+github.com/SENERGY-Platform/go-service-base/srv-info-hdl/lib v0.0.2/go.mod h1:vcvyLaSoZsScGQ8K/OuJxlANTs5FPozsLvPzFUZgiVM=
 github.com/bytedance/sonic v1.5.0/go.mod h1:ED5hyg4y6t3/9Ku1R6dU/4KyJ48DZ4jPhfY1O2AihPM=
 github.com/bytedance/sonic v1.8.0 h1:ea0Xadu+sHlu7x5O3gKhRpQ1IKiMrSiHttPF0ybECuA=
 github.com/bytedance/sonic v1.8.0/go.mod h1:i736AoUSYt75HyZLoJW9ERYxcy6eaN6h4BZXU064P/U=

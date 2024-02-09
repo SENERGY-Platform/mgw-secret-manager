@@ -11,6 +11,7 @@ import (
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/httpHandler"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/logger"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/secretHandler"
+	srv_info_hdl "github.com/SENERGY-Platform/go-service-base/srv-info-hdl"
 
 	"github.com/gin-contrib/requestid"
 
@@ -39,6 +40,7 @@ func CORS() gin.HandlerFunc {
 }
 
 func InitServer(config *config.Config, version string) (*gin.Engine, db.Database, secretHandler.SecretHandler) {
+	srvInfoHdl := srv_info_hdl.New("secret-manager", version)
 
 	dbHandler, err := db.NewDBHandler(config)
 	if err != nil {
@@ -71,7 +73,7 @@ func InitServer(config *config.Config, version string) (*gin.Engine, db.Database
 	)
 	engine.UseRawPath = true
 
-	api := api.New(*config, dbHandler, &secretHandler, keyHandler)
+	api := api.New(*config, dbHandler, &secretHandler, keyHandler, srvInfoHdl)
 	httpHandler.SetRoutes(engine, api)
 
 	return engine, dbHandler, secretHandler

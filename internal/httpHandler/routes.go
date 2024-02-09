@@ -29,4 +29,5 @@ func SetRoutes(e *gin.Engine, api *api.Api) {
 	}
 
 	e.GET("/health-check", HealthCheck(api))
+	e.GET("/info", GetSrvInfoH(api))
 }
