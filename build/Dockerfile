@@ -9,7 +9,7 @@ ARG VERSION=dev
 WORKDIR /app/cmd
 RUN CGO_ENABLED=0 GOOS=linux go build -o ../app -ldflags="-X 'main.version=$VERSION'"
 
-FROM alpine:3.18 AS prod
+FROM alpine:3.20 AS prod
 WORKDIR /root
 COPY --from=builder /app/app .
 #COPY --from=builder /app/version.txt .
