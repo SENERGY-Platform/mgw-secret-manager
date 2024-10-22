@@ -1,4 +1,4 @@
-FROM golang:1.22 AS builder
+FROM golang:1.23 AS builder
 ENV GO111MODULE=on
 
 COPY . /app
@@ -20,7 +20,7 @@ HEALTHCHECK --interval=10s --timeout=5s --retries=3 CMD wget -nv -t1 --spider 'h
 
 CMD ["./app"]
 
-FROM golang:1.22 AS test 
+FROM golang:1.23 AS test
 COPY . /app
 WORKDIR /app
 CMD ["go", "test",  "./...", "-coverprofile=/coverage/cov.xml", "-coverpkg=./..."]
