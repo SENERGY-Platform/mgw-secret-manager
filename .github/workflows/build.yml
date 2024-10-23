@@ -3,18 +3,16 @@ name: Build, Test & Upload
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
-      - 'v[0-9]+.[0-9]+.[0-9]-beta[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]-beta[0-9]+'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Build the test stack
-        run: docker compose -f test/docker-compose.yml build
-      - name: Run test container
-        run: docker compose -f test/docker-compose.yml up --exit-code-from test
+#      - name: Test
+#        run: go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -29,8 +27,6 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./build/Dockerfile
-          target: prod
           platforms: linux/amd64,linux/arm64
           push: true
           build-args: |

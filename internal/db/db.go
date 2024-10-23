@@ -4,20 +4,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
-
-	"github.com/SENERGY-Platform/mgw-secret-manager/internal/config"
-	"github.com/SENERGY-Platform/mgw-secret-manager/internal/customErrors"
-	"github.com/SENERGY-Platform/mgw-secret-manager/internal/logger"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/custom_errors"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/models"
-
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/util"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"time"
 )
 
 type DBHandler struct {
 	db     *gorm.DB
-	config config.Config
+	config util.Config
 }
 
 func (handler *DBHandler) SetSecret(ctx context.Context, secret *models.EncryptedSecret) (err error) {
@@ -30,7 +28,7 @@ func (handler *DBHandler) GetSecret(ctx context.Context, secretID string) (secre
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			err = customErrors.NoSecretFound{SecretID: secretID}
+			err = custom_errors.NoSecretFound{SecretID: secretID}
 		}
 	}
 
@@ -58,22 +56,24 @@ func (handler *DBHandler) DeleteSecret(ctx context.Context, secretID string) (er
 
 func (handler *DBHandler) Connect() (err error) {
 	connectionUrl := fmt.Sprintf("%s", handler.config.DBConnectionURL)
-	logger.Logger.Debugf("Inital connect to DB: %s", connectionUrl)
-	handler.db, err = gorm.Open(mysql.Open(connectionUrl), &gorm.Config{})
+	util.Logger.Debugf("Inital connect to DB: %s", connectionUrl)
+	handler.db, err = gorm.Open(mysql.Open(connectionUrl), &gorm.Config{Logger: logger.Discard})
 	for err != nil {
-		logger.Logger.Debugf("DB is not reachable -> try again in 5s")
+		util.Logger.Debugf("DB is not reachable -> try again in 5s")
 		retries := 5
 		if retries > 1 {
 			retries--
 			time.Sleep(5 * time.Second)
-			handler.db, err = gorm.Open(mysql.Open(connectionUrl), &gorm.Config{})
+			handler.db, err = gorm.Open(mysql.Open(connectionUrl), &gorm.Config{
+				Logger: logger.Discard,
+			})
 		}
 	}
 
 	return
 }
 
-func NewDBHandler(config *config.Config) (handler *DBHandler, err error) {
+func NewDBHandler(config *util.Config) (handler *DBHandler, err error) {
 	handler = &DBHandler{
 		config: *config,
 	}
