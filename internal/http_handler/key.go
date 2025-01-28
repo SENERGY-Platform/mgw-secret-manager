@@ -5,7 +5,7 @@ import (
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/custom_errors"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/util"
 	"github.com/gin-gonic/gin"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
@@ -18,7 +18,7 @@ func SetEncryptionKey(api *api.Api) (string, string, gin.HandlerFunc) {
 			return
 		}
 
-		body, err := ioutil.ReadAll(gc.Request.Body)
+		body, err := io.ReadAll(gc.Request.Body)
 		if err != nil {
 			util.Logger.Errorf("Error reading the Key from request: %s", err.Error())
 			gc.AbortWithError(http.StatusInternalServerError, err)

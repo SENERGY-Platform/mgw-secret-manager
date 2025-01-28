@@ -7,12 +7,12 @@ import (
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/util"
 	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
 	"github.com/gin-gonic/gin"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
 func ParseVariantRequest(gc *gin.Context) (api_model.SecretVariantRequest, error) {
-	body, err := ioutil.ReadAll(gc.Request.Body)
+	body, err := io.ReadAll(gc.Request.Body)
 	if err != nil {
 		util.Logger.Errorf(err.Error())
 		gc.AbortWithError(http.StatusInternalServerError, err)
@@ -33,7 +33,7 @@ func ParseVariantRequest(gc *gin.Context) (api_model.SecretVariantRequest, error
 }
 
 func ParseSecretCreateRequest(gc *gin.Context) (secretRequest api_model.SecretCreateRequest, err error) {
-	body, err := ioutil.ReadAll(gc.Request.Body)
+	body, err := io.ReadAll(gc.Request.Body)
 	if err != nil {
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return
