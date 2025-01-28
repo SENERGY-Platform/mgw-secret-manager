@@ -2,6 +2,7 @@ package http_handler
 
 import (
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/api"
+	_ "github.com/SENERGY-Platform/mgw-secret-manager/internal/http_handler/swagger_docs"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/util"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
