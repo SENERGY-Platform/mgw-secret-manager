@@ -40,7 +40,7 @@ func SetRoutes(e *gin.Engine, api *api.Api) {
 		e.Handle(m, p, hf)
 	}
 	e.GET("/health-check", HealthCheck(api))
-	e.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.NewHandler(), ginSwagger.InstanceName("standard")))
+	e.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.NewHandler()))
 }
 
 func GetPathFilter() []string {
