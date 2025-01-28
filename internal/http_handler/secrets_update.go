@@ -7,6 +7,17 @@ import (
 	"net/http"
 )
 
+// UpdateSecret godoc
+// @Summary Update secret
+// @Description Update a secret.
+// @Tags Secrets
+// @Accept json
+// @Param id path string true "secret ID"
+// @Param data body api_model.SecretCreateRequest true "secret data"
+// @Success	200
+// @Failure	404 {string} string "error message"
+// @Failure	500 {string} string "error message"
+// @Router /secrets/{id} [put]
 func UpdateSecret(api *api.Api) (string, string, gin.HandlerFunc) {
 	return http.MethodPut, api_model.SecretPath, func(gc *gin.Context) {
 

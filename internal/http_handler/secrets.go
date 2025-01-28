@@ -57,6 +57,13 @@ func CheckIfEncryptionKeyExists(gc *gin.Context, api *api.Api) bool {
 	return true
 }
 
+// GetTypes godoc
+// @Summary Get secret types
+// @Description List supported secret types.
+// @Tags Secrets
+// @Produce	json
+// @Success	200 {array} map[string]string "types"
+// @Router /types [get]
 func GetTypes(api *api.Api) (string, string, gin.HandlerFunc) {
 	return http.MethodGet, "/types", func(gc *gin.Context) {
 		gc.JSON(http.StatusOK, []map[string]string{{"id": "certificate", "name": "Certificate"}, {"id": "basic-auth", "name": "Credentials"}, {"id": "api-key", "name": "API Key"}, {"id": "client-id", "name": "Client ID"}, {"id": "private-key", "name": "Private Key"}})

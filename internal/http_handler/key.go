@@ -9,6 +9,16 @@ import (
 	"net/http"
 )
 
+// SetEncryptionKey godoc
+// @Summary Set encryption key
+// @Description Set key for database entry encryption.
+// @Tags Encryption
+// @Accept plain
+// @Produce	plain
+// @Param key body string true "encryption key"
+// @Success	200
+// @Failure	500 {string} string "error message"
+// @Router /key [post]
 func SetEncryptionKey(api *api.Api) (string, string, gin.HandlerFunc) {
 	return http.MethodPost, "/key", func(gc *gin.Context) {
 		if !api.Config.EnableEncryption {

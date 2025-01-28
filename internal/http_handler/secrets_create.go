@@ -7,6 +7,16 @@ import (
 	"net/http"
 )
 
+// StoreSecret godoc
+// @Summary Create secret
+// @Description Store a secret.
+// @Tags Secrets
+// @Accept json
+// @Produce	plain
+// @Param data body api_model.SecretCreateRequest true "secret data"
+// @Success	200 {string} string "secret ID"
+// @Failure	500 {string} string "error message"
+// @Router /secrets [post]
 func StoreSecret(api *api.Api) (string, string, gin.HandlerFunc) {
 	return http.MethodPost, api_model.SecretsPath, func(gc *gin.Context) {
 		ok := CheckIfEncryptionKeyExists(gc, api)
