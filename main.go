@@ -89,7 +89,6 @@ func main() {
 	httpHandler.UseRawPath = true
 
 	http_handler.SetRoutes(httpHandler, mApi)
-	util.Logger.Debugf("routes: %s", sb_util.ToJsonStr(http_handler.GetRoutes(httpHandler)))
 
 	listener, err := net.Listen("tcp", ":"+strconv.FormatInt(config.ServerPort, 10))
 	if err != nil {

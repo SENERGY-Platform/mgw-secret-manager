@@ -9,8 +9,8 @@ import (
 	"net/http"
 )
 
-func SetEncryptionKey(api *api.Api) gin.HandlerFunc {
-	return func(gc *gin.Context) {
+func SetEncryptionKey(api *api.Api) (string, string, gin.HandlerFunc) {
+	return http.MethodPost, "/key", func(gc *gin.Context) {
 		if !api.Config.EnableEncryption {
 			util.Logger.Errorf("Key was posted but encryption is disabled")
 			err := custom_errors.EncryptionIsDisabled{}

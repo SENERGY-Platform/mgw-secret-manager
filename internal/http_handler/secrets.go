@@ -6,7 +6,6 @@ import (
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/custom_errors"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/util"
 	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
-	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/interfaces"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
@@ -58,8 +57,8 @@ func CheckIfEncryptionKeyExists(gc *gin.Context, api *api.Api) bool {
 	return true
 }
 
-func GetTypes(api interfaces.ApiInterface) gin.HandlerFunc {
-	return func(gc *gin.Context) {
+func GetTypes(api *api.Api) (string, string, gin.HandlerFunc) {
+	return http.MethodGet, "/types", func(gc *gin.Context) {
 		gc.JSON(http.StatusOK, []map[string]string{{"id": "certificate", "name": "Certificate"}, {"id": "basic-auth", "name": "Credentials"}, {"id": "api-key", "name": "API Key"}, {"id": "client-id", "name": "Client ID"}, {"id": "private-key", "name": "Private Key"}})
 	}
 }

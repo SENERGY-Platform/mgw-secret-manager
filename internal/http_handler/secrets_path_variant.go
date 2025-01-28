@@ -2,12 +2,13 @@ package http_handler
 
 import (
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/api"
+	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-func InitPathVariant(api *api.Api) gin.HandlerFunc {
-	return func(gc *gin.Context) {
+func InitPathVariant(api *api.Api) (string, string, gin.HandlerFunc) {
+	return http.MethodPost, api_model.InitPathVariantPath, func(gc *gin.Context) {
 
 		ok := CheckIfEncryptionKeyExists(gc, api)
 		if !ok {
@@ -30,8 +31,8 @@ func InitPathVariant(api *api.Api) gin.HandlerFunc {
 	}
 }
 
-func LoadPathVariant(api *api.Api) gin.HandlerFunc {
-	return func(gc *gin.Context) {
+func LoadPathVariant(api *api.Api) (string, string, gin.HandlerFunc) {
+	return http.MethodPost, api_model.LoadPathVariantPath, func(gc *gin.Context) {
 
 		ok := CheckIfEncryptionKeyExists(gc, api)
 		if !ok {
@@ -54,8 +55,8 @@ func LoadPathVariant(api *api.Api) gin.HandlerFunc {
 	}
 }
 
-func DeleteSecretFromTMPFS(api *api.Api) gin.HandlerFunc {
-	return func(gc *gin.Context) {
+func DeleteSecretFromTMPFS(api *api.Api) (string, string, gin.HandlerFunc) {
+	return http.MethodPost, api_model.UnLoadPathVariantPath, func(gc *gin.Context) {
 		secretVariantRequest, err := ParseVariantRequest(gc)
 		if err != nil {
 			gc.AbortWithError(http.StatusInternalServerError, err)
@@ -66,8 +67,8 @@ func DeleteSecretFromTMPFS(api *api.Api) gin.HandlerFunc {
 	}
 }
 
-func CleanReferenceDirectory(api *api.Api) gin.HandlerFunc {
-	return func(gc *gin.Context) {
+func CleanReferenceDirectory(api *api.Api) (string, string, gin.HandlerFunc) {
+	return http.MethodPost, api_model.CleanPathVariantsPath, func(gc *gin.Context) {
 		reference := gc.Query("reference")
 		err := api.SecretHandler.CleanReferenceDirectory(gc.Request.Context(), reference)
 		if err != nil {

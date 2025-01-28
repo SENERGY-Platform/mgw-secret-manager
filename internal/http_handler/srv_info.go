@@ -6,8 +6,8 @@ import (
 	"net/http"
 )
 
-func GetSrvInfoH(api *api.Api) gin.HandlerFunc {
-	return func(gc *gin.Context) {
+func GetSrvInfoH(api *api.Api) (string, string, gin.HandlerFunc) {
+	return http.MethodGet, "/info", func(gc *gin.Context) {
 		gc.JSON(http.StatusOK, api.SrvInfoHandler.GetInfo())
 	}
 }
