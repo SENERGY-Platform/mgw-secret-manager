@@ -1,0 +1,413 @@
+definitions:
+  api_model.Secret:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      type:
+        type: string
+    type: object
+  api_model.SecretCreateRequest:
+    properties:
+      name:
+        type: string
+      type:
+        type: string
+      value:
+        type: string
+    type: object
+  api_model.SecretPathVariant:
+    properties:
+      id:
+        type: string
+      item:
+        type: string
+      name:
+        type: string
+      path:
+        type: string
+      type:
+        type: string
+    type: object
+  api_model.SecretValueVariant:
+    properties:
+      id:
+        type: string
+      item:
+        type: string
+      name:
+        type: string
+      type:
+        type: string
+      value:
+        type: string
+    type: object
+  api_model.SecretVariantRequest:
+    properties:
+      id:
+        type: string
+      item:
+        type: string
+      ref:
+        type: string
+    type: object
+  lib.MemStats:
+    properties:
+      alloc:
+        type: integer
+      alloc_total:
+        type: integer
+      gc_cycles:
+        type: integer
+      sys_total:
+        type: integer
+    type: object
+  lib.SrvInfo:
+    properties:
+      mem_stats:
+        $ref: '#/definitions/lib.MemStats'
+      name:
+        type: string
+      up_time:
+        $ref: '#/definitions/time.Duration'
+      version:
+        type: string
+    type: object
+  time.Duration:
+    enum:
+    - -9223372036854775808
+    - 9223372036854775807
+    - 1
+    - 1000
+    - 1000000
+    - 1000000000
+    - 60000000000
+    - 3600000000000
+    type: integer
+    x-enum-varnames:
+    - minDuration
+    - maxDuration
+    - Nanosecond
+    - Microsecond
+    - Millisecond
+    - Second
+    - Minute
+    - Hour
+info:
+  contact: {}
+  description: Provides access to secret management functions.
+  license:
+    name: Apache-2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Secret Manager API
+paths:
+  /confidential/value-variant:
+    post:
+      consumes:
+      - application/json
+      description: Get the value of a secret.
+      parameters:
+      - description: secret request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api_model.SecretVariantRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: secret with value
+          schema:
+            $ref: '#/definitions/api_model.SecretValueVariant'
+        "404":
+          description: error message
+          schema:
+            type: string
+        "500":
+          description: error message
+          schema:
+            type: string
+      summary: Get secret value
+      tags:
+      - Secrets
+  /info:
+    get:
+      description: Get basic service and runtime information.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: info
+          schema:
+            $ref: '#/definitions/lib.SrvInfo'
+        "500":
+          description: error message
+          schema:
+            type: string
+      summary: Get service info
+      tags:
+      - Info
+  /key:
+    post:
+      consumes:
+      - text/plain
+      description: Set key for database entry encryption.
+      parameters:
+      - description: encryption key
+        in: body
+        name: key
+        required: true
+        schema:
+          type: string
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: error message
+          schema:
+            type: string
+      summary: Set encryption key
+      tags:
+      - Encryption
+  /path-variant/clean:
+    post:
+      description: Remove all secret files with the same reference.
+      parameters:
+      - description: reference
+        in: query
+        name: reference
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: error message
+          schema:
+            type: string
+      summary: Delete secret files
+      tags:
+      - Secrets
+  /path-variant/init:
+    post:
+      consumes:
+      - application/json
+      description: Create a placeholder file for a secret.
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api_model.SecretVariantRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: secret file info
+          schema:
+            $ref: '#/definitions/api_model.SecretPathVariant'
+        "404":
+          description: error message
+          schema:
+            type: string
+        "500":
+          description: error message
+          schema:
+            type: string
+      summary: Init secret file
+      tags:
+      - Secrets
+  /path-variant/load:
+    post:
+      consumes:
+      - application/json
+      description: Write secret value to file. File must be initialised first.
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api_model.SecretVariantRequest'
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: error message
+          schema:
+            type: string
+        "500":
+          description: error message
+          schema:
+            type: string
+      summary: Write secret file
+      tags:
+      - Secrets
+  /path-variant/unload:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a secret file.
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api_model.SecretVariantRequest'
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: error message
+          schema:
+            type: string
+      summary: Delete secret file
+      tags:
+      - Secrets
+  /secrets:
+    get:
+      description: List stored secrets.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: secrets
+          schema:
+            items:
+              $ref: '#/definitions/api_model.Secret'
+            type: array
+        "500":
+          description: error message
+          schema:
+            type: string
+      summary: Get Secrets
+      tags:
+      - Secrets
+    post:
+      consumes:
+      - application/json
+      description: Store a secret.
+      parameters:
+      - description: secret data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/api_model.SecretCreateRequest'
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: secret ID
+          schema:
+            type: string
+        "500":
+          description: error message
+          schema:
+            type: string
+      summary: Create secret
+      tags:
+      - Secrets
+  /secrets/{id}:
+    delete:
+      description: Remove a secret.
+      parameters:
+      - description: secret ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: error message
+          schema:
+            type: string
+        "500":
+          description: error message
+          schema:
+            type: string
+      summary: Delete secret
+      tags:
+      - Secrets
+    get:
+      description: Get a secret.
+      parameters:
+      - description: secret ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: secret
+          schema:
+            $ref: '#/definitions/api_model.Secret'
+        "404":
+          description: error message
+          schema:
+            type: string
+        "500":
+          description: error message
+          schema:
+            type: string
+      summary: Get secret
+      tags:
+      - Secrets
+    put:
+      consumes:
+      - application/json
+      description: Update a secret.
+      parameters:
+      - description: secret ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: secret data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/api_model.SecretCreateRequest'
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: error message
+          schema:
+            type: string
+        "500":
+          description: error message
+          schema:
+            type: string
+      summary: Update secret
+      tags:
+      - Secrets
+  /types:
+    get:
+      description: List supported secret types.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: types
+          schema:
+            items:
+              additionalProperties:
+                type: string
+              type: object
+            type: array
+      summary: Get secret types
+      tags:
+      - Secrets
+swagger: "2.0"
