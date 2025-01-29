@@ -1,7 +1,8 @@
-package http_handler
+package restricted
 
 import (
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/api"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/http_handler/util"
 	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -19,12 +20,12 @@ import (
 // @Router /secrets [post]
 func StoreSecret(api *api.Api) (string, string, gin.HandlerFunc) {
 	return http.MethodPost, api_model.SecretsPath, func(gc *gin.Context) {
-		ok := CheckIfEncryptionKeyExists(gc, api)
+		ok := util.CheckIfEncryptionKeyExists(gc, api)
 		if !ok {
 			return
 		}
 
-		secretRequest, err := ParseSecretCreateRequest(gc)
+		secretRequest, err := util.ParseSecretCreateRequest(gc)
 
 		secret := api.SecretHandler.CreateSecret(secretRequest.Name, secretRequest.Value, secretRequest.SecretType)
 

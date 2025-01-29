@@ -1,7 +1,8 @@
-package http_handler
+package standard
 
 import (
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/api"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/http_handler/util"
 	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -17,16 +18,16 @@ import (
 // @Success	200 {object} api_model.SecretValueVariant "secret with value"
 // @Failure	404 {string} string "error message"
 // @Failure	500 {string} string "error message"
-// @Router /confidential/value-variant [post]
+// @Router /value-variant [post]
 func GetValueVariant(api *api.Api) (string, string, gin.HandlerFunc) {
 	return http.MethodPost, api_model.ValueVariantPath, func(gc *gin.Context) {
 
-		ok := CheckIfEncryptionKeyExists(gc, api)
+		ok := util.CheckIfEncryptionKeyExists(gc, api)
 		if !ok {
 			return
 		}
 
-		secretVariantRequest, err := ParseVariantRequest(gc)
+		secretVariantRequest, err := util.ParseVariantRequest(gc)
 		if err != nil {
 			gc.AbortWithError(http.StatusInternalServerError, err)
 			return

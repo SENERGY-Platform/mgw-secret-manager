@@ -1,7 +1,8 @@
-package http_handler
+package standard
 
 import (
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/api"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/http_handler/util"
 	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -21,12 +22,12 @@ import (
 func InitPathVariant(api *api.Api) (string, string, gin.HandlerFunc) {
 	return http.MethodPost, api_model.InitPathVariantPath, func(gc *gin.Context) {
 
-		ok := CheckIfEncryptionKeyExists(gc, api)
+		ok := util.CheckIfEncryptionKeyExists(gc, api)
 		if !ok {
 			return
 		}
 
-		secretVariantRequest, err := ParseVariantRequest(gc)
+		secretVariantRequest, err := util.ParseVariantRequest(gc)
 		if err != nil {
 			gc.AbortWithError(http.StatusInternalServerError, err)
 			return
@@ -55,12 +56,12 @@ func InitPathVariant(api *api.Api) (string, string, gin.HandlerFunc) {
 func LoadPathVariant(api *api.Api) (string, string, gin.HandlerFunc) {
 	return http.MethodPost, api_model.LoadPathVariantPath, func(gc *gin.Context) {
 
-		ok := CheckIfEncryptionKeyExists(gc, api)
+		ok := util.CheckIfEncryptionKeyExists(gc, api)
 		if !ok {
 			return
 		}
 
-		secretVariantRequest, err := ParseVariantRequest(gc)
+		secretVariantRequest, err := util.ParseVariantRequest(gc)
 		if err != nil {
 			gc.AbortWithError(http.StatusInternalServerError, err)
 			return
@@ -87,7 +88,7 @@ func LoadPathVariant(api *api.Api) (string, string, gin.HandlerFunc) {
 // @Router /path-variant/unload [delete]
 func DeleteSecretFromTMPFS(api *api.Api) (string, string, gin.HandlerFunc) {
 	return http.MethodPost, api_model.UnLoadPathVariantPath, func(gc *gin.Context) {
-		secretVariantRequest, err := ParseVariantRequest(gc)
+		secretVariantRequest, err := util.ParseVariantRequest(gc)
 		if err != nil {
 			gc.AbortWithError(http.StatusInternalServerError, err)
 			return

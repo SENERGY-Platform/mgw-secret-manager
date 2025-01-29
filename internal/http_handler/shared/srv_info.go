@@ -1,4 +1,4 @@
-package http_handler
+package shared
 
 import (
 	_ "github.com/SENERGY-Platform/go-service-base/srv-info-hdl/lib"

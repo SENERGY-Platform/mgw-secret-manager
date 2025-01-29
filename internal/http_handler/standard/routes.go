@@ -1,28 +1,22 @@
-package http_handler
+package standard
 
 import (
+	gin_mw "github.com/SENERGY-Platform/gin-middleware"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/api"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/http_handler/shared"
 	_ "github.com/SENERGY-Platform/mgw-secret-manager/internal/http_handler/swagger_docs"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/util"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"path"
 )
 
-var routes = []func(api *api.Api) (string, string, gin.HandlerFunc){
-	StoreSecret,
-	GetSecrets,
-	GetShortSecret,
-	UpdateSecret,
-	DeleteSecret,
+var routes = gin_mw.Routes[*api.Api]{
 	LoadPathVariant,
 	InitPathVariant,
 	DeleteSecretFromTMPFS,
 	CleanReferenceDirectory,
-	GetTypes,
-	SetEncryptionKey,
-	GetSrvInfoH,
+	HealthCheck,
 }
 
 // SetRoutes
@@ -30,21 +24,17 @@ var routes = []func(api *api.Api) (string, string, gin.HandlerFunc){
 // @description Provides access to secret management functions.
 // @license.name Apache-2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-func SetRoutes(e *gin.Engine, api *api.Api) {
+// @BasePath /
+func SetRoutes(e *gin.Engine, api *api.Api) error {
+	rg := e.Group("")
 	if api.Config.ExposeConfidentialEndpoints {
 		routes = append(routes, GetValueVariant)
 	}
-	for _, route := range routes {
-		m, p, hf := route(api)
-		util.Logger.Debug("set route: " + m + " " + path.Join(e.BasePath(), p))
-		e.Handle(m, p, hf)
+	routes = append(routes, shared.Routes...)
+	err := routes.Set(api, rg, util.Logger)
+	if err != nil {
+		return err
 	}
-	e.GET("/health-check", HealthCheck(api))
-	e.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.NewHandler()))
-}
-
-func GetPathFilter() []string {
-	return []string{
-		"/health-check",
-	}
+	rg.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.NewHandler(), ginSwagger.InstanceName("standard")))
+	return nil
 }

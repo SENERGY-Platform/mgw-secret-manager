@@ -1,4 +1,4 @@
-package http_handler
+package restricted
 
 import (
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/api"

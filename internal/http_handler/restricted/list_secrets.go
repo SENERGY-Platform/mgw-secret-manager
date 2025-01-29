@@ -1,7 +1,8 @@
-package http_handler
+package restricted
 
 import (
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/api"
+	"github.com/SENERGY-Platform/mgw-secret-manager/internal/http_handler/util"
 	"github.com/SENERGY-Platform/mgw-secret-manager/pkg/api_model"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -17,7 +18,7 @@ import (
 // @Router /secrets [get]
 func GetSecrets(api *api.Api) (string, string, gin.HandlerFunc) {
 	return http.MethodGet, api_model.SecretsPath, func(gc *gin.Context) {
-		ok := CheckIfEncryptionKeyExists(gc, api)
+		ok := util.CheckIfEncryptionKeyExists(gc, api)
 		if !ok {
 			return
 		}
@@ -44,7 +45,7 @@ func GetSecrets(api *api.Api) (string, string, gin.HandlerFunc) {
 // @Router /secrets/{id} [get]
 func GetShortSecret(api *api.Api) (string, string, gin.HandlerFunc) {
 	return http.MethodGet, api_model.SecretPath, func(gc *gin.Context) {
-		ok := CheckIfEncryptionKeyExists(gc, api)
+		ok := util.CheckIfEncryptionKeyExists(gc, api)
 		if !ok {
 			return
 		}
@@ -58,5 +59,18 @@ func GetShortSecret(api *api.Api) (string, string, gin.HandlerFunc) {
 		}
 
 		gc.JSON(http.StatusOK, secret)
+	}
+}
+
+// GetTypes godoc
+// @Summary Get secret types
+// @Description List supported secret types.
+// @Tags Secrets
+// @Produce	json
+// @Success	200 {array} map[string]string "types"
+// @Router /types [get]
+func GetTypes(api *api.Api) (string, string, gin.HandlerFunc) {
+	return http.MethodGet, "/types", func(gc *gin.Context) {
+		gc.JSON(http.StatusOK, []map[string]string{{"id": "certificate", "name": "Certificate"}, {"id": "basic-auth", "name": "Credentials"}, {"id": "api-key", "name": "API Key"}, {"id": "client-id", "name": "Client ID"}, {"id": "private-key", "name": "Private Key"}})
 	}
 }

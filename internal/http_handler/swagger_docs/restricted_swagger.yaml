@@ -1,3 +1,4 @@
+basePath: /restricted
 definitions:
   api_model.Secret:
     properties:
@@ -15,41 +16,6 @@ definitions:
       type:
         type: string
       value:
-        type: string
-    type: object
-  api_model.SecretPathVariant:
-    properties:
-      id:
-        type: string
-      item:
-        type: string
-      name:
-        type: string
-      path:
-        type: string
-      type:
-        type: string
-    type: object
-  api_model.SecretValueVariant:
-    properties:
-      id:
-        type: string
-      item:
-        type: string
-      name:
-        type: string
-      type:
-        type: string
-      value:
-        type: string
-    type: object
-  api_model.SecretVariantRequest:
-    properties:
-      id:
-        type: string
-      item:
-        type: string
-      ref:
         type: string
     type: object
   lib.MemStats:
@@ -84,8 +50,24 @@ definitions:
     - 1000000000
     - 60000000000
     - 3600000000000
+    - -9223372036854775808
+    - 9223372036854775807
+    - 1
+    - 1000
+    - 1000000
+    - 1000000000
+    - 60000000000
+    - 3600000000000
     type: integer
     x-enum-varnames:
+    - minDuration
+    - maxDuration
+    - Nanosecond
+    - Microsecond
+    - Millisecond
+    - Second
+    - Minute
+    - Hour
     - minDuration
     - maxDuration
     - Nanosecond
@@ -100,38 +82,8 @@ info:
   license:
     name: Apache-2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  title: Secret Manager API
+  title: Secret Manager Restricted API
 paths:
-  /confidential/value-variant:
-    post:
-      consumes:
-      - application/json
-      description: Get the value of a secret.
-      parameters:
-      - description: secret request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/api_model.SecretVariantRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: secret with value
-          schema:
-            $ref: '#/definitions/api_model.SecretValueVariant'
-        "404":
-          description: error message
-          schema:
-            type: string
-        "500":
-          description: error message
-          schema:
-            type: string
-      summary: Get secret value
-      tags:
-      - Secrets
   /info:
     get:
       description: Get basic service and runtime information.
@@ -173,103 +125,6 @@ paths:
       summary: Set encryption key
       tags:
       - Encryption
-  /path-variant/clean:
-    post:
-      description: Remove all secret files with the same reference.
-      parameters:
-      - description: reference
-        in: query
-        name: reference
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-        "500":
-          description: error message
-          schema:
-            type: string
-      summary: Delete secret files
-      tags:
-      - Secrets
-  /path-variant/init:
-    post:
-      consumes:
-      - application/json
-      description: Create a placeholder file for a secret.
-      parameters:
-      - description: request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/api_model.SecretVariantRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: secret file info
-          schema:
-            $ref: '#/definitions/api_model.SecretPathVariant'
-        "404":
-          description: error message
-          schema:
-            type: string
-        "500":
-          description: error message
-          schema:
-            type: string
-      summary: Init secret file
-      tags:
-      - Secrets
-  /path-variant/load:
-    post:
-      consumes:
-      - application/json
-      description: Write secret value to file. File must be initialised first.
-      parameters:
-      - description: request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/api_model.SecretVariantRequest'
-      responses:
-        "200":
-          description: OK
-        "404":
-          description: error message
-          schema:
-            type: string
-        "500":
-          description: error message
-          schema:
-            type: string
-      summary: Write secret file
-      tags:
-      - Secrets
-  /path-variant/unload:
-    delete:
-      consumes:
-      - application/json
-      description: Remove a secret file.
-      parameters:
-      - description: request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/api_model.SecretVariantRequest'
-      responses:
-        "200":
-          description: OK
-        "500":
-          description: error message
-          schema:
-            type: string
-      summary: Delete secret file
-      tags:
-      - Secrets
   /secrets:
     get:
       description: List stored secrets.

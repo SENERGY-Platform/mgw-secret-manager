@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	gin_mw "github.com/SENERGY-Platform/gin-middleware"
 	sb_logger "github.com/SENERGY-Platform/go-service-base/logger"
 	srv_info_hdl "github.com/SENERGY-Platform/go-service-base/srv-info-hdl"
 	sb_util "github.com/SENERGY-Platform/go-service-base/util"
@@ -15,8 +14,6 @@ import (
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/key_handler"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/secret_handler"
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/util"
-	"github.com/gin-contrib/requestid"
-	"github.com/gin-gonic/gin"
 	"net"
 	"net/http"
 	"os"
@@ -77,18 +74,10 @@ func main() {
 
 	mApi := api.New(*config, dbHandler, secretHdl, keyHdl, srvInfoHdl)
 
-	gin.SetMode(gin.ReleaseMode)
-	httpHandler := gin.New()
-	staticHeader := map[string]string{
-		http_handler.HeaderApiVer:  srvInfoHdl.GetVersion(),
-		http_handler.HeaderSrvName: srvInfoHdl.GetName(),
-	}
-	httpHandler.Use(gin_mw.StaticHeaderHandler(staticHeader), requestid.New(requestid.WithCustomHeaderStrKey(http_handler.HeaderRequestID)), gin_mw.LoggerHandler(util.Logger, http_handler.GetPathFilter(), func(gc *gin.Context) string {
-		return requestid.Get(gc)
-	}), gin_mw.ErrorHandler(http_handler.GetStatusCode, ", "), gin.Recovery())
-	httpHandler.UseRawPath = true
-
-	http_handler.SetRoutes(httpHandler, mApi)
+	httpHandler, err := http_handler.New(mApi, map[string]string{
+		"X-Api-Version": srvInfoHdl.GetVersion(),
+		"X-Service":     srvInfoHdl.GetName(),
+	})
 
 	listener, err := net.Listen("tcp", ":"+strconv.FormatInt(config.ServerPort, 10))
 	if err != nil {
