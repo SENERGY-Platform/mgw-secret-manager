@@ -1,4 +1,4 @@
-package restricted
+package shared
 
 import (
 	"github.com/SENERGY-Platform/mgw-secret-manager/internal/api"

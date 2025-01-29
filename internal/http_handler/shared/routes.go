@@ -6,5 +6,8 @@ import (
 )
 
 var Routes = gin_mw.Routes[*api.Api]{
+	GetSecrets,
+	GetShortSecret,
+	GetTypes,
 	GetSrvInfoH,
 }

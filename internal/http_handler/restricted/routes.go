@@ -12,13 +12,10 @@ import (
 )
 
 var routes = gin_mw.Routes[*api.Api]{
-	GetSecrets,
-	GetShortSecret,
 	DeleteSecret,
 	StoreSecret,
 	UpdateSecret,
 	SetEncryptionKey,
-	GetTypes,
 }
 
 // SetRoutes
