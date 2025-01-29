@@ -1,5 +1,14 @@
 basePath: /
 definitions:
+  api_model.Secret:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      type:
+        type: string
+    type: object
   api_model.SecretPathVariant:
     properties:
       id:
@@ -67,8 +76,24 @@ definitions:
     - 1000000000
     - 60000000000
     - 3600000000000
+    - -9223372036854775808
+    - 9223372036854775807
+    - 1
+    - 1000
+    - 1000000
+    - 1000000000
+    - 60000000000
+    - 3600000000000
     type: integer
     x-enum-varnames:
+    - minDuration
+    - maxDuration
+    - Nanosecond
+    - Microsecond
+    - Millisecond
+    - Second
+    - Minute
+    - Hour
     - minDuration
     - maxDuration
     - Nanosecond
@@ -197,6 +222,69 @@ paths:
           schema:
             type: string
       summary: Delete secret file
+      tags:
+      - Secrets
+  /secrets:
+    get:
+      description: List stored secrets.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: secrets
+          schema:
+            items:
+              $ref: '#/definitions/api_model.Secret'
+            type: array
+        "500":
+          description: error message
+          schema:
+            type: string
+      summary: Get Secrets
+      tags:
+      - Secrets
+  /secrets/{id}:
+    get:
+      description: Get a secret.
+      parameters:
+      - description: secret ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: secret
+          schema:
+            $ref: '#/definitions/api_model.Secret'
+        "404":
+          description: error message
+          schema:
+            type: string
+        "500":
+          description: error message
+          schema:
+            type: string
+      summary: Get secret
+      tags:
+      - Secrets
+  /types:
+    get:
+      description: List supported secret types.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: types
+          schema:
+            items:
+              additionalProperties:
+                type: string
+              type: object
+            type: array
+      summary: Get secret types
       tags:
       - Secrets
   /value-variant:

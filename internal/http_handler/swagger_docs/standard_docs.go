@@ -194,6 +194,102 @@ const docTemplatestandard = `{
                 }
             }
         },
+        "/secrets": {
+            "get": {
+                "description": "List stored secrets.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Secrets"
+                ],
+                "summary": "Get Secrets",
+                "responses": {
+                    "200": {
+                        "description": "secrets",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api_model.Secret"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error message",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/secrets/{id}": {
+            "get": {
+                "description": "Get a secret.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Secrets"
+                ],
+                "summary": "Get secret",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "secret ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "secret",
+                        "schema": {
+                            "$ref": "#/definitions/api_model.Secret"
+                        }
+                    },
+                    "404": {
+                        "description": "error message",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "error message",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/types": {
+            "get": {
+                "description": "List supported secret types.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Secrets"
+                ],
+                "summary": "Get secret types",
+                "responses": {
+                    "200": {
+                        "description": "types",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/value-variant": {
             "post": {
                 "description": "Get the value of a secret.",
@@ -242,6 +338,20 @@ const docTemplatestandard = `{
         }
     },
     "definitions": {
+        "api_model.Secret": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "api_model.SecretPathVariant": {
             "type": "object",
             "properties": {
@@ -340,9 +450,25 @@ const docTemplatestandard = `{
                 1000000,
                 1000000000,
                 60000000000,
+                3600000000000,
+                -9223372036854775808,
+                9223372036854775807,
+                1,
+                1000,
+                1000000,
+                1000000000,
+                60000000000,
                 3600000000000
             ],
             "x-enum-varnames": [
+                "minDuration",
+                "maxDuration",
+                "Nanosecond",
+                "Microsecond",
+                "Millisecond",
+                "Second",
+                "Minute",
+                "Hour",
                 "minDuration",
                 "maxDuration",
                 "Nanosecond",
