@@ -23,7 +23,7 @@ var routes = gin_mw.Routes[*api.Api]{
 // @description Provides access to secret management functions.
 // @license.name Apache-2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-// @BasePath /restricted
+// @BasePath /
 func SetRoutes(e *gin.Engine, api *api.Api) error {
 	rg := e.Group("restricted")
 	routes = append(routes, shared.Routes...)
