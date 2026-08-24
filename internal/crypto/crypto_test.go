@@ -15,7 +15,7 @@ func TestEncrytpionAndDecryption(t *testing.T) {
 	key := make([]byte, 32)
 	encrypted, err := Encrypt([]byte(plainText), key)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err.Error())
 	}
 	decryptedBytes, err := Decrypt(encrypted, key)
 	decryptedText := string(decryptedBytes)

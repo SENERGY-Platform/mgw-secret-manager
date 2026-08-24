@@ -14,7 +14,7 @@ import (
 func ParseVariantRequest(gc *gin.Context) (api_model.SecretVariantRequest, error) {
 	body, err := io.ReadAll(gc.Request.Body)
 	if err != nil {
-		util.Logger.Errorf(err.Error())
+		util.Logger.Error(err.Error())
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return api_model.SecretVariantRequest{}, err
 	}
@@ -24,7 +24,7 @@ func ParseVariantRequest(gc *gin.Context) (api_model.SecretVariantRequest, error
 	var secretVariantRequest api_model.SecretVariantRequest
 	err = json.Unmarshal(body, &secretVariantRequest)
 	if err != nil {
-		util.Logger.Errorf(err.Error())
+		util.Logger.Error(err.Error())
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return api_model.SecretVariantRequest{}, err
 	}
@@ -41,7 +41,7 @@ func ParseSecretCreateRequest(gc *gin.Context) (secretRequest api_model.SecretCr
 
 	err = json.Unmarshal(body, &secretRequest)
 	if err != nil {
-		util.Logger.Errorf(err.Error())
+		util.Logger.Error(err.Error())
 		gc.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}

@@ -15,7 +15,7 @@ func TestGetMasterKey(t *testing.T) {
 	keyHandler := NewKeyHandler("./key", &EncryptionKey)
 	generatedKey, err := keyHandler.CreateAndStoreMasterKey()
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err.Error())
 	}
 
 	key, err := keyHandler.GetMasterKey()

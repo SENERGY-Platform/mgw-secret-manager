@@ -54,12 +54,12 @@ func Decrypt(cipherText []byte, key []byte) (plain []byte, err error) {
 func Encrypt(plain []byte, key []byte) (cipherBytes []byte, err error) {
 	block, err := NewCipher(key)
 	if err != nil {
-		util.Logger.Errorf((err.Error()))
+		util.Logger.Error(err.Error())
 		return
 	}
 	gcm, err := CreatGCM(block)
 	if err != nil {
-		util.Logger.Errorf((err.Error()))
+		util.Logger.Error(err.Error())
 		return
 	}
 

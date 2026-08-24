@@ -27,9 +27,12 @@ var routes = gin_mw.Routes[*api.Api]{
 func SetRoutes(e *gin.Engine, api *api.Api) error {
 	rg := e.Group("restricted")
 	routes = append(routes, shared.Routes...)
-	err := routes.Set(api, rg, util.Logger)
+	endpoints, err := routes.Set(api, rg)
 	if err != nil {
 		return err
+	}
+	for _, endpoint := range endpoints {
+		util.Logger.Debug("set route: " + endpoint[0] + " " + endpoint[1])
 	}
 	rg.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.NewHandler(), ginSwagger.InstanceName("restricted")))
 	return nil

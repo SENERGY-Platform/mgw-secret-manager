@@ -26,13 +26,13 @@ func TestEncryptDecryptSecret(t *testing.T) {
 	}
 	encryptedSecret, err := secretHandler.EncryptSecret(secret)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err.Error())
 	}
 	assert.Equal(t, encryptedSecret.Name, secret.Name)
 
 	decryptedSecret, err := secretHandler.DecryptSecret(encryptedSecret)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err.Error())
 	}
 
 	assert.Equal(t, decryptedSecret.Name, secret.Name)

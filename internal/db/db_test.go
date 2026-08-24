@@ -17,7 +17,7 @@ func TestSetSecret(t *testing.T) {
 	testHandler, err := NewDBHandler(testConfig)
 	defer testHandler.Cleanup()
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err.Error())
 	}
 	secret := &models.EncryptedSecret{
 		Name:  "test",
@@ -34,7 +34,7 @@ func TestGetSecret(t *testing.T) {
 	ctx := context.Background()
 	defer testHandler.Cleanup()
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err.Error())
 	}
 	secret := &models.EncryptedSecret{
 		Name:  "name",
